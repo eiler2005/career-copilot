@@ -96,6 +96,7 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
                 {
                     "requirement_id": req["id"],
                     "text": req["text"],
+                    "source": req.get("source"),
                     "mandatory": req.get("mandatory", False),
                     "evidence": evidence,
                     "suggested_facts": suggestions,
@@ -103,10 +104,20 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
                     "gap_type": kind,
                 }
             )
-        mismatch = any(
-            vacancy.get(k) == "fail"
-            for k in ("language_gate", "eligibility_gate", "role_family_gate")
+        declared_tracks = vacancy.get("target_tracks") or (
+            [vacancy["target_track"]] if vacancy.get("target_track") else []
         )
+        if not declared_tracks and vacancy.get("role_family") in TRACKS:
+            declared_tracks = [vacancy["role_family"]]
+        track_verdict = (
+            "pass" if track in declared_tracks else "fail" if declared_tracks else "flag"
+        )
+        gates = [
+            vacancy.get("language_gate"),
+            vacancy.get("eligibility_gate"),
+            vacancy.get("role_family_gates", {}).get(track, vacancy.get("role_family_gate")),
+        ]
+        mismatch = "fail" in gates or track_verdict == "fail"
         decision = (
             "not_suitable" if gate["verdict"] == "fail" or mismatch else "needs_clarification"
         )
@@ -120,22 +131,21 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
         ):
             decision = (
                 "priority"
-                if all(
-                    vacancy.get(k) == "pass"
-                    for k in ("language_gate", "eligibility_gate", "role_family_gate")
-                )
+                if all(g == "pass" for g in gates) and track_verdict == "pass"
                 else "needs_clarification"
             )
         result = {
             "vacancy_id": vacancy["id"],
             "track": track,
+            "track_verdict": track_verdict,
             "seniority": gate,
             "decision": decision,
             "requirements": matrix,
             "method": "evidence-rules-v1",
             "model": None,
             "input_sha256": digest([vacancy, company, facts, store.settings["policy"]]),
-            "unknowns": [] if requirements else ["Requirements need source-linked annotation"],
+            "unknowns": ([] if requirements else ["Requirements need source-linked annotation"])
+            + (["Target career track needs annotation"] if track_verdict == "flag" else []),
         }
         key = "assessment-" + digest(result)[:24]
         if not store.get("assessments", key):
@@ -164,7 +174,11 @@ def learning_plan(store: Store, vacancy_id: str | None, track: str):
                         "status": "todo",
                         "done_requires": "Reviewed artifact or demonstrated answer; never a CV claim automatically",
                         "resources": [],
-                        "next_action": "Verify primary learning resources and define an exercise",
+                        "next_action": (
+                            "Confirm eligibility or dated experience evidence; a course cannot close this gap"
+                            if req["gap_type"] == "structural"
+                            else "Verify primary learning resources and define an exercise"
+                        ),
                     },
                 )
                 gaps[key]["vacancy_ids"].append(assessment["vacancy_id"])

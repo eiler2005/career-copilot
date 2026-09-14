@@ -41,11 +41,23 @@ def render(store: Store) -> Path:
         assessments[(a["vacancy_id"], a["track"])] = a
     table(
         "Vacancies",
-        ["ID / title", "Company / location", "Hiring status", "Track / decision", "Original"],
+        [
+            "ID / title",
+            "Company / location",
+            "Employer level / role",
+            "Hiring status",
+            "Track / decision",
+            "Next step / original",
+        ],
         [
             [
                 esc(v["id"] + " — " + v["title"]),
                 esc(v["company_id"] + " / " + v.get("location", "unknown")),
+                esc(encode(v.get("level", {})))
+                + "<br>Family: "
+                + esc(v.get("role_family"))
+                + "<br>Management / IC: "
+                + esc(v.get("role_type")),
                 esc(v.get("availability", "unknown"))
                 + "<br>Checked: "
                 + esc(v.get("status_checked_on")),
@@ -55,7 +67,9 @@ def render(store: Store) -> Path:
                     if vid == v["id"]
                 )
                 or esc(v.get("decision", "Not assessed")),
-                "<br>".join(
+                esc(v.get("next_action", "Review source, track and evidence"))
+                + "<br>"
+                + "<br>".join(
                     f'<a href="{esc(url)}" rel="noreferrer">Source</a>'
                     for url in v.get("urls", [])
                     if url.startswith(("https://", "http://"))

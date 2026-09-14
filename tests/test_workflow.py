@@ -92,6 +92,7 @@ def test_years_and_targets_not_certified_by_keyword(store):
     store.put("vacancies", vacancy)
     plan = workflow.learning_plan(store, vacancy["id"], "product")
     assert plan["gaps"][0]["gap_type"] == "structural"
+    assert "course cannot" in plan["gaps"][0]["next_action"]
     assert len(plan["weeks"]) == 6
     assert plan["hours_per_week"] == 6
 
@@ -103,6 +104,29 @@ def test_baseline_not_falsely_extracted_from_job(store):
     plan = workflow.learning_plan(store, vacancy["id"], "technical-leadership")
     assert plan["baseline_only"] is True
     assert "system design" in plan["weeks"][0]["focus"]
+
+
+def test_declared_product_job_does_not_fill_technical_learning_plan(store):
+    result = workflow.evaluate(store, "demo-platform-lead", "technical-leadership")[0]
+    assert result["track_verdict"] == "fail"
+    assert result["decision"] == "not_suitable"
+    plan = workflow.learning_plan(store, None, "technical-leadership")
+    assert plan["baseline_only"] is True
+    assert not plan["gaps"]
+
+
+def test_unknown_and_dual_tracks_are_not_rejected(store):
+    vacancy = store.get("vacancies", "demo-platform-lead")
+    vacancy.pop("target_track")
+    vacancy.pop("role_family")
+    store.put("vacancies", vacancy)
+    result = workflow.evaluate(store, vacancy["id"], "technical-leadership")[0]
+    assert result["track_verdict"] == "flag"
+    assert result["decision"] == "needs_clarification"
+    vacancy["target_tracks"] = ["product", "technical-leadership"]
+    store.put("vacancies", vacancy)
+    for track in vacancy["target_tracks"]:
+        assert workflow.evaluate(store, vacancy["id"], track)[0]["track_verdict"] == "pass"
 
 
 @pytest.mark.parametrize(

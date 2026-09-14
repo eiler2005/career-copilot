@@ -126,6 +126,8 @@ def seed_demo(store: Store) -> dict:
             "title": "Platform Product Lead",
             "location": "Example City",
             "market": "intl",
+            "target_track": "product",
+            "role_family": "product",
             "urls": ["https://example.invalid/jobs/platform-lead"],
             "availability": "unknown",
             "requirements": [
