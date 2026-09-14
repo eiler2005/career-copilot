@@ -1,0 +1,19 @@
+digraph workflow {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>От вакансии к подготовленному кандидату</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Пример полной цепочки; отдельные роли можно запускать независимо</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  start [label="01 · Открыть этап в журнале\nЦель, входы, фактический исполнитель", fillcolor="#E7F3EF", width=5.3];
+  research [label="02 · Вакансия + компания\nИсточники, дата, полнота, неизвестные", fillcolor="#F2F7F8", width=5.3];
+  evaluate [label="03 · Оценить соответствие\nТребования ↔ подтверждённые факты", fillcolor="#F2F7F8", width=5.3];
+  cv [label="04 · Адаптировать и отредактировать CV\nКаркас, доказательства, матрица покрытия", fillcolor="#E8EEF8", width=5.3];
+  letter [label="05 · Написать и отредактировать письмо\nСвязь с вакансией и точной версией CV", fillcolor="#E8EEF8", width=5.3];
+  review [label="06 · Содержательное + визуальное ревью\nНезависимая сессия, все страницы и хеши", fillcolor="#FFF3DD", width=5.3];
+  interview [label="07 · Подготовиться к интервью\nПробелы, вопросы, практика, STAR", fillcolor="#F2F7F8", width=5.3];
+  finish [label="08 · Завершить этап и обновить обзор\nАртефакты, статистика, следующий шаг", fillcolor="#E7F3EF", width=5.3];
+  note [shape=plain, fontsize=12, fontcolor="#526A72", label="Каждый этап оставляет запись в общем журнале.\nПравка создаёт новую версию и требует нового ревью.\nГотовность документов не означает отправку отклика."];
+  start -> research -> evaluate -> cv -> letter -> review -> interview -> finish;
+  finish -> note [style=invis];
+}

@@ -1,0 +1,21 @@
+digraph states {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Независимые состояния. Проверяемые числа.</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Это отдельные измерения, а не одна воронка статусов</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  dimensions [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Актуальность вакансии</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Открыта / закрыта / неизвестно</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Свидетельство</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Официальный источник + дата.<BR ALIGN="LEFT"/>Ошибка сбора не означает закрытие.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Соответствие кандидату</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Оценка требований и ограничений</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Доказательства</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Факты, уровень, допуски, трек.<BR ALIGN="LEFT"/>Неизвестное требует уточнения.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF" ALIGN="LEFT"><B>Готовность документов</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">pending / passed</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Точная версия</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Авторство, содержательное и визуальное ревью.<BR ALIGN="LEFT"/>Новые хеши требуют новой проверки.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#FFF3DD" ALIGN="LEFT"><B>Факт отправки</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Версия, канал, время, подтверждение</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Внешнее действие</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Отдельное разрешение и свидетельство.<BR ALIGN="LEFT"/>Готовый пакет сам ничего не отправляет.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F1EEF8" ALIGN="LEFT"><B>Подготовка к интервью</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">План, практика, обратная связь</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Демонстрация результата</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Прочитанный материал не доказывает навык.<BR ALIGN="LEFT"/>Учебный проект не становится стажем.</FONT></TD></TR>
+    </TABLE>>];
+  activity [label="Жизненный цикл работы\nНачато → завершено / заблокировано / ошибка\nФактические модель и сессия, входы, выходы, следующий шаг", fillcolor="#E7F3EF", fontsize=14];
+  stats [label="Статистика из SQLite\nСчитать сущности и подтверждённые события без дублей.\nНеизвестные токены, стоимость и время остаются неизвестными.", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45", fontsize=14];
+  note [shape=plain, label="verify проверяет целостность, а не готовность к отправке.", fontsize=12, fontcolor="#526A72"];
+  dimensions -> activity [style=invis];
+  activity -> stats; stats -> note [style=invis];
+}

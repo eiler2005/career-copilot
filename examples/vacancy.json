@@ -8,6 +8,7 @@
   "availability": "unknown",
   "level": {"raw": null, "source": null},
   "role_family": "product",
+  "target_track": "product",
   "requirements": [
     {
       "id": "metrics",

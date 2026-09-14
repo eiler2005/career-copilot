@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="703px" height="671px" viewBox="0.00 0.00 703.22 670.62" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 650.46)">
+    <title>sources</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-650.46 683.06,-650.46 683.06,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="152.95" y="-605.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Sources, provenance and replay</text>
+    <text text-anchor="start" x="193.82" y="-591.95" font-family="Arial" font-size="13.00" fill="#526a72">Read-only network access; source text is data</text>
+    <g id="node1" class="node">
+      <title>providers</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M567.52,-586.3C567.52,-586.3 357.77,-586.3 357.77,-586.3 351.77,-586.3 345.77,-580.3 345.77,-574.3 345.77,-574.3 345.77,-492.3 345.77,-492.3 345.77,-486.3 351.77,-480.3 357.77,-480.3 357.77,-480.3 567.52,-480.3 567.52,-480.3 573.52,-480.3 579.52,-486.3 579.52,-492.3 579.52,-492.3 579.52,-574.3 579.52,-574.3 579.52,-580.3 573.52,-586.3 567.52,-586.3" />
+      <polygon fill="#e8eef8" stroke="none" points="345.77,-533.3 345.77,-586.3 579.52,-586.3 579.52,-533.3 345.77,-533.3" />
+      <polygon fill="none" stroke="#d1dee2" points="345.77,-533.3 345.77,-586.3 579.52,-586.3 579.52,-533.3 345.77,-533.3" />
+      <text text-anchor="start" x="358.77" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Public APIs / ATS</text>
+      <text text-anchor="start" x="358.77" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
+      <polygon fill="#e8eef8" stroke="none" points="345.77,-480.3 345.77,-533.3 579.52,-533.3 579.52,-480.3 345.77,-480.3" />
+      <polygon fill="none" stroke="#d1dee2" points="345.77,-480.3 345.77,-533.3 579.52,-533.3 579.52,-480.3 345.77,-480.3" />
+      <text text-anchor="start" x="358.77" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Official careers page</text>
+      <text text-anchor="start" x="358.77" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">Static HTML with JSON-LD JobPosting</text>
+    </g>
+    <g id="node2" class="node">
+      <title>access</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M575.3,-453.3C575.3,-453.3 350,-453.3 350,-453.3 344,-453.3 338,-447.3 338,-441.3 338,-441.3 338,-409.14 338,-409.14 338,-403.14 344,-397.14 350,-397.14 350,-397.14 575.3,-397.14 575.3,-397.14 581.3,-397.14 587.3,-403.14 587.3,-409.14 587.3,-409.14 587.3,-441.3 587.3,-441.3 587.3,-447.3 581.3,-453.3 575.3,-453.3" />
+      <text text-anchor="middle" x="462.65" y="-428.97" font-family="Arial" font-size="15.00" fill="#183d48">Allowed access route</text>
+      <text text-anchor="middle" x="462.65" y="-410.97" font-family="Arial" font-size="15.00" fill="#183d48">Hosts, request budget, page limit</text>
+    </g>
+    <g id="edge1" class="edge">
+      <title>providers-&gt;access</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-480.5C462.65,-474.43 462.65,-468.33 462.65,-462.53" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-462.6 462.65,-455.6 460.2,-462.6 465.1,-462.6" />
+    </g>
+    <g id="node3" class="node">
+      <title>snapshot</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M596.3,-370.14C596.3,-370.14 329,-370.14 329,-370.14 323,-370.14 317,-364.14 317,-358.14 317,-358.14 317,-325.98 317,-325.98 317,-319.98 323,-313.98 329,-313.98 329,-313.98 596.3,-313.98 596.3,-313.98 602.3,-313.98 608.3,-319.98 608.3,-325.98 608.3,-325.98 608.3,-358.14 608.3,-358.14 608.3,-364.14 602.3,-370.14 596.3,-370.14" />
+      <text text-anchor="middle" x="462.65" y="-345.81" font-family="Arial" font-size="15.00" fill="#183d48">Preserve the source snapshot</text>
+      <text text-anchor="middle" x="462.65" y="-327.81" font-family="Arial" font-size="15.00" fill="#183d48">Source, URL, time, coverage, SHA-256</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>access-&gt;snapshot</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-396.74C462.65,-391.06 462.65,-384.99 462.65,-379.05" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-379.4 462.65,-372.4 460.2,-379.4 465.1,-379.4" />
+    </g>
+    <g id="node4" class="node">
+      <title>normalize</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M604.17,-286.98C604.17,-286.98 321.12,-286.98 321.12,-286.98 315.12,-286.98 309.12,-280.98 309.12,-274.98 309.12,-274.98 309.12,-242.82 309.12,-242.82 309.12,-236.82 315.12,-230.82 321.12,-230.82 321.12,-230.82 604.17,-230.82 604.17,-230.82 610.17,-230.82 616.17,-236.82 616.17,-242.82 616.17,-242.82 616.17,-274.98 616.17,-274.98 616.17,-280.98 610.17,-286.98 604.17,-286.98" />
+      <text text-anchor="middle" x="462.65" y="-262.65" font-family="Arial" font-size="15.00" fill="#183d48">Parse and normalize</text>
+      <text text-anchor="middle" x="462.65" y="-244.65" font-family="Arial" font-size="15.00" fill="#183d48">Provider ID + company, URLs and aliases</text>
+    </g>
+    <g id="edge3" class="edge">
+      <title>snapshot-&gt;normalize</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-313.58C462.65,-307.9 462.65,-301.83 462.65,-295.89" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-296.24 462.65,-289.24 460.2,-296.24 465.1,-296.24" />
+    </g>
+    <g id="node5" class="node">
+      <title>store</title>
+      <path fill="#173b45" stroke="#173b45" stroke-width="1.1" d="M595.17,-203.82C595.17,-203.82 330.12,-203.82 330.12,-203.82 324.12,-203.82 318.12,-197.82 318.12,-191.82 318.12,-191.82 318.12,-159.66 318.12,-159.66 318.12,-153.66 324.12,-147.66 330.12,-147.66 330.12,-147.66 595.17,-147.66 595.17,-147.66 601.17,-147.66 607.17,-153.66 607.17,-159.66 607.17,-159.66 607.17,-191.82 607.17,-191.82 607.17,-197.82 601.17,-203.82 595.17,-203.82" />
+      <text text-anchor="middle" x="462.65" y="-179.49" font-family="Arial" font-size="15.00" fill="#ffffff">SQLite</text>
+      <text text-anchor="middle" x="462.65" y="-161.49" font-family="Arial" font-size="15.00" fill="#ffffff">Vacancies, observations, source health</text>
+    </g>
+    <g id="edge4" class="edge">
+      <title>normalize-&gt;store</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-230.42C462.65,-224.74 462.65,-218.67 462.65,-212.73" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-213.08 462.65,-206.08 460.2,-213.08 465.1,-213.08" />
+    </g>
+    <g id="node8" class="node">
+      <title>health</title>
+      <path fill="#fff3dd" stroke="#c2d3d8" stroke-width="1.1" d="M611.67,-120.66C611.67,-120.66 313.62,-120.66 313.62,-120.66 307.62,-120.66 301.62,-114.66 301.62,-108.66 301.62,-108.66 301.62,-67.5 301.62,-67.5 301.62,-61.5 307.62,-55.5 313.62,-55.5 313.62,-55.5 611.67,-55.5 611.67,-55.5 617.67,-55.5 623.67,-61.5 623.67,-67.5 623.67,-67.5 623.67,-108.66 623.67,-108.66 623.67,-114.66 617.67,-120.66 611.67,-120.66" />
+      <text text-anchor="middle" x="462.65" y="-98.23" font-family="Arial" font-size="13.00" fill="#183d48">Keep outcomes distinct</text>
+      <text text-anchor="middle" x="462.65" y="-83.23" font-family="Arial" font-size="13.00" fill="#183d48">Empty · partial · error · blocked</text>
+      <text text-anchor="middle" x="462.65" y="-68.23" font-family="Arial" font-size="13.00" fill="#183d48">Cooldown persists; errors do not close vacancies</text>
+    </g>
+    <g id="edge7" class="edge">
+      <title>store-&gt;health</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-147.17C462.65,-138.85 462.65,-129.65 462.65,-121.08" />
+    </g>
+    <g id="node6" class="node">
+      <title>manual</title>
+      <path fill="#fff3dd" stroke="#c2d3d8" stroke-width="1.1" d="M261.3,-453.3C261.3,-453.3 12,-453.3 12,-453.3 6,-453.3 0,-447.3 0,-441.3 0,-441.3 0,-409.14 0,-409.14 0,-403.14 6,-397.14 12,-397.14 12,-397.14 261.3,-397.14 261.3,-397.14 267.3,-397.14 273.3,-403.14 273.3,-409.14 273.3,-409.14 273.3,-441.3 273.3,-441.3 273.3,-447.3 267.3,-453.3 261.3,-453.3" />
+      <text text-anchor="middle" x="136.65" y="-428.97" font-family="Arial" font-size="15.00" fill="#183d48">Agent / user outside the CLI</text>
+      <text text-anchor="middle" x="136.65" y="-410.97" font-family="Arial" font-size="15.00" fill="#183d48">Browser, search lead, manual import</text>
+    </g>
+    <g id="node7" class="node">
+      <title>replay</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M234.3,-370.14C234.3,-370.14 39,-370.14 39,-370.14 33,-370.14 27,-364.14 27,-358.14 27,-358.14 27,-325.98 27,-325.98 27,-319.98 33,-313.98 39,-313.98 39,-313.98 234.3,-313.98 234.3,-313.98 240.3,-313.98 246.3,-319.98 246.3,-325.98 246.3,-325.98 246.3,-358.14 246.3,-358.14 246.3,-364.14 240.3,-370.14 234.3,-370.14" />
+      <text text-anchor="middle" x="136.65" y="-345.81" font-family="Arial" font-size="15.00" fill="#183d48">Offline replay</text>
+      <text text-anchor="middle" x="136.65" y="-327.81" font-family="Arial" font-size="15.00" fill="#183d48">Supported JSON / JSON-LD</text>
+    </g>
+    <g id="edge5" class="edge">
+      <title>manual-&gt;replay</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" stroke-dasharray="5,2" d="M136.65,-396.74C136.65,-391.06 136.65,-384.99 136.65,-379.05" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="139.1,-379.4 136.65,-372.4 134.2,-379.4 139.1,-379.4" />
+    </g>
+    <g id="edge6" class="edge">
+      <title>replay-&gt;snapshot</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" stroke-dasharray="5,2" d="M246.56,-342.06C266.3,-342.06 287.19,-342.06 307.91,-342.06" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="307.89,-344.51 314.89,-342.06 307.89,-339.61 307.89,-344.51" />
+      <text text-anchor="middle" x="281.65" y="-348.11" font-family="Arial" font-size="11.00" fill="#526a72">no network</text>
+    </g>
+    <g id="node9" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M653.4,-28.5C653.4,-28.5 271.9,-28.5 271.9,-28.5 267.15,-28.5 262.4,-23.75 262.4,-19 262.4,-19 262.4,-9.5 262.4,-9.5 262.4,-4.75 267.15,0 271.9,0 271.9,0 653.4,0 653.4,0 658.15,0 662.9,-4.75 662.9,-9.5 662.9,-9.5 662.9,-19 662.9,-19 662.9,-23.75 658.15,-28.5 653.4,-28.5" />
+      <text text-anchor="middle" x="462.65" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">HH listing content can be abbreviated. A screenshot is not an API response.</text>
+      <text text-anchor="middle" x="462.65" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Replay does not confirm that a vacancy is still open today.</text>
+    </g>
+  </g>
+</svg>

@@ -6,6 +6,7 @@ import io
 import re
 import subprocess
 import tarfile
+import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
@@ -15,6 +16,9 @@ from .core import read_json
 
 SAFE_ROOT_FILES = {
     "README.md",
+    "README.ru.md",
+    "CONTRIBUTING.md",
+    "CONTRIBUTING.ru.md",
     "AGENTS.md",
     "CLAUDE.md",
     "LICENSE",
@@ -28,6 +32,16 @@ SAFE_ROOT_FILES = {
     "SECURITY.md",
 }
 SAFE_ROOT_DIRS = {"src", "tests", "docs", "examples", "scripts", ".github", ".githooks"}
+SKILL_NAMES = {
+    "career-copilot",
+    "career-job-search",
+    "career-company-research",
+    "career-cv-tailor",
+    "career-natural-writing",
+    "career-cover-letter",
+    "career-interview-prep",
+    "career-journal-stats",
+}
 EXCLUDED = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", "dist", "build"}
 PROTECTED = {"private", "data", "output", "backups", "snapshots", "packages", "revisions"}
 TEXT_SUFFIXES = {
@@ -61,6 +75,75 @@ RULES = {
     "private-user-path": re.compile(r"/(?:Users|home)/[A-Za-z][^/\s]+/"),
     "contact-phone": re.compile(r"(?i)(?:phone|телефон|whatsapp)[\s:=]+\+?\d[\d ()-]{8,}\d"),
 }
+SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+SVG_ELEMENTS = {
+    "svg",
+    "g",
+    "title",
+    "desc",
+    "defs",
+    "linearGradient",
+    "radialGradient",
+    "stop",
+    "rect",
+    "path",
+    "polygon",
+    "polyline",
+    "circle",
+    "ellipse",
+    "text",
+    "tspan",
+    "line",
+    "clipPath",
+    "marker",
+    "use",
+}
+
+
+def static_svg(data: bytes) -> str:
+    """Inspect decoded XML as well as source, without resolving external resources."""
+    source = data.decode("utf-8")
+    if re.search(r"<!\s*(?:DOCTYPE|ENTITY)|<\?(?!xml\s)", source, re.IGNORECASE):
+        raise ValueError("SVG document declarations or processing instructions are forbidden")
+    root = ET.fromstring(source)
+    if root.tag != f"{{{SVG_NAMESPACE}}}svg":
+        raise ValueError("Expected an SVG document")
+    decoded = []
+    for node in root.iter():
+        if not isinstance(node.tag, str) or not node.tag.startswith(f"{{{SVG_NAMESPACE}}}"):
+            raise ValueError("Foreign SVG content")
+        tag = node.tag.split("}", 1)[1]
+        if tag not in SVG_ELEMENTS:
+            raise ValueError("Unsupported SVG element")
+        decoded.extend(value for value in (node.text, node.tail) if value)
+        for key, value in node.attrib.items():
+            attribute = key.rsplit("}", 1)[-1].lower()
+            decoded.append(value)
+            # Presentation attributes also use CSS syntax. An escaped function name
+            # such as u\72l can hide external references from literal URL checks.
+            # Our static documentation primitives never require attribute escapes.
+            if "\\" in value:
+                raise ValueError("Escaped SVG attributes are unsupported")
+            if attribute.startswith("on") or attribute in {"src", "base", "style"}:
+                raise ValueError("Active SVG attribute")
+            if attribute == "href" and not re.fullmatch(r"#[A-Za-z_][\w.:-]*", value):
+                raise ValueError("External SVG reference")
+            if re.search(
+                r"javascript\s*:|data\s*:|@import|expression\s*\(|-moz-binding|behavior\s*:",
+                value,
+                re.IGNORECASE,
+            ):
+                raise ValueError("Active SVG value")
+            without_local_urls = re.sub(r"url\(\s*#[A-Za-z_][\w.:-]*\s*\)", "", value)
+            if re.search(r"url\s*\(|https?\s*:|file\s*:", without_local_urls, re.IGNORECASE):
+                raise ValueError("External SVG resource")
+    return source + "\n" + "\n".join(decoded)
+
+
+def graphic_path(name: str, depth: int = 0) -> bool:
+    parts = Path(name).parts
+    # A source distribution may add exactly one top-level package directory.
+    return parts[:2] == ("docs", "assets") or (depth > 0 and parts[1:3] == ("docs", "assets"))
 
 
 def git(root: Path, *args: str) -> bytes:
@@ -72,9 +155,13 @@ def git(root: Path, *args: str) -> bytes:
 
 def allowed_path(name: str) -> bool:
     path = Path(name)
-    if path.is_absolute() or ".." in path.parts or set(path.parts) & PROTECTED:
+    if not path.parts or path.is_absolute() or ".." in path.parts or set(path.parts) & PROTECTED:
         return False
     if any(part == ".env" or part.startswith(".env.") for part in path.parts):
+        return False
+    if path.parts[0] in {".agents", ".claude"}:
+        return len(path.parts) >= 4 and path.parts[1] == "skills" and path.parts[2] in SKILL_NAMES
+    if path.suffix.lower() in {".svg", ".dot"} and not graphic_path(name):
         return False
     return path.parts[0] in SAFE_ROOT_DIRS or name in SAFE_ROOT_FILES
 
@@ -83,6 +170,10 @@ def text_content(name: str, data: bytes, depth: int = 0) -> str:
     if len(data) > 10_000_000 or depth > 2:
         raise ValueError("Uninspectable size or archive nesting")
     suffix = Path(name).suffix.lower()
+    if suffix in {".svg", ".dot"}:
+        if not graphic_path(name, depth) or b"\0" in data:
+            raise ValueError("Graphics are restricted to inspectable documentation assets")
+        return static_svg(data) if suffix == ".svg" else data.decode("utf-8")
     if name.endswith((".tar.gz", ".tgz")):
         parts = []
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:

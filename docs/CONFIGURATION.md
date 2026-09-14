@@ -1,0 +1,101 @@
+# Configuration reference
+
+[English](CONFIGURATION.md) · [Русский](ru/CONFIGURATION.md) · [Documentation](../README.md#documentation)
+
+Configuration is private JSON in the initialized workspace. The CLI has no implicit candidate data directory. Keep credentials in environment variables and personal priorities outside the public checkout.
+
+## Workspace selection and environment
+
+| Setting | Meaning |
+| --- | --- |
+| Global `--home ABSOLUTE_PATH` | Explicit private workspace; place before the subcommand |
+| `AI_JOB_HUNTER_HOME` | Default workspace when `--home` is omitted |
+| `AJH_PRIVACY_DICTIONARY` | Private dictionary path for publication checks |
+| Git `ajh.privateDictionary` | Local dictionary fallback |
+| Source `proxy_env` | Name of a source-specific environment variable holding its proxy URL |
+
+`--home` overrides the environment value. `privacy` and `restore` do not require an active workspace. Supported platforms are macOS and Linux; locking uses `fcntl`. A Codex/Claude session supplies model capabilities separately from Python installation.
+
+## settings.json
+
+The initial effective settings are:
+
+```json
+{
+  "sources": [],
+  "policy": {
+    "bigtech_company_ids": [],
+    "company_levels": {},
+    "russia_director_only": false,
+    "market_effort": {}
+  },
+  "max_requests_per_run": 20,
+  "weeks": 6,
+  "hours_per_week": 6,
+  "model_routing": {
+    "openai": "gpt-6-astra",
+    "claude": "claude-opus-5"
+  }
+}
+```
+
+| Field | Default and interpretation |
+| --- | --- |
+| `sources` | Empty: no network sources are enabled by initialization |
+| `max_requests_per_run` | 20 total discovery requests |
+| `weeks` / `hours_per_week` | 6 / 6 for the baseline learning plan |
+| `pdf_font` | Optional installed Unicode TTF; otherwise common DejaVu/Arial locations are checked |
+| `policy.bigtech_company_ids` | Empty private company-ID list; selects employer-specific level rules |
+| `policy.company_levels` | Empty map; each company uses `accepted`, `below`, `source` |
+| `policy.russia_director_only` | False; when true, non-selected Russian employers use the director-title filter |
+| `policy.market_effort` | Empty planning metadata; does not impose a result quota |
+| `model_routing` | Documents environment flagships; it does not start models or grant API access |
+
+Company-specific level mapping example, using fictional labels:
+
+```json
+{
+  "example-systems": {
+    "accepted": ["Example-Senior-Leadership"],
+    "below": ["Example-Associate"],
+    "source": "https://example.invalid/fictional-level-policy"
+  }
+}
+```
+
+A real mapping requires a checked source, the vacancy's `level.raw` and `level.source`, and a substantive scope/role-family assessment. Unknown labels stay unresolved. Title filters are mechanical heuristics, not proof of responsibilities.
+
+## Source fields
+
+The disabled [example configuration](../examples/source-config.json) can be adapted privately. Merge the `sources` value into the existing settings; do not discard unrelated settings.
+
+| Field | Required/default | Effect |
+| --- | --- | --- |
+| `id`, `provider`, `company_id` | Required | Stable source/company identity and parser |
+| `board` | Greenhouse, Lever, Ashby | Public board token |
+| `employer_id` | HH | Employer filter |
+| `url` | Corporate/manual route | Source endpoint/page |
+| `enabled` | True when omitted | Participates in discovery |
+| `company_name`, `market` | Optional; market defaults `unknown` | Initial company label and vacancy market |
+| `include_title` | Optional regex | Case-insensitive title filter after snapshot preservation |
+| `max_pages` | 3; clamped 1–20 | Bounded Lever/HH pagination |
+| `request_gap_seconds` | 4; clamped 4–30 | Host/request spacing |
+| `interval_seconds` | 3600; minimum 4 | Persisted next permitted attempt |
+| `allowed_hosts` | Optional list | Explicit host allowance; endpoint host is included |
+| `user_agent` | Read-only client identity | HTTP User-Agent |
+| `proxy_allowed` | False | Explicit source permission for proxy use |
+| `proxy_env` | Optional | Proxy environment-variable name; requires permission |
+
+The client disables redirects and ambient proxy inheritance, uses a 25-second timeout and a 5 MB post-download response check. See [sources](SOURCES.md) for retry and access policy. Source rules are not a full network sandbox.
+
+## Facts and policy changes
+
+Use `facts import PATH` to version evidence; do not treat `facts.json` as a CV template. Imported facts need unique IDs, sources and verification states `verified`, `self_reported` or `conflicting`. Profiles must contain exactly `product` and `technical-leadership`.
+
+A local source is a real file resolved relative to the imported JSON. A descriptive string such as “candidate interview” is not a file reference. HTTP(S) references are retained as URLs; import does not itself verify their claims. See [data model](DATA_MODEL.md).
+
+After changing facts, company information, vacancy requirements or level policy, rerun evaluation. Existing packages retain their original context; build and review a new version when the content changes.
+
+## Features configured elsewhere
+
+The CLI does not install a scheduler, manage a calendar, enforce a monetary model budget, call an LLM API, encrypt backups or submit applications. Host model availability, consent for external services, off-device backup, retention and allowed manual source routes need explicit environment/operational setup. Adding an unsupported JSON key does not create those features.

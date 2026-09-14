@@ -1,0 +1,28 @@
+digraph architecture {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Восемь ролей. Одна рабочая память.</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Навыки выполняются в сессиях Codex / Claude</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  user [label="Пользователь\nЦель, факты, решения", fillcolor="#E7F3EF", color="#A2CBBB"];
+  coordinator [label="Координатор · career-copilot\nВыбор этапов и передача точных версий", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45"];
+  skills [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Поиск вакансий</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-job-search</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Исследование компании</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-company-research</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Адаптация CV</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-cv-tailor</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Естественный текст</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-natural-writing</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Сопроводительное письмо</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-cover-letter</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Подготовка к интервью</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-interview-prep</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF" COLSPAN="2" ALIGN="LEFT"><B>Журнал и статистика</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-journal-stats</FONT></TD></TR>
+    </TABLE>>];
+  cli [label="Детерминированный CLI · ajh\nСбор, версии, ревью, учёт, отчёт", fillcolor="#E8EEF8", color="#B5C6E0"];
+  private [shape=plain, label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="13" COLOR="#A4CABD" BGCOLOR="#F7FBF9">
+      <TR><TD COLSPAN="2"><FONT POINT-SIZE="12" COLOR="#356F60"><B>ПРИВАТНОЕ ПРОСТРАНСТВО</B><BR/>Явный --home вне дерева приложения</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF"><B>SQLite</B><BR/><FONT POINT-SIZE="12">Карточки, события, статистика</FONT></TD><TD BGCOLOR="#E7F3EF"><B>Факты и артефакты</B><BR/><FONT POINT-SIZE="12">Снимки, версии, SHA-256</FONT></TD></TR>
+    </TABLE>>];
+  report [label="Локальный обзор и следующий шаг\nРезультаты из журнала, без публикации", fillcolor="#FFFFFF"];
+  note [shape=plain, label="Роли доступны по отдельности. Код не вызывает модели,\nне отправляет отклики и не запускает фоновое расписание.", fontsize=12, fontcolor="#526A72"];
+  user -> coordinator -> skills -> cli;
+  cli -> private -> report;
+  report -> note [style=invis];
+}

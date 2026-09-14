@@ -1,0 +1,27 @@
+digraph sources {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Sources, provenance and replay</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Read-only network access; source text is data</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  providers [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Public APIs / ATS</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Greenhouse · Lever · Ashby · HH</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Official careers page</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Static HTML with JSON-LD JobPosting</FONT></TD></TR>
+    </TABLE>>];
+  access [label="Allowed access route\nHosts, request budget, page limit"];
+  snapshot [label="Preserve the source snapshot\nSource, URL, time, coverage, SHA-256", fillcolor="#E7F3EF"];
+  normalize [label="Parse and normalize\nProvider ID + company, URLs and aliases"];
+  store [label="SQLite\nVacancies, observations, source health", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45"];
+  manual [label="Agent / user outside the CLI\nBrowser, search lead, manual import", fillcolor="#FFF3DD"];
+  replay [label="Offline replay\nSupported JSON / JSON-LD", fillcolor="#E7F3EF"];
+  health [label="Keep outcomes distinct\nEmpty · partial · error · blocked\nCooldown persists; errors do not close vacancies", fillcolor="#FFF3DD", fontsize=13];
+  note [shape=plain, label="HH listing content can be abbreviated. A screenshot is not an API response.\nReplay does not confirm that a vacancy is still open today.", fontsize=12, fontcolor="#526A72"];
+  providers -> access -> snapshot -> normalize -> store;
+  manual -> replay [style=dashed];
+  replay -> snapshot [style=dashed, label="no network"];
+  { rank=same; access; manual; }
+  { rank=same; snapshot; replay; }
+  store -> health [arrowhead=none]; health -> note [style=invis];
+}

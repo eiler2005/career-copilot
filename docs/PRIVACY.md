@@ -1,111 +1,85 @@
-# Приватность и публикация
+# Privacy and publication
 
-## Публичный состав
+[English](PRIVACY.md) · [Русский](ru/PRIVACY.md) · [Documentation](../README.md#documentation)
 
-Разрешённый состав — исходный код, документация процесса, синтетические примеры и
-тесты, конфигурация сборки/CI и лицензия. Приватные материалы включают факты
-кандидата, контакты, книги и награды реального человека, клиентов, целевые компании,
-оценки, документы, исходные снимки, абсолютные приватные пути, журналы работы,
-словари персональных данных и секреты. Публичная известность факта не разрешает
-включать его в пример pipeline.
+Public code and private candidate work have different contents and histories. Keep real evidence, search targets, assessments and documents in an explicit external workspace. Public familiarity with a person's biography does not authorize using it as a pipeline example.
 
-Публичный Git создаётся с чистой историей. Нельзя переносить `.git` исходного
-приватного проекта, его коммиты или архив всего рабочего пространства. `.gitignore`
-предотвращает случайное добавление части файлов, но не проверяет уже отслеживаемые
-файлы, staging, удалённые из дерева данные старых коммитов и артефакты релиза.
+## Public contents and history
 
-## Локальные проверки
+Allowed public material is source code, process documentation, synthetic examples/tests, build/CI configuration and the license. Private material includes candidate facts, contact details, real publications and awards, clients, target companies, evaluations, CVs, source snapshots, private absolute paths, activity logs, personal-data dictionaries and secrets.
 
-Приватный словарь — отдельный файл за пределами проекта. Он содержит персональные
-строки и варианты написания, которые общий сканер секретов не знает. Формат —
-JSON-объект с массивом строк `terms`, например `{"terms": ["FICTIONAL_PRIVATE_MARKER"]}`.
-Обновляйте его при появлении
-новых идентификаторов. В журнале проверки указывайте тип нарушения и неприватный
-идентификатор; найденные значения, строки содержимого и секретные пути не выводите.
+Start the public repository with clean history. Do not transfer a private project's `.git`, commits or complete workspace archive. `.gitignore` helps avoid some accidental additions but does not inspect already tracked files, staged blobs, deleted historical material or release artifacts.
 
-Из корня публичного проекта:
+## Local checks and private dictionary
 
-```sh
-uv run ajh privacy check --scope worktree --dictionary /tmp/private-dictionary-EXAMPLE.json --gitleaks
-uv run ajh privacy check --scope index --dictionary /tmp/private-dictionary-EXAMPLE.json --gitleaks
-uv run ajh privacy check --scope history --dictionary /tmp/private-dictionary-EXAMPLE.json --gitleaks
+A private dictionary lives outside the project. It contains personal strings and spelling variants that a generic secret scanner cannot know. Its format is a JSON object with a `terms` string array, for example:
+
+```json
+{"terms": ["FICTIONAL_PRIVATE_MARKER"]}
 ```
 
-Путь выше — пример, а не встроенный словарь. Не создавайте реальный словарь в `/tmp`
-как постоянное хранилище. Для реальной публикации используйте приватный постоянный
-файл и настройте локальные hooks на него.
-Путь также можно передать через `AJH_PRIVACY_DICTIONARY` или локальный Git config
-`ajh.privateDictionary`; содержимое словаря не записывается в Git. `--root` явно
-задаёт проверяемый публичный проект. Для `privacy` приватный `--home` не требуется.
+Update it as new identifiers appear. Reports should name the violation type and a nonprivate identifier without printing matched values, source lines or secret paths.
 
-Включите поставляемые hooks для этого клона после настройки приватного словаря
-и установки Gitleaks:
+From the public checkout:
+
+```sh
+uv run ajh privacy check --scope worktree --dictionary /absolute/private/privacy-dictionary.json --gitleaks
+uv run ajh privacy check --scope index --dictionary /absolute/private/privacy-dictionary.json --gitleaks
+uv run ajh privacy check --scope history --dictionary /absolute/private/privacy-dictionary.json --gitleaks
+```
+
+The path is a portable example, not a bundled dictionary. A real dictionary needs persistent private storage. It can also be selected with `AJH_PRIVACY_DICTIONARY` or local Git config `ajh.privateDictionary`; its contents must never enter Git. `--root` selects the public checkout explicitly. Privacy commands do not require a candidate `--home`.
+
+After installing Gitleaks and configuring the dictionary, enable the supplied hooks for this clone:
 
 ```sh
 git config --local core.hooksPath .githooks
 chmod +x .githooks/pre-commit .githooks/pre-push
-git config --local ajh.privateDictionary /tmp/private-dictionary-EXAMPLE.json
+git config --local ajh.privateDictionary /absolute/private/privacy-dictionary.json
 ```
 
-Подставьте реальный приватный путь. Hook `pre-commit` проверяет staging вместе с
-Gitleaks; `pre-push` проверяет staging и всю историю. Не используйте обход hooks.
-После нового clone настройка `core.hooksPath` выполняется заново: локальный Git
-config не переносится коммитом. Проверьте `dictionary_loaded: true` в результате
-локального сканирования — отсутствие словаря нельзя считать полноценной проверкой
-персональных данных.
+`pre-commit` checks the exact staging area with Gitleaks; `pre-push` checks staging and history. Do not bypass these hooks. Local Git settings are not transferred by cloning, so configure them in each clone. Check `dictionary_loaded: true`; an absent dictionary is not a complete personal-data check.
 
-Проверяйте три разных объекта. `worktree` проверяет текущее дерево, `index` — точные
-подготовленные Git-объекты, `history` — историю, включая данные, которых больше нет
-в текущих файлах. Перед коммитом добавляйте только явно выбранные пути и проверяйте
-staging после последнего `git add`. Перед push проверяйте все исходящие коммиты;
-полная история — более строгая проверка, которая также нужна перед первой
-публикацией. После изменения staging или коммитов предыдущий результат неприменим.
+## Three different scopes
 
-Gitleaks дополняет сканер персональных данных и разрешённого состава. Локальные
-проверки должны включать его в режиме с сокрытием найденных значений. Для `index`
-CLI материализует точные staged blobs во временный каталог и передаёт его Gitleaks;
-текущее рабочее содержимое не заменяет staged-версию. Для `history` сканируются
-все refs через `--all`. Если
-он отсутствует или проверка не выполнена, нельзя объявлять публикационный gate
-пройденным. Для принятой версии инструмента используйте поддержанную им команду
-проверки Git-истории и файлов; не считайте проверку только diff полной проверкой
-истории. CI запускает те же классы проверок с синтетическими тестами, но не имеет
-права заменять локальный приватный словарь или публиковать его как artifact.
-Конфигурация CI находится в [checks.yml](../.github/workflows/checks.yml), hooks —
-в [pre-commit](../.githooks/pre-commit) и [pre-push](../.githooks/pre-push).
+| Scope | Actual object | When it matters |
+| --- | --- | --- |
+| `worktree` | Current files | Before choosing public changes |
+| `index` | Exact staged Git blobs | After the final explicit `git add`, before commit |
+| `history` | Git history, including deleted contents | Before first publication and outgoing history changes |
 
-## Документы, бинарные файлы и релизы
+Stage explicit paths only. A prior staged scan becomes stale after staging changes; a history scan becomes stale after commits change. Full history checking is stronger than scanning only the current diff and is required before initial publication.
 
-Текстовый поиск не доказывает чистоту PDF, DOCX, изображений и архивов. По умолчанию
-непроверяемый формат блокирует публичную поставку. Если бинарный файл необходим,
-сначала явно разрешите точный тип и назначение, извлеките текст и метаданные,
-проверьте все страницы/слои и зафиксируйте хеш проверенного файла. Для архивов
-нужны безопасная распаковка, проверка каждого элемента и контроль путей; если
-сканер этого не поддерживает, не включайте архив в разрешённый состав.
+Gitleaks complements the personal-data/content scanner. Use redacted output. For `index`, the CLI materializes staged blobs into a temporary directory and scans those exact bytes. For `history`, it checks all refs with `--all`. Missing Gitleaks or a skipped run cannot be described as a passed publication gate.
 
-Перед релизом соберите wheel/sdist в отдельном каталоге, проверьте список вложенных
-путей и извлечённое содержимое теми же сканерами, включая приватный словарь и
-Gitleaks. Сборка может включить файлы, отсутствующие в ожидаемом списке исходников.
-Встроенный просмотр содержимого wheel/ZIP и tar.gz выполняется командой
-`uv run ajh privacy check --artifact PATH --dictionary PRIVATE_DICTIONARY_PATH`.
-Он не распаковывает архив в рабочее дерево и блокирует небезопасные пути и форматы.
-Gitleaks для release запускается отдельно на безопасно распакованном содержимом;
-`--artifact` нельзя смешивать с `--gitleaks` и выдавать скан исходного дерева за скан архива.
-Повторите проверку после пересборки. Сохраните приватный отчёт: Git revision,
-версии инструментов, охват, время, хеши и результат без найденных значений.
-Успешный CI и отсутствие совпадений в одном сканере не равны доказательству всей
-границы приватности.
+CI runs the same classes of checks and synthetic tests, but it does not replace the local private dictionary and must not receive that dictionary as a public artifact. See [checks.yml](../.github/workflows/checks.yml), [pre-commit](../.githooks/pre-commit) and [pre-push](../.githooks/pre-push).
 
-## Обнаружение утечки и внешние действия
+## Documents, binaries and releases
 
-При совпадении остановите коммит, push или релиз. Удалите приватный материал из
-публичного набора с сохранением оригинала в приватном пространстве; повторите
-все затронутые проверки. Если значение уже есть в истории, очистка рабочего
-файла недостаточна: подготовьте отдельную чистую историю и проверьте её целиком.
-Изменять уже опубликованную историю и отзывать раскрытый секрет следует как
-отдельную согласованную операцию; не печатайте сам секрет в отчёте об инциденте.
+Text search cannot establish that PDF, DOCX, images or archives contain no private material. Unsupported formats block publication by default. For a necessary binary, explicitly allow its exact type and purpose, inspect extracted text and metadata, examine every page/layer and record the hash of the reviewed file.
 
-Поисковые адаптеры только читают. Отправка отклика, сообщения, загрузка CV
-работодателю или внешнему модельному сервису требуют соответствующего явного
-разрешения пользователя. Готовый пакет и разрешённый сетевой поиск сами по себе
-такого разрешения не создают.
+Archives require safe path validation, inspection of every member and safe extraction when another scanner needs files. If the scanner does not support a format, do not add it to the allowed release set by assumption.
+
+Build wheel/sdist into a separate directory and inspect both member paths and contents. Packaging can include unexpected files. The built-in wheel/ZIP and tar.gz inspection is:
+
+```sh
+uv run ajh privacy check --artifact /absolute/build/job_search_agent-0.1.0-py3-none-any.whl --dictionary /absolute/private/privacy-dictionary.json
+```
+
+It inspects archive contents without unpacking into the checkout and rejects unsafe paths/formats. Run Gitleaks separately on independently and safely extracted release contents. `--artifact` cannot be combined with `--gitleaks`; scanning the source tree is not scanning the release.
+
+Repeat after rebuilding. Retain a private report with Git revision, tool versions, scope, time, artifact hashes and outcomes, without matched values. A successful CI run or a single clean scan is not proof of the entire privacy boundary.
+
+## Incident response and external actions
+
+On a match, stop the affected commit, push or release. Remove private material from the public set while preserving its private original, then rerun all affected scopes. If a value is already in history, editing the current file is insufficient: prepare and inspect a separate clean history.
+
+Rewriting already published history and revoking an exposed secret are separately authorized operations. Do not repeat the secret in an incident report.
+
+Source adapters only read. Applications, recruiter messages, CV uploads and sending personal material to external model services require the applicable explicit user authorization. A ready package or authorization for network research does not supply permission for these actions.
+
+## Repository skills and inspectable diagrams
+
+The public allowlist includes only the eight approved skill IDs under `.agents/skills/` and `.claude/skills/`; unrelated hidden configuration is not admitted. Public skill adapters are ordinary files, not symlinks.
+
+SVG and DOT are allowed specifically under `docs/assets/`. SVG is parsed as XML and both raw and decoded text/attributes are inspected. Scripts, event handlers, foreign content, external resources, data URLs, unsafe declarations and unsupported elements block publication. Local fragment references used by static diagrams are allowed. This narrow static-graphics support does not authorize arbitrary binaries or private screenshots. Inspect regenerated diagrams visually and rerun privacy checks on their exact bytes.

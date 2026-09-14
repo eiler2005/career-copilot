@@ -1,73 +1,52 @@
-# Подготовка к интервью
+# Interview preparation that follows the evidence
 
-## Доказательство и тип пробела
+[English](PREPARATION.md) · [Русский](ru/PREPARATION.md) · [Documentation](../README.md#documentation)
 
-Для каждого требования сохраните источник, обязательность, связанные факты и
-решение проверяющего. Тег навыка помогает найти кандидаты на доказательство,
-но не подтверждает владение. Проверенное достижение должно соответствовать
-именно требованию, его масштабу и контексту.
+Start with the interview date, expected format, vacancy requirements and demonstrated experience. The output is a prioritized plan the candidate can actually execute, with exercises, questions, real STAR stories and criteria for reviewing practice.
 
-| Тип | Что означает | Подтверждение следующего шага |
+## Requirements and gaps
+
+For each requirement retain its source, mandatory/optional status, evidence fact IDs and reviewer decision. Tags locate possible evidence; they do not establish proficiency. Relevant evidence must match the requirement's context and scale.
+
+| Gap type | Meaning | What can demonstrate progress |
 | --- | --- | --- |
-| Знания (`knowledge`) | Не хватает понятий или понимания | Объяснение на новом примере с разбором ошибок |
-| Практика (`practice`) | Знание есть, применение не показано | Проверенное упражнение, проект или разбор задачи |
-| Оформление опыта (`experience_framing`) | Опыт есть, доказательство не раскрыто | Связанная с источниками история с точной ролью и результатом |
-| Интервью (`interview`) | Ответ неструктурирован или не укладывается во время | Запись тренировки, обратная связь и повторная попытка |
-| Структурное ограничение (`structural`) | Требуемый стаж, разрешение на работу, лицензия или другой объективный допуск | Уточнение работодателя или документальное подтверждение; курс не устраняет ограничение |
+| `knowledge` | Concepts or understanding are missing | Explain a new example and correct misunderstandings |
+| `practice` | Understanding exists; application is unproven | A reviewed exercise, project or problem-solving artifact |
+| `experience_framing` | Experience exists but is poorly evidenced | A source-linked account with accurate role and outcome |
+| `interview` | Answers lack structure, clarity or timing | Recorded practice, concrete feedback and another attempt |
+| `structural` | Tenure, work authorization, license or another objective prerequisite | Employer clarification or documentary evidence; a course cannot remove the constraint |
 
-Учебный проект остаётся учебным. Выполнение задания не добавляет коммерческие
-годы опыта в CV. Готовность документов, соответствие вакансии и прогресс обучения
-фиксируются независимо.
+A learning project remains a learning project. Completing exercises never adds commercial years to a CV. Document readiness, vacancy fit and learning progress are recorded independently.
 
-## Общая основа
+## Company context and STAR bank
 
-Для каждой приоритетной компании подготовьте краткое описание продуктов, клиентов,
-рынков, бизнес-модели и вопросов к стратегии со ссылками и датами. Неизвестные
-показатели помечайте как неизвестные. Разделяйте опубликованные сведения и выводы.
+For priority companies, prepare sourced notes on products, customers, markets, business model and strategy questions, with dates. Keep unknown figures unknown and distinguish published facts from analysis.
 
-STAR-банк связывает ситуацию, задачу, личное действие и подтверждённый результат
-с ID фактов. Подготовьте истории успеха, ошибки, конфликта, неопределённости,
-влияния без полномочий и развития команды. Сохраняйте границы личного вклада.
-Репетируйте краткую и подробную версии ответа, вопросы работодателю и объяснение
-перехода между продуктовым и техническим контекстами.
+Link STAR stories—situation, task, personal action and verified result—to fact IDs. Cover success, mistakes, conflict, ambiguity, influence without authority and team development where the candidate has real examples. Preserve the limits of personal contribution. Rehearse short and detailed versions, employer questions and the explanation of movement between product and technical contexts.
 
-## Шесть недель по шесть часов
+Do not invent a successful story to fill an interview category. Record the missing example, ask for real evidence when needed, or practice how to acknowledge the limitation.
 
-Базовый горизонт — шесть недель, шесть часов в неделю. Практичный бюджет недели:
-два часа изучения, два часа упражнения, час на кейс из опыта, час на тренировку
-и обратную связь. Это ориентир планирования, а не заявление об освоении темы.
+## Six weeks at six hours per week
 
-| Неделя | Продуктовый трек | Техническое руководство | Свидетельство результата |
+The default plan spans six weeks and six hours per week. A useful allocation is two hours of study, two hours of exercises, one hour of experience framing and one hour of practice and feedback. This is a scheduling assumption, not a claim that the candidate has mastered the subject.
+
+| Week | Product track | Technical leadership | Observable result |
 | --- | --- | --- | --- |
-| 1 | Product sense, discovery, сегменты и потребности | System design и архитектура | Разбор задачи с допущениями и критериями успеха |
-| 2 | Стратегия, приоритизация и ограничения | Распределённые системы и компромиссы | Решение с альтернативами и объяснением отказа от них |
-| 3 | Метрики, эксперименты и причинность | Надёжность, SLO, инциденты | Проверяемый план эксперимента или разбор инцидента |
-| 4 | Pricing, GTM, экономика и P&L | Организация разработки, качество и delivery | Кейс с исходными данными и ограничениями |
-| 5 | Стейкхолдеры, влияние, коммерческие переговоры | Найм, обратная связь и развитие инженеров | STAR-ответ и разбор сложного управленческого решения |
-| 6 | Пробное продуктовое интервью | Пробное интервью технического руководителя | Запись, рубрика оценки, список ошибок и повтор |
+| 1 | Product sense, discovery, segments and needs | System design and architecture | Case analysis with assumptions and success criteria |
+| 2 | Strategy, prioritization and constraints | Distributed systems and tradeoffs | Decision with alternatives and reasons for rejecting them |
+| 3 | Metrics, experiments and causality | Reliability, SLOs and incidents | Testable experiment plan or incident analysis |
+| 4 | Pricing, GTM, economics and P&L | Engineering organization, quality and delivery | Case grounded in inputs and constraints |
+| 5 | Stakeholders, influence and commercial negotiation | Hiring, feedback and engineer development | Real STAR answer and a difficult management decision |
+| 6 | Product mock interview | Technical leadership mock interview | Recording, rubric, error list and repeat attempt |
 
-Coding добавляется в технический план при требовании конкретного интервью.
-AI-модуль в обоих треках включает оценку качества, ограничения моделей, стоимость,
-безопасность и эксплуатацию; глубина зависит от роли. Требуйте кейс выбора
-метрик, оценки ошибок и компромисса качества/стоимости, а не перечень модных слов.
+Add coding when the actual interview requires it. In both tracks, an AI module can cover evaluation quality, model limits, cost, safety and operation at the depth the role needs. Ask for a metric choice, error analysis and a quality/cost tradeoff case, not a list of fashionable terms.
 
-## Работа с CLI и индивидуальный план
+## Use the CLI and adapt the plan
 
-`learn --track product` и `learn --track technical-leadership` строят планы из
-текущих оценок. `learn VACANCY_ID --track ...` ограничивает контекст одной вакансией.
-План сохраняет темы, пробелы, следующий шаг и дату интервью, если она известна.
-При отсутствии разметки требований получается базовый учебный план, что явно
-помечено. Он не выдаётся за извлечённые требования работодателя.
+`learn --track product` and `learn --track technical-leadership` use current assessments. `learn VACANCY_ID --track TRACK` limits the context to one vacancy. The plan keeps topics, gaps, next actions and the interview date when available. With no annotated requirements, the output is explicitly a baseline plan, not purported employer requirements.
 
-Первая версия не выполняет автоматического календарного перепланирования и
-не подбирает проверенные учебные ссылки. Агент проверяет первичные материалы,
-добавляет ресурсы и задания и задаёт измеримый критерий приёмки. При появлении
-интервью его дата получает приоритет: сначала обязательные пробелы и ожидаемые
-форматы, затем пробное интервью и резерв на исправления. Не вмещающиеся задачи
-переносятся явно, а не отмечаются выполненными.
+The CLI does not automatically reschedule a calendar or select verified learning links. The agent checks primary learning material, adds exercises and sets an observable acceptance criterion. An approaching interview takes priority: mandatory gaps and expected formats first, a mock interview next, then time for corrections. Explicitly defer work that does not fit.
 
-Для прогресса нужны дата, артефакт или запись ответа, критерий, проверяющий,
-обратная связь и следующий шаг. Статус `done` допустим после демонстрации
-результата. Материал в списке чтения, потраченное время и самоуверенность сами
-по себе недостаточны. Изменение оценки владения навыком требует отдельного
-содержательного решения, а изменение CV — нового документного ревью.
+For each practice result record the date, artifact or answer transcript, criterion, reviewer, evidence-based feedback and next action. Feedback should identify what the answer demonstrated, what remains unsupported and what a better next attempt should change. A `done` status requires demonstrated output. Time spent, a reading list and confidence alone are insufficient.
+
+Changing the assessment of a competency needs a separate substantive decision. Changing CV claims then requires a new document version and review. See [interview skill handoffs](AGENT_WORKFLOWS.md#career-interview-prep).

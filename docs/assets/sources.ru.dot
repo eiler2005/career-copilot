@@ -1,0 +1,27 @@
+digraph sources {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Источники, происхождение и повторный разбор</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Сетевой доступ только для чтения; текст источника — данные</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  providers [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Публичные API / ATS</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Greenhouse · Lever · Ashby · HH</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Официальная страница</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Статический HTML с JSON-LD JobPosting</FONT></TD></TR>
+    </TABLE>>];
+  access [label="Разрешённый маршрут\nХосты, бюджет запросов, лимит страниц"];
+  snapshot [label="Сохранить исходный снимок\nИсточник, URL, время, охват, SHA-256", fillcolor="#E7F3EF"];
+  normalize [label="Разобрать и нормализовать\nID провайдера + компания, URL и алиасы"];
+  store [label="SQLite\nВакансии, наблюдения, состояние источника", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45"];
+  manual [label="Агент / пользователь вне CLI\nБраузер, поисковый лид, ручной импорт", fillcolor="#FFF3DD"];
+  replay [label="Офлайн replay\nПоддержанный JSON / JSON-LD", fillcolor="#E7F3EF"];
+  health [label="Различать результаты\nПустая выдача · частичная · ошибка · блокировка\nCooldown сохраняется; ошибка не закрывает вакансии", fillcolor="#FFF3DD", fontsize=13];
+  note [shape=plain, label="HH-список может быть сокращённым. Скриншот — не API-ответ.\nReplay не подтверждает актуальность вакансии сегодня.", fontsize=12, fontcolor="#526A72"];
+  providers -> access -> snapshot -> normalize -> store;
+  manual -> replay [style=dashed];
+  replay -> snapshot [style=dashed, label="без сети"];
+  { rank=same; access; manual; }
+  { rank=same; snapshot; replay; }
+  store -> health [arrowhead=none]; health -> note [style=invis];
+}

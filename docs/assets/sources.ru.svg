@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="718px" height="671px" viewBox="0.00 0.00 718.37 670.62" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 650.46)">
+    <title>sources</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-650.46 698.21,-650.46 698.21,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="59.27" y="-605.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Источники, происхождение и повторный разбор</text>
+    <text text-anchor="start" x="146.65" y="-591.95" font-family="Arial" font-size="13.00" fill="#526a72">Сетевой доступ только для чтения; текст источника — данные</text>
+    <g id="node1" class="node">
+      <title>providers</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M611.02,-586.3C611.02,-586.3 376.52,-586.3 376.52,-586.3 370.52,-586.3 364.52,-580.3 364.52,-574.3 364.52,-574.3 364.52,-492.3 364.52,-492.3 364.52,-486.3 370.52,-480.3 376.52,-480.3 376.52,-480.3 611.02,-480.3 611.02,-480.3 617.02,-480.3 623.02,-486.3 623.02,-492.3 623.02,-492.3 623.02,-574.3 623.02,-574.3 623.02,-580.3 617.02,-586.3 611.02,-586.3" />
+      <polygon fill="#e8eef8" stroke="none" points="364.52,-533.3 364.52,-586.3 623.02,-586.3 623.02,-533.3 364.52,-533.3" />
+      <polygon fill="none" stroke="#d1dee2" points="364.52,-533.3 364.52,-586.3 623.02,-586.3 623.02,-533.3 364.52,-533.3" />
+      <text text-anchor="start" x="377.52" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Публичные API / ATS</text>
+      <text text-anchor="start" x="377.52" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
+      <polygon fill="#e8eef8" stroke="none" points="364.52,-480.3 364.52,-533.3 623.02,-533.3 623.02,-480.3 364.52,-480.3" />
+      <polygon fill="none" stroke="#d1dee2" points="364.52,-480.3 364.52,-533.3 623.02,-533.3 623.02,-480.3 364.52,-480.3" />
+      <text text-anchor="start" x="377.52" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Официальная страница</text>
+      <text text-anchor="start" x="377.52" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">Статический HTML с JSON-LD JobPosting</text>
+    </g>
+    <g id="node2" class="node">
+      <title>access</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M638.3,-453.3C638.3,-453.3 349.25,-453.3 349.25,-453.3 343.25,-453.3 337.25,-447.3 337.25,-441.3 337.25,-441.3 337.25,-409.14 337.25,-409.14 337.25,-403.14 343.25,-397.14 349.25,-397.14 349.25,-397.14 638.3,-397.14 638.3,-397.14 644.3,-397.14 650.3,-403.14 650.3,-409.14 650.3,-409.14 650.3,-441.3 650.3,-441.3 650.3,-447.3 644.3,-453.3 638.3,-453.3" />
+      <text text-anchor="middle" x="493.77" y="-428.97" font-family="Arial" font-size="15.00" fill="#183d48">Разрешённый маршрут</text>
+      <text text-anchor="middle" x="493.77" y="-410.97" font-family="Arial" font-size="15.00" fill="#183d48">Хосты, бюджет запросов, лимит страниц</text>
+    </g>
+    <g id="edge1" class="edge">
+      <title>providers-&gt;access</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-480.5C493.77,-474.43 493.77,-468.33 493.77,-462.53" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-462.6 493.78,-455.6 491.33,-462.6 496.23,-462.6" />
+    </g>
+    <g id="node3" class="node">
+      <title>snapshot</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M630.8,-370.14C630.8,-370.14 356.75,-370.14 356.75,-370.14 350.75,-370.14 344.75,-364.14 344.75,-358.14 344.75,-358.14 344.75,-325.98 344.75,-325.98 344.75,-319.98 350.75,-313.98 356.75,-313.98 356.75,-313.98 630.8,-313.98 630.8,-313.98 636.8,-313.98 642.8,-319.98 642.8,-325.98 642.8,-325.98 642.8,-358.14 642.8,-358.14 642.8,-364.14 636.8,-370.14 630.8,-370.14" />
+      <text text-anchor="middle" x="493.77" y="-345.81" font-family="Arial" font-size="15.00" fill="#183d48">Сохранить исходный снимок</text>
+      <text text-anchor="middle" x="493.77" y="-327.81" font-family="Arial" font-size="15.00" fill="#183d48">Источник, URL, время, охват, SHA-256</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>access-&gt;snapshot</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-396.74C493.77,-391.06 493.77,-384.99 493.77,-379.05" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-379.4 493.78,-372.4 491.33,-379.4 496.23,-379.4" />
+    </g>
+    <g id="node4" class="node">
+      <title>normalize</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M642.8,-286.98C642.8,-286.98 344.75,-286.98 344.75,-286.98 338.75,-286.98 332.75,-280.98 332.75,-274.98 332.75,-274.98 332.75,-242.82 332.75,-242.82 332.75,-236.82 338.75,-230.82 344.75,-230.82 344.75,-230.82 642.8,-230.82 642.8,-230.82 648.8,-230.82 654.8,-236.82 654.8,-242.82 654.8,-242.82 654.8,-274.98 654.8,-274.98 654.8,-280.98 648.8,-286.98 642.8,-286.98" />
+      <text text-anchor="middle" x="493.77" y="-262.65" font-family="Arial" font-size="15.00" fill="#183d48">Разобрать и нормализовать</text>
+      <text text-anchor="middle" x="493.77" y="-244.65" font-family="Arial" font-size="15.00" fill="#183d48">ID провайдера + компания, URL и алиасы</text>
+    </g>
+    <g id="edge3" class="edge">
+      <title>snapshot-&gt;normalize</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-313.58C493.77,-307.9 493.77,-301.83 493.77,-295.89" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-296.24 493.78,-289.24 491.33,-296.24 496.23,-296.24" />
+    </g>
+    <g id="node5" class="node">
+      <title>store</title>
+      <path fill="#173b45" stroke="#173b45" stroke-width="1.1" d="M654.05,-203.82C654.05,-203.82 333.5,-203.82 333.5,-203.82 327.5,-203.82 321.5,-197.82 321.5,-191.82 321.5,-191.82 321.5,-159.66 321.5,-159.66 321.5,-153.66 327.5,-147.66 333.5,-147.66 333.5,-147.66 654.05,-147.66 654.05,-147.66 660.05,-147.66 666.05,-153.66 666.05,-159.66 666.05,-159.66 666.05,-191.82 666.05,-191.82 666.05,-197.82 660.05,-203.82 654.05,-203.82" />
+      <text text-anchor="middle" x="493.77" y="-179.49" font-family="Arial" font-size="15.00" fill="#ffffff">SQLite</text>
+      <text text-anchor="middle" x="493.77" y="-161.49" font-family="Arial" font-size="15.00" fill="#ffffff">Вакансии, наблюдения, состояние источника</text>
+    </g>
+    <g id="edge4" class="edge">
+      <title>normalize-&gt;store</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-230.42C493.77,-224.74 493.77,-218.67 493.77,-212.73" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-213.08 493.78,-206.08 491.33,-213.08 496.23,-213.08" />
+    </g>
+    <g id="node8" class="node">
+      <title>health</title>
+      <path fill="#fff3dd" stroke="#c2d3d8" stroke-width="1.1" d="M666.05,-120.66C666.05,-120.66 321.5,-120.66 321.5,-120.66 315.5,-120.66 309.5,-114.66 309.5,-108.66 309.5,-108.66 309.5,-67.5 309.5,-67.5 309.5,-61.5 315.5,-55.5 321.5,-55.5 321.5,-55.5 666.05,-55.5 666.05,-55.5 672.05,-55.5 678.05,-61.5 678.05,-67.5 678.05,-67.5 678.05,-108.66 678.05,-108.66 678.05,-114.66 672.05,-120.66 666.05,-120.66" />
+      <text text-anchor="middle" x="493.77" y="-98.23" font-family="Arial" font-size="13.00" fill="#183d48">Различать результаты</text>
+      <text text-anchor="middle" x="493.77" y="-83.23" font-family="Arial" font-size="13.00" fill="#183d48">Пустая выдача · частичная · ошибка · блокировка</text>
+      <text text-anchor="middle" x="493.77" y="-68.23" font-family="Arial" font-size="13.00" fill="#183d48">Cooldown сохраняется; ошибка не закрывает вакансии</text>
+    </g>
+    <g id="edge7" class="edge">
+      <title>store-&gt;health</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-147.17C493.77,-138.85 493.77,-129.65 493.77,-121.08" />
+    </g>
+    <g id="node6" class="node">
+      <title>manual</title>
+      <path fill="#fff3dd" stroke="#c2d3d8" stroke-width="1.1" d="M299.55,-453.3C299.55,-453.3 12,-453.3 12,-453.3 6,-453.3 0,-447.3 0,-441.3 0,-441.3 0,-409.14 0,-409.14 0,-403.14 6,-397.14 12,-397.14 12,-397.14 299.55,-397.14 299.55,-397.14 305.55,-397.14 311.55,-403.14 311.55,-409.14 311.55,-409.14 311.55,-441.3 311.55,-441.3 311.55,-447.3 305.55,-453.3 299.55,-453.3" />
+      <text text-anchor="middle" x="155.77" y="-428.97" font-family="Arial" font-size="15.00" fill="#183d48">Агент / пользователь вне CLI</text>
+      <text text-anchor="middle" x="155.77" y="-410.97" font-family="Arial" font-size="15.00" fill="#183d48">Браузер, поисковый лид, ручной импорт</text>
+    </g>
+    <g id="node7" class="node">
+      <title>replay</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M272.17,-370.14C272.17,-370.14 39.38,-370.14 39.38,-370.14 33.38,-370.14 27.37,-364.14 27.37,-358.14 27.37,-358.14 27.37,-325.98 27.37,-325.98 27.37,-319.98 33.37,-313.98 39.37,-313.98 39.37,-313.98 272.17,-313.98 272.17,-313.98 278.17,-313.98 284.17,-319.98 284.17,-325.98 284.17,-325.98 284.17,-358.14 284.17,-358.14 284.17,-364.14 278.17,-370.14 272.17,-370.14" />
+      <text text-anchor="middle" x="155.77" y="-345.81" font-family="Arial" font-size="15.00" fill="#183d48">Офлайн replay</text>
+      <text text-anchor="middle" x="155.77" y="-327.81" font-family="Arial" font-size="15.00" fill="#183d48">Поддержанный JSON / JSON-LD</text>
+    </g>
+    <g id="edge5" class="edge">
+      <title>manual-&gt;replay</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" stroke-dasharray="5,2" d="M155.77,-396.74C155.77,-391.06 155.77,-384.99 155.77,-379.05" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="158.23,-379.4 155.78,-372.4 153.33,-379.4 158.23,-379.4" />
+    </g>
+    <g id="edge6" class="edge">
+      <title>replay-&gt;snapshot</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" stroke-dasharray="5,2" d="M284.52,-342.06C301.36,-342.06 318.76,-342.06 336,-342.06" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="335.56,-344.51 342.56,-342.06 335.56,-339.61 335.56,-344.51" />
+      <text text-anchor="middle" x="314.46" y="-348.11" font-family="Arial" font-size="11.00" fill="#526a72">без сети</text>
+    </g>
+    <g id="node9" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M664.27,-28.5C664.27,-28.5 323.27,-28.5 323.27,-28.5 318.52,-28.5 313.77,-23.75 313.77,-19 313.77,-19 313.77,-9.5 313.77,-9.5 313.77,-4.75 318.52,0 323.27,0 323.27,0 664.27,0 664.27,0 669.02,0 673.77,-4.75 673.77,-9.5 673.77,-9.5 673.77,-19 673.77,-19 673.77,-23.75 669.02,-28.5 664.27,-28.5" />
+      <text text-anchor="middle" x="493.77" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">HH-список может быть сокращённым. Скриншот — не API-ответ.</text>
+      <text text-anchor="middle" x="493.77" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Replay не подтверждает актуальность вакансии сегодня.</text>
+    </g>
+  </g>
+</svg>

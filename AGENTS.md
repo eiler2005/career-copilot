@@ -3,6 +3,14 @@
 Read README.md, docs/WORKFLOW.md and docs/PRIVACY.md before work.
 The canonical behavior is documented in docs/, not duplicated in runtime-specific prompts.
 
+English README/docs are the default; maintain README.ru.md and matching docs/ru guides.
+Eight independent canonical skills live in .agents/skills. Claude adapters are ordinary
+Markdown files in .claude/skills and reference the shared contracts in docs/AGENT_WORKFLOWS.md.
+Keep normal implicit discovery; no global installation, automatic model API or daemon.
+Each skill records activity start/finish with actual identities, hashed inputs/results and
+an honest next action. Missing required models remain blocked. Independent content review
+must be separate from every contributing author/editor, including a standalone letter author.
+
 - Exactly two master tracks: product and technical-leadership. Domains are overlays.
 - Never put real candidate data, target lists, assessments, documents, source snapshots,
   private paths or credentials in this public repository, including tests and Git history.
@@ -18,4 +26,5 @@ The canonical behavior is documented in docs/, not duplicated in runtime-specifi
   No default two-page truncation. Targets are not results; project awards are not personal awards.
 - Use apply_patch for source edits; explicit Git staging only. Never bypass privacy hooks.
 - Before handoff run uv run ruff check ., uv run ruff format --check ., uv run pytest,
-  and ajh privacy check for worktree, index and history. Full instructions: docs/PRIVACY.md.
+  uv run python scripts/check_docs.py, and ajh privacy check for worktree, index and history.
+  Full instructions: docs/PRIVACY.md.

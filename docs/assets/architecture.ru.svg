@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="489px" height="810px" viewBox="0.00 0.00 489.07 810.46" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 790.3)">
+    <title>architecture</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-790.3 468.91,-790.3 468.91,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="8" y="-745.29" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Восемь ролей. Одна рабочая память.</text>
+    <text text-anchor="start" x="79.25" y="-731.79" font-family="Arial" font-size="13.00" fill="#526a72">Навыки выполняются в сессиях Codex / Claude</text>
+    <g id="node1" class="node">
+      <title>user</title>
+      <path fill="#e7f3ef" stroke="#a2cbbb" stroke-width="1.1" d="M306.27,-726.14C306.27,-726.14 142.47,-726.14 142.47,-726.14 136.47,-726.14 130.47,-720.14 130.47,-714.14 130.47,-714.14 130.47,-681.98 130.47,-681.98 130.47,-675.98 136.47,-669.98 142.47,-669.98 142.47,-669.98 306.27,-669.98 306.27,-669.98 312.27,-669.98 318.27,-675.98 318.27,-681.98 318.27,-681.98 318.27,-714.14 318.27,-714.14 318.27,-720.14 312.27,-726.14 306.27,-726.14" />
+      <text text-anchor="middle" x="224.38" y="-701.81" font-family="Arial" font-size="15.00" fill="#183d48">Пользователь</text>
+      <text text-anchor="middle" x="224.38" y="-683.81" font-family="Arial" font-size="15.00" fill="#183d48">Цель, факты, решения</text>
+    </g>
+    <g id="node2" class="node">
+      <title>coordinator</title>
+      <path fill="#173b45" stroke="#173b45" stroke-width="1.1" d="M369.65,-643.98C369.65,-643.98 79.1,-643.98 79.1,-643.98 73.1,-643.98 67.1,-637.98 67.1,-631.98 67.1,-631.98 67.1,-599.82 67.1,-599.82 67.1,-593.82 73.1,-587.82 79.1,-587.82 79.1,-587.82 369.65,-587.82 369.65,-587.82 375.65,-587.82 381.65,-593.82 381.65,-599.82 381.65,-599.82 381.65,-631.98 381.65,-631.98 381.65,-637.98 375.65,-643.98 369.65,-643.98" />
+      <text text-anchor="middle" x="224.38" y="-619.65" font-family="Arial" font-size="15.00" fill="#ffffff">Координатор · career-copilot</text>
+      <text text-anchor="middle" x="224.38" y="-601.65" font-family="Arial" font-size="15.00" fill="#ffffff">Выбор этапов и передача точных версий</text>
+    </g>
+    <g id="edge1" class="edge">
+      <title>user-&gt;coordinator</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M224.38,-669.92C224.38,-664.5 224.38,-658.72 224.38,-653.04" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="226.83,-653.18 224.38,-646.18 221.93,-653.18 226.83,-653.18" />
+    </g>
+    <g id="node3" class="node">
+      <title>skills</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M431.88,-561.82C431.88,-561.82 16.87,-561.82 16.87,-561.82 10.87,-561.82 4.88,-555.82 4.88,-549.82 4.88,-549.82 4.88,-361.82 4.88,-361.82 4.88,-355.82 10.88,-349.82 16.88,-349.82 16.88,-349.82 431.88,-349.82 431.88,-349.82 437.88,-349.82 443.88,-355.82 443.88,-361.82 443.88,-361.82 443.88,-549.82 443.88,-549.82 443.88,-555.82 437.88,-561.82 431.88,-561.82" />
+      <polygon fill="#f2f7f8" stroke="none" points="4.88,-508.82 4.88,-561.82 234.88,-561.82 234.88,-508.82 4.88,-508.82" />
+      <polygon fill="none" stroke="#d1dee2" points="4.88,-508.82 4.88,-561.82 234.88,-561.82 234.88,-508.82 4.88,-508.82" />
+      <text text-anchor="start" x="17.88" y="-535.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Поиск вакансий</text>
+      <text text-anchor="start" x="29.5" y="-523.42" font-family="Arial" font-size="12.00" fill="#183d48">career-job-search</text>
+      <polygon fill="#f2f7f8" stroke="none" points="234.88,-508.82 234.88,-561.82 443.88,-561.82 443.88,-508.82 234.88,-508.82" />
+      <polygon fill="none" stroke="#d1dee2" points="234.88,-508.82 234.88,-561.82 443.88,-561.82 443.88,-508.82 234.88,-508.82" />
+      <text text-anchor="start" x="247.88" y="-535.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Исследование компании</text>
+      <text text-anchor="start" x="271.12" y="-523.42" font-family="Arial" font-size="12.00" fill="#183d48">career-company-research</text>
+      <polygon fill="#f2f7f8" stroke="none" points="4.88,-455.82 4.88,-508.82 234.88,-508.82 234.88,-455.82 4.88,-455.82" />
+      <polygon fill="none" stroke="#d1dee2" points="4.88,-455.82 4.88,-508.82 234.88,-508.82 234.88,-455.82 4.88,-455.82" />
+      <text text-anchor="start" x="17.88" y="-482.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Адаптация CV</text>
+      <text text-anchor="start" x="30.62" y="-470.42" font-family="Arial" font-size="12.00" fill="#183d48">career-cv-tailor</text>
+      <polygon fill="#f2f7f8" stroke="none" points="234.88,-455.82 234.88,-508.82 443.88,-508.82 443.88,-455.82 234.88,-455.82" />
+      <polygon fill="none" stroke="#d1dee2" points="234.88,-455.82 234.88,-508.82 443.88,-508.82 443.88,-455.82 234.88,-455.82" />
+      <text text-anchor="start" x="247.88" y="-482.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Естественный текст</text>
+      <text text-anchor="start" x="266.25" y="-470.42" font-family="Arial" font-size="12.00" fill="#183d48">career-natural-writing</text>
+      <polygon fill="#f2f7f8" stroke="none" points="4.88,-402.82 4.88,-455.82 234.88,-455.82 234.88,-402.82 4.88,-402.82" />
+      <polygon fill="none" stroke="#d1dee2" points="4.88,-402.82 4.88,-455.82 234.88,-455.82 234.88,-402.82 4.88,-402.82" />
+      <text text-anchor="start" x="17.88" y="-429.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Сопроводительное письмо</text>
+      <text text-anchor="start" x="71.5" y="-417.42" font-family="Arial" font-size="12.00" fill="#183d48">career-cover-letter</text>
+      <polygon fill="#f2f7f8" stroke="none" points="234.88,-402.82 234.88,-455.82 443.88,-455.82 443.88,-402.82 234.88,-402.82" />
+      <polygon fill="none" stroke="#d1dee2" points="234.88,-402.82 234.88,-455.82 443.88,-455.82 443.88,-402.82 234.88,-402.82" />
+      <text text-anchor="start" x="247.88" y="-429.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Подготовка к интервью</text>
+      <text text-anchor="start" x="279" y="-417.42" font-family="Arial" font-size="12.00" fill="#183d48">career-interview-prep</text>
+      <polygon fill="#e7f3ef" stroke="none" points="4.88,-349.82 4.88,-402.82 443.88,-402.82 443.88,-349.82 4.88,-349.82" />
+      <polygon fill="none" stroke="#d1dee2" points="4.88,-349.82 4.88,-402.82 443.88,-402.82 443.88,-349.82 4.88,-349.82" />
+      <text text-anchor="start" x="17.88" y="-376.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Журнал и статистика</text>
+      <text text-anchor="start" x="44.88" y="-364.42" font-family="Arial" font-size="12.00" fill="#183d48">career-journal-stats</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>coordinator-&gt;skills</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M224.38,-587.36C224.38,-582.13 224.38,-576.37 224.38,-570.27" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="226.83,-570.65 224.38,-563.65 221.93,-570.65 226.83,-570.65" />
+    </g>
+    <g id="node4" class="node">
+      <title>cli</title>
+      <path fill="#e8eef8" stroke="#b5c6e0" stroke-width="1.1" d="M341.15,-323.82C341.15,-323.82 107.6,-323.82 107.6,-323.82 101.6,-323.82 95.6,-317.82 95.6,-311.82 95.6,-311.82 95.6,-279.66 95.6,-279.66 95.6,-273.66 101.6,-267.66 107.6,-267.66 107.6,-267.66 341.15,-267.66 341.15,-267.66 347.15,-267.66 353.15,-273.66 353.15,-279.66 353.15,-279.66 353.15,-311.82 353.15,-311.82 353.15,-317.82 347.15,-323.82 341.15,-323.82" />
+      <text text-anchor="middle" x="224.38" y="-299.49" font-family="Arial" font-size="15.00" fill="#183d48">Детерминированный CLI · ajh</text>
+      <text text-anchor="middle" x="224.38" y="-281.49" font-family="Arial" font-size="15.00" fill="#183d48">Сбор, версии, ревью, учёт, отчёт</text>
+    </g>
+    <g id="edge3" class="edge">
+      <title>skills-&gt;cli</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M224.38,-350.26C224.38,-344.23 224.38,-338.42 224.38,-332.99" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="226.83,-333.14 224.38,-326.14 221.93,-333.14 226.83,-333.14" />
+    </g>
+    <g id="node5" class="node">
+      <title>private</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M398.75,-241.66C398.75,-241.66 50,-241.66 50,-241.66 44,-241.66 38,-235.66 38,-229.66 38,-229.66 38,-148.66 38,-148.66 38,-142.66 44,-136.66 50,-136.66 50,-136.66 398.75,-136.66 398.75,-136.66 404.75,-136.66 410.75,-142.66 410.75,-148.66 410.75,-148.66 410.75,-229.66 410.75,-229.66 410.75,-235.66 404.75,-241.66 398.75,-241.66" />
+      <polygon fill="#f7fbf9" stroke="none" points="38,-136.66 38,-241.66 410.75,-241.66 410.75,-136.66 38,-136.66" />
+      <text text-anchor="start" x="135.12" y="-217.26" font-family="Arial" font-weight="bold" font-size="12.00" fill="#356f60">ПРИВАТНОЕ ПРОСТРАНСТВО</text>
+      <text text-anchor="start" x="115.62" y="-205.26" font-family="Arial" font-size="12.00" fill="#356f60">Явный --home вне дерева приложения</text>
+      <polygon fill="#e7f3ef" stroke="none" points="39,-137.66 39,-190.66 234.5,-190.66 234.5,-137.66 39,-137.66" />
+      <text text-anchor="start" x="112.38" y="-164.41" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">SQLite</text>
+      <text text-anchor="start" x="52" y="-152.26" font-family="Arial" font-size="12.00" fill="#183d48">Карточки, события, статистика</text>
+      <polygon fill="#e7f3ef" stroke="none" points="234.5,-137.66 234.5,-190.66 409.75,-190.66 409.75,-137.66 234.5,-137.66" />
+      <text text-anchor="start" x="247.5" y="-164.41" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Факты и артефакты</text>
+      <text text-anchor="start" x="250.5" y="-152.26" font-family="Arial" font-size="12.00" fill="#183d48">Снимки, версии, SHA-256</text>
+      <polygon fill="none" stroke="#a4cabd" points="38,-136.66 38,-241.66 410.75,-241.66 410.75,-136.66 38,-136.66" />
+    </g>
+    <g id="edge4" class="edge">
+      <title>cli-&gt;private</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M224.38,-267.26C224.38,-261.9 224.38,-256.07 224.38,-250.12" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="226.83,-250.22 224.38,-243.22 221.93,-250.22 226.83,-250.22" />
+    </g>
+    <g id="node6" class="node">
+      <title>report</title>
+      <path fill="#ffffff" stroke="#c2d3d8" stroke-width="1.1" d="M367.4,-110.66C367.4,-110.66 81.35,-110.66 81.35,-110.66 75.35,-110.66 69.35,-104.66 69.35,-98.66 69.35,-98.66 69.35,-66.5 69.35,-66.5 69.35,-60.5 75.35,-54.5 81.35,-54.5 81.35,-54.5 367.4,-54.5 367.4,-54.5 373.4,-54.5 379.4,-60.5 379.4,-66.5 379.4,-66.5 379.4,-98.66 379.4,-98.66 379.4,-104.66 373.4,-110.66 367.4,-110.66" />
+      <text text-anchor="middle" x="224.38" y="-86.33" font-family="Arial" font-size="15.00" fill="#183d48">Локальный обзор и следующий шаг</text>
+      <text text-anchor="middle" x="224.38" y="-68.33" font-family="Arial" font-size="15.00" fill="#183d48">Результаты из журнала, без публикации</text>
+    </g>
+    <g id="edge5" class="edge">
+      <title>private-&gt;report</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M224.38,-136.79C224.38,-131.1 224.38,-125.39 224.38,-119.94" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="226.83,-119.95 224.38,-112.95 221.93,-119.95 226.83,-119.95" />
+    </g>
+    <g id="node7" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M381.38,-28.5C381.38,-28.5 67.37,-28.5 67.37,-28.5 62.63,-28.5 57.88,-23.75 57.88,-19 57.88,-19 57.88,-9.5 57.88,-9.5 57.88,-4.75 62.62,0 67.38,0 67.38,0 381.38,0 381.38,0 386.12,0 390.88,-4.75 390.88,-9.5 390.88,-9.5 390.88,-19 390.88,-19 390.88,-23.75 386.12,-28.5 381.38,-28.5" />
+      <text text-anchor="middle" x="224.38" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">Роли доступны по отдельности. Код не вызывает модели,</text>
+      <text text-anchor="middle" x="224.38" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">не отправляет отклики и не запускает фоновое расписание.</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="596px" height="636px" viewBox="0.00 0.00 595.57 636.39" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 616.23)">
+    <title>states</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-616.23 575.41,-616.23 575.41,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="8" y="-571.22" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Независимые состояния. Проверяемые числа.</text>
+    <text text-anchor="start" x="108.5" y="-557.72" font-family="Arial" font-size="13.00" fill="#526a72">Это отдельные измерения, а не одна воронка статусов</text>
+    <g id="node1" class="node">
+      <title>dimensions</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M535.38,-552.07C535.38,-552.07 19.87,-552.07 19.87,-552.07 13.87,-552.07 7.88,-546.07 7.88,-540.07 7.88,-540.07 7.88,-239.07 7.88,-239.07 7.88,-233.07 13.88,-227.07 19.88,-227.07 19.88,-227.07 535.38,-227.07 535.38,-227.07 541.38,-227.07 547.38,-233.07 547.38,-239.07 547.38,-239.07 547.38,-540.07 547.38,-540.07 547.38,-546.07 541.38,-552.07 535.38,-552.07" />
+      <polygon fill="#e8eef8" stroke="none" points="7.88,-487.07 7.88,-552.07 247.62,-552.07 247.62,-487.07 7.88,-487.07" />
+      <polygon fill="none" stroke="#d1dee2" points="7.88,-487.07 7.88,-552.07 247.62,-552.07 247.62,-487.07 7.88,-487.07" />
+      <text text-anchor="start" x="20.88" y="-519.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Актуальность вакансии</text>
+      <text text-anchor="start" x="22.38" y="-507.67" font-family="Arial" font-size="12.00" fill="#183d48">Открыта / закрыта / неизвестно</text>
+      <polygon fill="#f2f7f8" stroke="none" points="247.62,-487.07 247.62,-552.07 547.38,-552.07 547.38,-487.07 247.62,-487.07" />
+      <polygon fill="none" stroke="#d1dee2" points="247.62,-487.07 247.62,-552.07 547.38,-552.07 547.38,-487.07 247.62,-487.07" />
+      <text text-anchor="start" x="260.62" y="-525.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Свидетельство</text>
+      <text text-anchor="start" x="260.62" y="-513.67" font-family="Arial" font-size="12.00" fill="#183d48">Официальный источник + дата.</text>
+      <text text-anchor="start" x="260.62" y="-501.67" font-family="Arial" font-size="12.00" fill="#183d48">Ошибка сбора не означает закрытие.</text>
+      <polygon fill="#e8eef8" stroke="none" points="7.88,-422.07 7.88,-487.07 247.62,-487.07 247.62,-422.07 7.88,-422.07" />
+      <polygon fill="none" stroke="#d1dee2" points="7.88,-422.07 7.88,-487.07 247.62,-487.07 247.62,-422.07 7.88,-422.07" />
+      <text text-anchor="start" x="20.88" y="-454.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Соответствие кандидату</text>
+      <text text-anchor="start" x="20.88" y="-442.67" font-family="Arial" font-size="12.00" fill="#183d48">Оценка требований и ограничений</text>
+      <polygon fill="#f2f7f8" stroke="none" points="247.62,-422.07 247.62,-487.07 547.38,-487.07 547.38,-422.07 247.62,-422.07" />
+      <polygon fill="none" stroke="#d1dee2" points="247.62,-422.07 247.62,-487.07 547.38,-487.07 547.38,-422.07 247.62,-422.07" />
+      <text text-anchor="start" x="260.62" y="-460.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Доказательства</text>
+      <text text-anchor="start" x="260.62" y="-448.67" font-family="Arial" font-size="12.00" fill="#183d48">Факты, уровень, допуски, трек.</text>
+      <text text-anchor="start" x="260.62" y="-436.67" font-family="Arial" font-size="12.00" fill="#183d48">Неизвестное требует уточнения.</text>
+      <polygon fill="#e7f3ef" stroke="none" points="7.88,-357.07 7.88,-422.07 247.62,-422.07 247.62,-357.07 7.88,-357.07" />
+      <polygon fill="none" stroke="#d1dee2" points="7.88,-357.07 7.88,-422.07 247.62,-422.07 247.62,-357.07 7.88,-357.07" />
+      <text text-anchor="start" x="20.88" y="-389.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Готовность документов</text>
+      <text text-anchor="start" x="64" y="-377.67" font-family="Arial" font-size="12.00" fill="#183d48">pending / passed</text>
+      <polygon fill="#f2f7f8" stroke="none" points="247.62,-357.07 247.62,-422.07 547.38,-422.07 547.38,-357.07 247.62,-357.07" />
+      <polygon fill="none" stroke="#d1dee2" points="247.62,-357.07 247.62,-422.07 547.38,-422.07 547.38,-357.07 247.62,-357.07" />
+      <text text-anchor="start" x="260.62" y="-395.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Точная версия</text>
+      <text text-anchor="start" x="260.62" y="-383.67" font-family="Arial" font-size="12.00" fill="#183d48">Авторство, содержательное и визуальное ревью.</text>
+      <text text-anchor="start" x="291" y="-371.67" font-family="Arial" font-size="12.00" fill="#183d48">Новые хеши требуют новой проверки.</text>
+      <polygon fill="#fff3dd" stroke="none" points="7.88,-292.07 7.88,-357.07 247.62,-357.07 247.62,-292.07 7.88,-292.07" />
+      <polygon fill="none" stroke="#d1dee2" points="7.88,-292.07 7.88,-357.07 247.62,-357.07 247.62,-292.07 7.88,-292.07" />
+      <text text-anchor="start" x="20.88" y="-324.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Факт отправки</text>
+      <text text-anchor="start" x="20.88" y="-312.67" font-family="Arial" font-size="12.00" fill="#183d48">Версия, канал, время, подтверждение</text>
+      <polygon fill="#f2f7f8" stroke="none" points="247.62,-292.07 247.62,-357.07 547.38,-357.07 547.38,-292.07 247.62,-292.07" />
+      <polygon fill="none" stroke="#d1dee2" points="247.62,-292.07 247.62,-357.07 547.38,-357.07 547.38,-292.07 247.62,-292.07" />
+      <text text-anchor="start" x="260.62" y="-330.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Внешнее действие</text>
+      <text text-anchor="start" x="260.62" y="-318.67" font-family="Arial" font-size="12.00" fill="#183d48">Отдельное разрешение и свидетельство.</text>
+      <text text-anchor="start" x="260.62" y="-306.67" font-family="Arial" font-size="12.00" fill="#183d48">Готовый пакет сам ничего не отправляет.</text>
+      <polygon fill="#f1eef8" stroke="none" points="7.88,-227.07 7.88,-292.07 247.62,-292.07 247.62,-227.07 7.88,-227.07" />
+      <polygon fill="none" stroke="#d1dee2" points="7.88,-227.07 7.88,-292.07 247.62,-292.07 247.62,-227.07 7.88,-227.07" />
+      <text text-anchor="start" x="20.88" y="-259.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Подготовка к интервью</text>
+      <text text-anchor="start" x="20.88" y="-247.67" font-family="Arial" font-size="12.00" fill="#183d48">План, практика, обратная связь</text>
+      <polygon fill="#f2f7f8" stroke="none" points="247.62,-227.07 247.62,-292.07 547.38,-292.07 547.38,-227.07 247.62,-227.07" />
+      <polygon fill="none" stroke="#d1dee2" points="247.62,-227.07 247.62,-292.07 547.38,-292.07 547.38,-227.07 247.62,-227.07" />
+      <text text-anchor="start" x="260.62" y="-265.82" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Демонстрация результата</text>
+      <text text-anchor="start" x="260.62" y="-253.67" font-family="Arial" font-size="12.00" fill="#183d48">Прочитанный материал не доказывает навык.</text>
+      <text text-anchor="start" x="279.38" y="-241.67" font-family="Arial" font-size="12.00" fill="#183d48">Учебный проект не становится стажем.</text>
+    </g>
+    <g id="node2" class="node">
+      <title>activity</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M482.53,-201.07C482.53,-201.07 72.72,-201.07 72.72,-201.07 66.72,-201.07 60.72,-195.07 60.72,-189.07 60.72,-189.07 60.72,-145.66 60.72,-145.66 60.72,-139.66 66.72,-133.66 72.72,-133.66 72.72,-133.66 482.53,-133.66 482.53,-133.66 488.53,-133.66 494.53,-139.66 494.53,-145.66 494.53,-145.66 494.53,-189.07 494.53,-189.07 494.53,-195.07 488.53,-201.07 482.53,-201.07" />
+      <text text-anchor="middle" x="277.62" y="-177.69" font-family="Arial" font-size="14.00" fill="#183d48">Жизненный цикл работы</text>
+      <text text-anchor="middle" x="277.62" y="-161.94" font-family="Arial" font-size="14.00" fill="#183d48">Начато → завершено / заблокировано / ошибка</text>
+      <text text-anchor="middle" x="277.62" y="-146.19" font-family="Arial" font-size="14.00" fill="#183d48">Фактические модель и сессия, входы, выходы, следующий шаг</text>
+    </g>
+    <g id="node3" class="node">
+      <title>stats</title>
+      <path fill="#173b45" stroke="#173b45" stroke-width="1.1" d="M491.52,-107.66C491.52,-107.66 63.73,-107.66 63.73,-107.66 57.73,-107.66 51.72,-101.66 51.72,-95.66 51.72,-95.66 51.72,-52.25 51.72,-52.25 51.72,-46.25 57.72,-40.25 63.72,-40.25 63.72,-40.25 491.52,-40.25 491.52,-40.25 497.52,-40.25 503.52,-46.25 503.52,-52.25 503.52,-52.25 503.52,-95.66 503.52,-95.66 503.52,-101.66 497.52,-107.66 491.52,-107.66" />
+      <text text-anchor="middle" x="277.62" y="-84.28" font-family="Arial" font-size="14.00" fill="#ffffff">Статистика из SQLite</text>
+      <text text-anchor="middle" x="277.62" y="-68.53" font-family="Arial" font-size="14.00" fill="#ffffff">Считать сущности и подтверждённые события без дублей.</text>
+      <text text-anchor="middle" x="277.62" y="-52.78" font-family="Arial" font-size="14.00" fill="#ffffff">Неизвестные токены, стоимость и время остаются неизвестными.</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>activity-&gt;stats</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M277.62,-133.36C277.62,-127.93 277.62,-122.23 277.62,-116.61" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="280.08,-116.8 277.63,-109.8 275.18,-116.8 280.08,-116.8" />
+    </g>
+    <g id="node4" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M432.25,-14.25C432.25,-14.25 123,-14.25 123,-14.25 120.62,-14.25 118.25,-11.88 118.25,-9.5 118.25,-9.5 118.25,-4.75 118.25,-4.75 118.25,-2.37 120.62,0 123,0 123,0 432.25,0 432.25,0 434.62,0 437,-2.38 437,-4.75 437,-4.75 437,-9.5 437,-9.5 437,-11.88 434.62,-14.25 432.25,-14.25" />
+      <text text-anchor="middle" x="277.62" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">verify проверяет целостность, а не готовность к отправке.</text>
+    </g>
+  </g>
+</svg>

@@ -1,82 +1,65 @@
-# Архитектура и данные
+# Architecture and ownership of state
 
-## Граница хранилищ
+[English](ARCHITECTURE.md) · [Русский](ru/ARCHITECTURE.md) · [Documentation](../README.md#documentation)
 
-Публичный проект содержит Python-код, документацию, шаблоны правил и синтетические
-тесты. Приватное пространство подключается явным абсолютным `--home` и располагается
-вне дерева исходников. Его нельзя размещать в корне файловой системы, домашнем
-каталоге целиком или каталоге-предке публичного проекта.
+The public repository contains reusable code and instructions. The private workspace contains the candidate's evidence and job-search history. An existing Codex or Claude session performs model work; a local Python CLI performs deterministic operations.
+
+![Public code, hosted agents and private state](assets/architecture.en.svg)
+
+## Storage boundary
 
 ```text
-Публичный код                     Приватное пространство
-src/job_search_agent/             workspace.json, settings.json, facts.json
-docs/, tests/                    journal.sqlite
-pyproject.toml                   snapshots/, imports/, legacy/
-                                 packages/, reviews/, learning/, report/
+Public checkout                    Explicit private workspace
+src/job_search_agent/               workspace.json, settings.json, facts.json
+.agents/skills/, .claude/skills/     journal.sqlite
+docs/, examples/, tests/            snapshots/, evidence/, facts-history/
+scripts/, pyproject.toml            packages/, reviews/, learning/
+                                   imports/, legacy/, report/
 ```
 
-Для реального кандидата приватное дополнение может жить в отдельном исследовательском
-репозитории. Публичный проект не импортирует его модули и не знает его абсолютного
-пути. Настройки источников, персональный словарь, реальные приоритеты и документы
-не входят в дистрибутив.
+Pass an absolute `--home` outside the source checkout or set `AI_JOB_HUNTER_HOME`. It cannot be the filesystem root, the entire user home, the public repository or an ancestor/descendant of that repository. For real data, choose persistent private storage and backups.
 
-## SQLite и оригиналы
+A personal research repository may hold private additions. The public package neither imports its modules nor knows its location. Candidate settings, real company targets, dictionaries and CVs never belong in a public distribution. Local storage is not a guarantee that a hosted model sees no personal data: agents must honor authorization for sending material to external model services.
 
-`records` хранит JSON-сущности с составным ключом `(kind, id)`: компании, вакансии,
-наблюдения, оценки, пакеты, события, обучение, состояние источников и миграции.
-`artifacts` содержит относительный путь, SHA-256 и размер файла. `meta` оставляет
-место для метаданных схемы. SQLite работает в WAL-режиме; согласованная копия базы
-делается через SQLite backup API, а не копированием одного файла открытой базы.
+## Hosted skills and deterministic runtime
 
-Оригиналы и версии артефактов сохраняются неизменяемо. Попытка записать другое
-содержимое по занятому пути вызывает конфликт. Снимок содержит исходные байты;
-наблюдение связывает его с источником и нормализованной карточкой. Это позволяет
-повторно разобрать данные без сети. Нормализованная карточка показывает актуальное
-состояние, а наблюдения и события сохраняют происхождение.
+The canonical skill instructions live under `.agents/skills/`; ordinary Markdown adapters under `.claude/skills/` refer to the same contracts. Discovery belongs to the host environment. There is no global skill installation, embedded LLM API client, daemon or automatic sending service.
 
-Дедупликация использует ID провайдера в контексте компании, канонические URL и
-сохранённые алиасы. Одно название должности недостаточно. Неоднозначность требует
-ручного сопоставления. Повторное получение не должно удалять исследовательскую
-разметку, версии документов и решения.
+The coordinator selects only necessary specialists. Each specialist can run independently and logs an activity with input hashes, actual actor metadata, output artifacts/records and next action. Activity records explain model work; CLI events explain concrete local operations. Model labels never prove that a model performed work.
 
-Принципы сохранения наблюдений, офлайн-повтора, учёта ошибок, ограниченных повторов
-и последнего успешного результата вдохновлены практикой reddit-compass. Runtime-
-зависимости от другого проекта нет; его история и данные не копируются.
+## SQLite and immutable artifacts
 
-## Версии, оценки и ревью
+`records` stores JSON entities keyed by `(kind, id)`; `artifacts` stores relative paths, SHA-256 and byte counts; `meta` holds schema/runtime metadata. SQLite runs in WAL mode. Use the SQLite backup API for a consistent database snapshot instead of copying one file from an open WAL database.
 
-Оценка включает хеш входных вакансии, компании, фактов и политики. Изменение входов
-создаёт новую оценку. Пакет связан с вакансией или `master`, треком и списком
-версий; версия содержит фактическое авторство, пути, хеши, число страниц и ревью.
-Контекст фиксирует использованные факты и вакансию, поэтому последующие изменения
-базы не переписывают старый документ.
+Artifacts and retained versions are immutable by path. Different content at an occupied immutable path causes a conflict. A snapshot holds source bytes; an observation links those bytes to a source and vacancy. This supports offline replay and audit of normalized cards.
 
-`facts import PATH` сохраняет прежний и новый наборы в `facts-history/` и
-материализует локальные доказательства в `evidence/`. Использованный в пакете
-снимок фактов сохраняется вместе с ним. Импорт предпочтительнее прямого изменения
-рабочего `facts.json`: автоматический контроль ручных правок JSON не подразумевается.
+Deduplication uses provider IDs within company/provider scope, canonical URLs and saved aliases. A matching title is insufficient. Resolve ambiguous identities explicitly; retain previous annotations, decisions and document versions.
 
-Проверка привязана к точной версии и полному набору хешей. Техническая целостность,
-содержательное ревью, визуальное ревью, соответствие вакансии и отправка — разные
-состояния. `pending` честно отражает незавершённую проверку. Модельное имя — запись
-о реальном исполнителе, а не настройка, превращающая механический черновик в
-авторский текст.
+The source design adopts useful operational principles—preserved observations, offline replay, bounded retries, separate error state and last success—also seen in reddit-compass. It has no runtime dependency on that project and copies no private history or data.
 
-## Отчёты и расширение
+## Versioned evidence and independent states
 
-HTML и любые Markdown/CSV-выгрузки — формируемые представления SQLite. Их можно
-воссоздать; исправления в них не меняют журнал. Локальный HTML показывает компании,
-вакансии, документы, проверки, планы, события и состояние источников. Не публикуйте
-его через публичный хостинг: он содержит приватные рабочие данные.
+`facts import PATH` saves previous and new fact sets in `facts-history/` and materializes local references in `evidence/`. Package context snapshots preserve the exact facts used. Import is preferable to editing the current JSON directly; the CLI does not promise a history of arbitrary out-of-band edits.
 
-`report --open` записывает `report/index.html` внутри подключённого приватного
-пространства и открывает локальный файл в браузере; JSON-представления сущностей
-находятся рядом. Сервер и отдельная frontend-сборка не требуются. Публичный код
-обзора — [report.py](../src/job_search_agent/report.py), команды —
-[cli.py](../src/job_search_agent/cli.py), рендерер одноколоночного Markdown/PDF
-и проверки пакета — [workflow.py](../src/job_search_agent/workflow.py).
+An assessment hashes vacancy, company, facts and policy inputs. Changed inputs require a new assessment. A package is linked to `master` or a vacancy and a track; each version records authorship, files, hashes, page counts and reviews.
 
-CLI не использует модельный API: агент получает пакет задания и вручную выполняет
-авторство или ревью. Это делает видимым различие механической операции и суждения
-модели. Новые адаптеры подчиняются [SOURCES](SOURCES.md), изменения схемы и переносы
-— [OPERATIONS](OPERATIONS.md), любые публичные артефакты — [PRIVACY](PRIVACY.md).
+![Independent states](assets/states.en.svg)
+
+| State | What it answers | What it does not prove |
+| --- | --- | --- |
+| Source health | Did a collection route succeed, and how completely? | That all company vacancies were found |
+| Availability | What evidence says about a posting being live | Candidate suitability |
+| Evaluation | How requirements and policy match evidence | Document readiness |
+| Document readiness | Whether this exact version passed required checks | Actual submission |
+| Learning progress | Which output has demonstrated improvement | Commercial experience |
+| Application outcome | What was actually sent and what happened | Automatic progression from a ready CV |
+
+Reviews bind to an exact version and complete artifact hash dictionary. `pending` is an accurate incomplete state. Integrity verification, content approval, visual approval and external submission are distinct operations.
+
+## Reports, compatibility and extension
+
+HTML and exported JSON/Markdown/CSV are derived views. Editing them does not update SQLite. `report --open` generates `report/index.html` and opens a local file; no frontend build or web server is required. The report contains private data and should not be publicly hosted.
+
+Entry points are [cli.py](../src/job_search_agent/cli.py), persistence is [core.py](../src/job_search_agent/core.py), collection is [sources.py](../src/job_search_agent/sources.py), document/evaluation work is [workflow.py](../src/job_search_agent/workflow.py), and the local UI is [report.py](../src/job_search_agent/report.py). The distribution `job-search-agent`, import module `job_search_agent` and command `ajh` remain for compatibility with earlier versions.
+
+Adapters follow [source policy](SOURCES.md); migrations and recovery follow [operations](OPERATIONS.md); public artifacts follow [privacy](PRIVACY.md). See [data model](DATA_MODEL.md) before extending record kinds or contracts.

@@ -1,127 +1,89 @@
-# Эксплуатация
+# Operating and recovering a private workspace
 
-## Инициализация и конфигурация
+[English](OPERATIONS.md) · [Русский](ru/OPERATIONS.md) · [Documentation](../README.md#documentation)
 
-`ajh --home ABSOLUTE_PATH init` создаёт новое приватное пространство в новом или
-пустом каталоге. Для синтетического примера выполните `init --demo`, затем `demo`.
-Не используйте публичное дерево, его предка или весь домашний каталог.
-Все команды выполняйте из среды проекта через `uv run ajh`.
+Use an explicit persistent private workspace, preserve original evidence and test restoration before relying on a backup. The public repository is not a backup destination for candidate data.
 
-`facts import PATH` принимает приватный JSON с ровно двумя профилями, уникальными
-ID фактов и источниками. Локальные доказательства копируются в `evidence/`,
-прежний и новый наборы сохраняются в `facts-history/`, операция записывается в
-журнал. `record companies PATH` и `record vacancies PATH` обновляют карточку из
-JSON с сохранением прежнего и нового значения в событии. Передавайте целую
-актуальную карточку: команда не является частичным patch отдельных полей.
+## Environment and settings
 
-Проверьте `settings.json`: источники, бюджет запросов, политику компаний и уровней,
-период подготовки, фактическое модельное окружение и Unicode-шрифт. Реальные
-приоритеты не копируются в публичные defaults. Если параметр отсутствует в текущей
-реализации, запись в JSON сама по себе не добавляет ему поведение: уточните схему
-в коде и не заявляйте неподдержанный автоматический контроль.
+macOS and Linux are supported with Python 3.12+, `uv` and a Unicode TrueType font. The renderer checks common DejaVu and Arial locations; set `pdf_font` to an installed TTF when needed. Do not replace Cyrillic text with transliteration to make rendering pass.
 
-## Пробный перенос журнала
+`--home` precedes the command. `AI_JOB_HUNTER_HOME` is an alternative. `init` requires a new or empty directory; `init --demo` explicitly marks a synthetic workspace. The demo seeder refuses non-synthetic workspaces. See [getting started](GETTING_STARTED.md) for a complete offline run.
 
-Импорт поддерживает legacy JSON `schema_version: 2`, содержащий компании,
-вакансии, пакеты с версиями и события. Сначала сделайте согласованную резервную
-копию исходного журнала и документов. Создайте новое целевое пространство,
-сохраните исходный реестр неизменным, затем:
+Private settings cover sources, policy, request budget, learning horizon and PDF font. A JSON field does not implement a new runtime feature merely because it is present. [Configuration](CONFIGURATION.md) distinguishes active controls from human planning metadata.
+
+## Legacy migration rehearsal
+
+The importer supports a legacy JSON registry with `schema_version: 2`, companies, vacancies, packages with versions and events. It is not a generic folder importer. Back up the original registry and documents, create a new destination workspace and retain the original unchanged.
 
 ```sh
-uv run ajh --home /tmp/job-search-demo-EXAMPLE import-legacy /tmp/legacy-EXAMPLE/journal/registry.json --dry-run
-uv run ajh --home /tmp/job-search-demo-EXAMPLE import-legacy /tmp/legacy-EXAMPLE/journal/registry.json
-uv run ajh --home /tmp/job-search-demo-EXAMPLE verify
+uv run ajh --home /absolute/private/new-workspace import-legacy /absolute/private/legacy/journal/registry.json --dry-run
+uv run ajh --home /absolute/private/new-workspace import-legacy /absolute/private/legacy/journal/registry.json
+uv run ajh --home /absolute/private/new-workspace verify
 ```
 
-В реальной миграции подставьте свои приватные пути. `--dry-run` проверяет формат,
-конфликты, доступность обязательных документов и хеши, показывая ожидаемые
-количества. Он не переносит записи. Импорт сохраняет исходный JSON, исходные ID,
-события и payload версий, а файлы копирует в приватное `legacy/` с таблицей
-соответствия прежних и новых путей. Миграция ограничена документированным legacy-
-форматом: произвольная папка или другая схема требуют отдельного адаптера.
+Dry-run validates the format, conflicts, required documents and checksums and reports expected counts without importing records. Import preserves original JSON, IDs, events and version payloads. Files are copied under private `legacy/` with a path mapping.
 
-Перед приёмкой сравните число компаний, вакансий, пакетов, версий, исходных событий
-и файлов; сверяйте каждый исходный ID и SHA-256 документа. Новое событие миграции
-допустимо и не считается потерей или изменением исходных событий. Повторите импорт
-того же файла: не должны появляться дубли. Конфликт с более новыми данными блокирует
-импорт, а не перезаписывает их. Отсутствующий документ или несовпавший хеш также
-блокирует перенос. После исправления причины повторите dry-run и импорт.
+Compare company, vacancy, package, version, original-event and file counts, every original ID and each document SHA-256. A new migration event is expected; it does not replace original events. Import the same source again to check idempotency. Conflicts with newer records, missing required files or hash mismatches block migration instead of overwriting data. Correct the cause and repeat dry-run.
 
-## Проверка документов
+## Document review
 
-`prepare master --track product` и `prepare master --track technical-leadership`
-создают по одному логическому мастер-пакету с версионной историей. Пакет для
-вакансии имеет отдельный ID и сохраняет связь с треком. Не редактируйте файлы
-готовой версии на месте: измените рабочий исходник и снова запустите `prepare`.
+`prepare master --track product` and `prepare master --track technical-leadership` create separate logical master packages with version histories. Vacancy packages have their own identities and track links. Edit working source files and call `prepare` again instead of modifying retained artifacts in place.
 
-`review PACKAGE --report PATH` принимает типизированный JSON, привязанный к
-текущему `version_id` и полному словарю `sha256` версии. Отчёт содержит `kind`
-(`content` или `visual`), фактические `model` и `session`, `passed` и содержательные
-`findings`. Для содержательной проверки `model` должен совпадать с флагманом
-автора, а `session` — отличаться от авторской. Положительное ревью требует
-`coverage_complete: true`; сохранённая матрица должна содержать ровно одну строку
-на каждый ID факта из контекста, булево `included` и непустую `reason`.
+`review PACKAGE_ID --report PATH` reads a typed JSON report bound to the current `version_id` and complete `sha256` dictionary. Common fields are `kind` (`content` or `visual`), actual `model` and `session`, boolean `passed` and substantive `findings`.
 
-Положительное визуальное ревью требует `checked_pages` — полный последовательный
-список номеров страниц CV начиная с 1 — и `extracted_text_checked: true` после
-фактической сверки извлечённого текста. Если есть письмо, `letter_checked_pages`
-также содержит все номера его страниц начиная с 1; текст письма проверяется
-вместе с текстом CV. Пакет сохраняет исходник, PDF и извлечённый текст письма.
-Отрицательный отчёт с содержательными замечаниями допустим до завершения всех
-проверок и не переводит пакет в готовое состояние.
+For content approval, the reviewer model must be the author's required flagship and the session must differ from every author/editor session. `coverage_complete: true` is required. The saved coverage array must contain exactly one row per fact ID in context, boolean `included` and a nonempty `reason`.
 
-Рендерер принимает простой Markdown и выпускает одноколоночный A4 PDF с Unicode-
-шрифтом и номерами страниц. Поддержаны заголовки, абзацы и простые строки списков;
-ссылки раскрываются текстом. Сложные таблицы, колонки и произвольный HTML не являются
-поддержанным макетом CV. После изменения рендерера, шрифта или исходника выпускайте
-новую версию и повторяйте содержательную и визуальную проверку.
+For visual approval, `checked_pages` must contain every CV page in order starting at 1; `extracted_text_checked: true` records actual comparison of extracted text. If a letter exists, `letter_checked_pages` must cover all its pages too, and the extracted letter text must be checked. A negative report with meaningful findings is valid before every check is complete and does not make the package ready.
 
-Не копируйте положительный пример отчёта ради изменения статуса. Проверяющий
-должен реально открыть документы, сверить факты, осмотреть каждую страницу и
-прочитать извлечённый текст. После правки новый хеш требует нового ревью.
-`verify` обнаруживает технические несоответствия; наличие ожидающего ревью
-не означает повреждение файлов, но исключает заявление о готовности к отправке.
+A report outline for an actual failed content check is:
 
-## Резервирование и восстановление
+```json
+{
+  "kind": "content",
+  "version_id": "COPY_CURRENT_VERSION_ID",
+  "sha256": {},
+  "model": "ACTUAL_REVIEWER_MODEL",
+  "session": "ACTUAL_SEPARATE_REVIEW_SESSION",
+  "passed": false,
+  "coverage_complete": false,
+  "findings": ["The achievement is not supported by the supplied source."]
+}
+```
+
+Populate `sha256` with the complete dictionary from the real version. These placeholders deliberately do not constitute an executable positive approval. The reviewer must read the evidence and all delivered artifacts.
+
+The renderer supports single-column A4 Markdown with Unicode fonts, page numbers, headings, paragraphs and simple lists. Links are expanded as text. Arbitrary HTML, complex tables and multi-column CV layouts are outside the supported format. Font, renderer or source changes require a new version and applicable content and visual reviews.
+
+`verify` detects technical inconsistency. Pending reviews need not mean corruption, but they do prevent a claim of readiness.
+
+## Backup and restore
 
 ```sh
-uv run ajh --home /tmp/job-search-demo-EXAMPLE backup --destination /tmp/job-search-backup-EXAMPLE
-uv run ajh restore /tmp/job-search-backup-EXAMPLE --destination /tmp/job-search-restored-EXAMPLE
-uv run ajh --home /tmp/job-search-restored-EXAMPLE verify
+uv run ajh --home /absolute/private/career-workspace backup --destination /absolute/private/backups/career-snapshot
+uv run ajh restore /absolute/private/backups/career-snapshot --destination /absolute/private/career-restored
+uv run ajh --home /absolute/private/career-restored verify
+uv run ajh --home /absolute/private/career-restored report --open
 ```
 
-Используйте новые назначения вне активного пространства. Резервная копия должна
-содержать согласованный снимок SQLite, приватные настройки, факты и артефакты,
-а manifest — SHA-256 каждого файла. Восстановление выполняется в новый каталог
-после проверки manifest. Сравните число сущностей, ID, версии и хеши; затем
-откройте восстановленный отчёт и документы. Лишь успешное восстановление
-подтверждает пригодность копии.
+Use fresh destinations outside the active workspace. A backup contains a consistent SQLite snapshot, settings, facts and artifacts, plus a manifest with file hashes. Restore validates the manifest into a new directory. Compare entity counts, IDs, versions and hashes, then inspect restored documents and the report. A successful restore establishes that this copy is usable.
 
-Рекомендуемая политика хранения — 14 ежедневных и 8 еженедельных копий. Это
-операционная политика: CLI не устанавливает cron и не удаляет старые копии
-автоматически. Настройте планировщик и контролируемую ротацию отдельно, сохраняя
-хотя бы одну проверенную копию до удаления следующей. При совместной работе
-остановите записывающие процессы на время резервирования артефактов; SQLite-
-снимок сам по себе не гарантирует согласованность параллельно меняемых файлов.
+A suggested retention policy is 14 daily and 8 weekly copies. This is operational guidance: the CLI neither installs cron nor rotates backups. Configure scheduling and controlled retention separately, retaining a known-good copy until its replacement is verified.
 
-Локальная копия на том же диске не защищает от потери устройства. Внешнее
-зашифрованное резервирование требует отдельно настроенных назначения, ключей,
-расписания и проверки восстановления. Не называйте локальный backup внешним или
-зашифрованным без фактической настройки.
+Pause writers while backing up artifacts. A consistent database snapshot alone does not make concurrently changing files consistent. A local copy on the same disk does not protect against device loss; off-device encrypted backup needs its own destination, keys, scheduling and restore test. Do not describe a local directory as encrypted or remote without that setup.
 
-## Диагностика и изменения схемы
+## Troubleshooting and restart
 
-Если PDF не строится, проверьте установленный Unicode TTF и `pdf_font`; не заменяйте
-кириллицу транслитерацией ради прохождения проверки. Если источник пуст, смотрите
-его `status`, дату успеха, охват и исходный снимок до вывода «вакансий нет».
-Если ревью не принимается, сравните ID версии, все хеши, сессию автора/рецензента
-и покрытие страниц. Если ID конфликтует, сопоставьте происхождение и алиасы.
+| Symptom | Inspect | Recovery |
+| --- | --- | --- |
+| Empty discovery output | Enabled source selection, status, filters, snapshot and last success | Correct source scope or use an allowed route; preserve prior records |
+| PDF failure or missing glyphs | TTF path, source characters, supported Markdown | Install/configure a Unicode font and rebuild a new version |
+| Rejected review | Version ID, all hashes, actual reviewer/session, coverage and pages | Review the actual current version and correct the report |
+| Immutable path conflict | Origin, prior hash and intended version | Preserve prior bytes and create a new artifact/version |
+| Unknown or conflicting vacancy identity | Company/provider ID, canonical URLs and aliases | Reconcile evidence before merging |
+| Interrupted activity | `activity show ID`, recorded artifacts and last event | Finish failed/blocked with a next action or start a linked continuation |
+| Integrity failure | Missing/changed artifact and database integrity | Preserve diagnostics and restore from a verified copy |
 
-Перед изменением схемы сделайте backup и проверенное восстановление. Миграция
-должна явно принимать исходную версию, сохранять оригинал, работать транзакционно,
-иметь dry-run и проверку повторного запуска. Неизвестная версия схемы требует
-остановки. Автоматическая миграция произвольных будущих версий не обещается.
+Before schema changes, back up and rehearse restoration. Migrations should accept an explicit source schema, preserve originals, operate transactionally and support dry-run and repeated execution. Unknown schema versions require a stop; arbitrary future migrations are not promised.
 
-Перед передачей кода выполните линтер, форматирование, тесты и все три локальные
-проверки приватности из [PRIVACY](PRIVACY.md). Публикация и релиз — отдельные
-операции после проверки точного состава и истории, а не следствие успешного теста.
+Before handing off code, run formatting, lint, tests and the applicable privacy checks in [PRIVACY](PRIVACY.md). Publication and release are separate actions against an exact reviewed artifact set.

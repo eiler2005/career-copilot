@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="500px" height="784px" viewBox="0.00 0.00 499.57 784.35" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 764.19)">
+    <title>workflow</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-764.19 479.41,-764.19 479.41,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="8" y="-719.18" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">From a vacancy to a prepared candidate</text>
+    <text text-anchor="start" x="38.75" y="-705.68" font-family="Arial" font-size="13.00" fill="#526a72">An example full sequence; each role can also run independently</text>
+    <g id="node1" class="node">
+      <title>start</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-700.03C408.42,-700.03 50.83,-700.03 50.83,-700.03 44.83,-700.03 38.83,-694.03 38.83,-688.03 38.83,-688.03 38.83,-655.87 38.83,-655.87 38.83,-649.87 44.83,-643.87 50.83,-643.87 50.83,-643.87 408.42,-643.87 408.42,-643.87 414.42,-643.87 420.42,-649.87 420.42,-655.87 420.42,-655.87 420.42,-688.03 420.42,-688.03 420.42,-694.03 414.42,-700.03 408.42,-700.03" />
+      <text text-anchor="middle" x="229.62" y="-675.7" font-family="Arial" font-size="15.00" fill="#183d48">01 · Open an activity in the journal</text>
+      <text text-anchor="middle" x="229.62" y="-657.7" font-family="Arial" font-size="15.00" fill="#183d48">Goal, inputs, actual executor</text>
+    </g>
+    <g id="node2" class="node">
+      <title>research</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-617.87C408.42,-617.87 50.83,-617.87 50.83,-617.87 44.83,-617.87 38.83,-611.87 38.83,-605.87 38.83,-605.87 38.83,-573.71 38.83,-573.71 38.83,-567.71 44.83,-561.71 50.83,-561.71 50.83,-561.71 408.42,-561.71 408.42,-561.71 414.42,-561.71 420.42,-567.71 420.42,-573.71 420.42,-573.71 420.42,-605.87 420.42,-605.87 420.42,-611.87 414.42,-617.87 408.42,-617.87" />
+      <text text-anchor="middle" x="229.62" y="-593.54" font-family="Arial" font-size="15.00" fill="#183d48">02 · Research the vacancy + company</text>
+      <text text-anchor="middle" x="229.62" y="-575.54" font-family="Arial" font-size="15.00" fill="#183d48">Sources, dates, coverage, unknowns</text>
+    </g>
+    <g id="edge1" class="edge">
+      <title>start-&gt;research</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-643.81C229.62,-638.39 229.62,-632.61 229.62,-626.93" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-627.07 229.63,-620.07 227.18,-627.07 232.08,-627.07" />
+    </g>
+    <g id="node3" class="node">
+      <title>evaluate</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-535.71C408.42,-535.71 50.83,-535.71 50.83,-535.71 44.83,-535.71 38.83,-529.71 38.83,-523.71 38.83,-523.71 38.83,-491.55 38.83,-491.55 38.83,-485.55 44.83,-479.55 50.83,-479.55 50.83,-479.55 408.42,-479.55 408.42,-479.55 414.42,-479.55 420.42,-485.55 420.42,-491.55 420.42,-491.55 420.42,-523.71 420.42,-523.71 420.42,-529.71 414.42,-535.71 408.42,-535.71" />
+      <text text-anchor="middle" x="229.62" y="-511.38" font-family="Arial" font-size="15.00" fill="#183d48">03 · Evaluate fit</text>
+      <text text-anchor="middle" x="229.62" y="-493.38" font-family="Arial" font-size="15.00" fill="#183d48">Requirements ↔ verified evidence</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>research-&gt;evaluate</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-561.65C229.62,-556.23 229.62,-550.45 229.62,-544.77" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-544.91 229.63,-537.91 227.18,-544.91 232.08,-544.91" />
+    </g>
+    <g id="node4" class="node">
+      <title>cv</title>
+      <path fill="#e8eef8" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-453.55C408.42,-453.55 50.83,-453.55 50.83,-453.55 44.83,-453.55 38.83,-447.55 38.83,-441.55 38.83,-441.55 38.83,-409.39 38.83,-409.39 38.83,-403.39 44.83,-397.39 50.83,-397.39 50.83,-397.39 408.42,-397.39 408.42,-397.39 414.42,-397.39 420.42,-403.39 420.42,-409.39 420.42,-409.39 420.42,-441.55 420.42,-441.55 420.42,-447.55 414.42,-453.55 408.42,-453.55" />
+      <text text-anchor="middle" x="229.62" y="-429.22" font-family="Arial" font-size="15.00" fill="#183d48">04 · Tailor and edit the CV</text>
+      <text text-anchor="middle" x="229.62" y="-411.22" font-family="Arial" font-size="15.00" fill="#183d48">Track, evidence, coverage matrix</text>
+    </g>
+    <g id="edge3" class="edge">
+      <title>evaluate-&gt;cv</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-479.49C229.62,-474.07 229.62,-468.29 229.62,-462.61" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-462.75 229.63,-455.75 227.18,-462.75 232.08,-462.75" />
+    </g>
+    <g id="node5" class="node">
+      <title>letter</title>
+      <path fill="#e8eef8" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-371.39C408.42,-371.39 50.83,-371.39 50.83,-371.39 44.83,-371.39 38.83,-365.39 38.83,-359.39 38.83,-359.39 38.83,-327.23 38.83,-327.23 38.83,-321.23 44.83,-315.23 50.83,-315.23 50.83,-315.23 408.42,-315.23 408.42,-315.23 414.42,-315.23 420.42,-321.23 420.42,-327.23 420.42,-327.23 420.42,-359.39 420.42,-359.39 420.42,-365.39 414.42,-371.39 408.42,-371.39" />
+      <text text-anchor="middle" x="229.62" y="-347.06" font-family="Arial" font-size="15.00" fill="#183d48">05 · Write and edit the letter</text>
+      <text text-anchor="middle" x="229.62" y="-329.06" font-family="Arial" font-size="15.00" fill="#183d48">Vacancy context and exact CV version</text>
+    </g>
+    <g id="edge4" class="edge">
+      <title>cv-&gt;letter</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-397.33C229.62,-391.91 229.62,-386.13 229.62,-380.45" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-380.59 229.63,-373.59 227.18,-380.59 232.08,-380.59" />
+    </g>
+    <g id="node6" class="node">
+      <title>review</title>
+      <path fill="#fff3dd" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-289.23C408.42,-289.23 50.83,-289.23 50.83,-289.23 44.83,-289.23 38.83,-283.23 38.83,-277.23 38.83,-277.23 38.83,-245.07 38.83,-245.07 38.83,-239.07 44.83,-233.07 50.83,-233.07 50.83,-233.07 408.42,-233.07 408.42,-233.07 414.42,-233.07 420.42,-239.07 420.42,-245.07 420.42,-245.07 420.42,-277.23 420.42,-277.23 420.42,-283.23 414.42,-289.23 408.42,-289.23" />
+      <text text-anchor="middle" x="229.62" y="-264.9" font-family="Arial" font-size="15.00" fill="#183d48">06 · Content + visual review</text>
+      <text text-anchor="middle" x="229.62" y="-246.9" font-family="Arial" font-size="15.00" fill="#183d48">Independent session, all pages and hashes</text>
+    </g>
+    <g id="edge5" class="edge">
+      <title>letter-&gt;review</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-315.17C229.62,-309.75 229.62,-303.97 229.62,-298.29" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-298.43 229.63,-291.43 227.18,-298.43 232.08,-298.43" />
+    </g>
+    <g id="node7" class="node">
+      <title>interview</title>
+      <path fill="#f2f7f8" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-207.07C408.42,-207.07 50.83,-207.07 50.83,-207.07 44.83,-207.07 38.83,-201.07 38.83,-195.07 38.83,-195.07 38.83,-162.91 38.83,-162.91 38.83,-156.91 44.83,-150.91 50.83,-150.91 50.83,-150.91 408.42,-150.91 408.42,-150.91 414.42,-150.91 420.42,-156.91 420.42,-162.91 420.42,-162.91 420.42,-195.07 420.42,-195.07 420.42,-201.07 414.42,-207.07 408.42,-207.07" />
+      <text text-anchor="middle" x="229.62" y="-182.74" font-family="Arial" font-size="15.00" fill="#183d48">07 · Prepare for the interview</text>
+      <text text-anchor="middle" x="229.62" y="-164.74" font-family="Arial" font-size="15.00" fill="#183d48">Gaps, questions, practice, STAR</text>
+    </g>
+    <g id="edge6" class="edge">
+      <title>review-&gt;interview</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-233.01C229.62,-227.59 229.62,-221.81 229.62,-216.13" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-216.27 229.63,-209.27 227.18,-216.27 232.08,-216.27" />
+    </g>
+    <g id="node8" class="node">
+      <title>finish</title>
+      <path fill="#e7f3ef" stroke="#c2d3d8" stroke-width="1.1" d="M408.42,-124.91C408.42,-124.91 50.83,-124.91 50.83,-124.91 44.83,-124.91 38.83,-118.91 38.83,-112.91 38.83,-112.91 38.83,-80.75 38.83,-80.75 38.83,-74.75 44.83,-68.75 50.83,-68.75 50.83,-68.75 408.42,-68.75 408.42,-68.75 414.42,-68.75 420.42,-74.75 420.42,-80.75 420.42,-80.75 420.42,-112.91 420.42,-112.91 420.42,-118.91 414.42,-124.91 408.42,-124.91" />
+      <text text-anchor="middle" x="229.62" y="-100.58" font-family="Arial" font-size="15.00" fill="#183d48">08 · Close activity and refresh overview</text>
+      <text text-anchor="middle" x="229.62" y="-82.58" font-family="Arial" font-size="15.00" fill="#183d48">Artifacts, statistics, next action</text>
+    </g>
+    <g id="edge7" class="edge">
+      <title>interview-&gt;finish</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M229.62,-150.85C229.62,-145.43 229.62,-139.65 229.62,-133.97" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="232.08,-134.11 229.63,-127.11 227.18,-134.11 232.08,-134.11" />
+    </g>
+    <g id="node9" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M379.25,-42.75C379.25,-42.75 80,-42.75 80,-42.75 74,-42.75 68,-36.75 68,-30.75 68,-30.75 68,-12 68,-12 68,-6 74,0 80,0 80,0 379.25,0 379.25,0 385.25,0 391.25,-6 391.25,-12 391.25,-12 391.25,-30.75 391.25,-30.75 391.25,-36.75 385.25,-42.75 379.25,-42.75" />
+      <text text-anchor="middle" x="229.62" y="-31.35" font-family="Arial" font-size="12.00" fill="#526a72">Every stage leaves a record in the shared journal.</text>
+      <text text-anchor="middle" x="229.62" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">An edit creates a new version that needs fresh review.</text>
+      <text text-anchor="middle" x="229.62" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Document readiness does not mean an application was sent.</text>
+    </g>
+  </g>
+</svg>

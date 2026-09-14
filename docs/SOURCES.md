@@ -1,97 +1,79 @@
-# Источники и доступ
+# Sources, collection and honest coverage
 
-Необязательный `include_title` в приватной настройке источника фильтрует карточки
-по регулярному выражению названия после сохранения полного снимка. `observed_total`
-показывает количество объявлений до фильтра, `count` — сохранённые карточки. Это
-поисковый фильтр, не подтверждение уровня или соответствия кандидата.
+[English](SOURCES.md) · [Русский](ru/SOURCES.md) · [Documentation](../README.md#documentation)
 
-## Реестр
+Career Copilot collects published vacancies through five adapters and can replay compatible saved responses offline. It does not discover every employer automatically or guarantee that a previously observed vacancy is still open.
 
-Приватный `settings.json` содержит `sources`: стабильные `id`, `provider`,
-`company_id`, URL или идентификатор доски, `enabled`, `allowed_hosts`,
-`interval_seconds`, `max_pages` и при необходимости `user_agent`. Дополните
-запись описанием охвата и разрешённых резервных маршрутов. Состояние получения
-хранится отдельно в SQLite: время попытки, последний успех, количество карточек,
-HTTP-статус, результат и время следующей допустимой попытки.
+![Source collection and fallback routes](assets/sources.en.svg)
 
-Неизвестный размер компании остаётся неизвестным. Если исследователь добавляет
-число сотрудников, сохраняются метрика, дата/период, охват (вся группа или
-подразделение), URL и надёжность источника. Маркетинговое описание и собственные
-оценки кандидата не становятся независимым подтверждением.
+## Provider reference
 
-## Поддержанные маршруты
+| Provider | Private configuration | Implemented route | Official reference |
+| --- | --- | --- | --- |
+| `greenhouse` | `board` | Public jobs list with `content=true` | [Greenhouse Job Board API](https://docs.greenhouse.io/job-board.html) |
+| `lever` | `board` | Postings list, `limit=100`, bounded `skip` pagination | [Lever Postings API](https://github.com/lever/postings-api) |
+| `ashby` | `board` | Public job-board endpoint with compensation requested | [Ashby Job Postings API](https://developers.ashbyhq.com/docs/public-job-posting-api) |
+| `hh` | `employer_id` | Employer vacancies, `per_page=100`, bounded pages | [HH API documentation](https://api.hh.ru/openapi/redoc) |
+| `corporate` | `url` | Static HTML containing JSON-LD `JobPosting` objects | [Schema.org JobPosting](https://schema.org/JobPosting) |
 
-Приоритет получения: официальный API/ATS → официальный сайт → обычный браузер
-для динамической страницы → поисковый лид → ручной импорт. Резервный маршрут
-должен быть заранее допустим для источника; ошибка не разрешает произвольный обход.
+The adapter implementation is [sources.py](../src/job_search_agent/sources.py). Provider APIs offer more operations than this client implements. It performs read-only collection; application submission endpoints are not used. Current API behavior should be checked against the linked provider documentation when adding or changing a source.
 
-| Провайдер | Настройка и реализация | Первичная документация |
-| --- | --- | --- |
-| `greenhouse` | `board`; публичный список опубликованных вакансий с содержимым | [Greenhouse Job Board API](https://docs.greenhouse.io/job-board.html) |
-| `lever` | `board`; Postings API, ограниченная пагинация | [Lever Postings API](https://github.com/lever/postings-api) |
-| `ashby` | `board`; публичный job board endpoint | [Ashby Job Postings API](https://developers.ashbyhq.com/docs/public-job-posting-api) |
-| `hh` | `employer_id`; список вакансий работодателя, ограниченная пагинация | [Документация HH API](https://api.hh.ru/openapi/redoc) |
-| `corporate` | `url`; статический HTML с JSON-LD `JobPosting` | Адаптер читает опубликованную разметку; произвольные динамические сайты не поддерживаются автоматически |
+The HH list can contain excerpts. Retrieve the full official posting through an allowed route before assessing mandatory requirements. Absence from an excerpt is not evidence that a requirement does not exist. Corporate HTML without usable JSON-LD needs browser/manual research; the adapter is not a general JavaScript browser.
 
-HH-список может содержать сокращённое описание. Оно помечается соответствующим
-охватом; для оценки обязательных требований исследователь получает полную
-официальную карточку разрешённым маршрутом. Отсутствие требования в сокращении
-не доказывает отсутствие требования в вакансии.
+## Configure the source registry
 
-Браузер и поисковый лид в этой версии обслуживаются пользователем или агентом
-вне CLI. Сохраните оригинал ответа или страницы, URL, время получения, метод,
-состояние доступа и хеш в приватном пространстве. Для `--replay` нужен формат,
-который понимает соответствующий адаптер: текст JSON-ответа либо HTML с JSON-LD.
-Скриншот или произвольный текст требуют отдельной ручной разметки, а не объявления
-их API-ответом. Команда повторного анализа:
+Private `settings.json` contains `sources`. Each entry needs a stable `id`, `provider`, `company_id` and the provider's board/employer/URL value. Optional fields include `company_name`, `market`, `enabled`, `allowed_hosts`, `include_title`, `user_agent`, request interval, page budget and explicit proxy settings. [Configuration](CONFIGURATION.md) lists defaults and limits.
+
+`include_title` is a case-insensitive regular expression applied after the full snapshot is stored. It is a search filter, not a level or fit judgment. `count` reports retained cards; `observed_total` reports observed items before filtering and must be interpreted with the source attempt/history rather than as a market total.
+
+Company size research needs a named metric, value or range, date/period, organizational scope, source URL and confidence. An unknown headcount remains unknown. Marketing language and the candidate's impressions are not independent corroboration.
+
+## Collection and replay
+
+Prefer an official API/ATS, then the official website, an ordinary browser for dynamic content, a search lead, and manual import. Use only routes allowed for that source. A failed route does not authorize a bypass.
 
 ```sh
-uv run ajh --home /tmp/job-search-demo-EXAMPLE discover --source SOURCE_ID --replay snapshots/SOURCE_ID/SNAPSHOT.txt
+uv run ajh --home /absolute/private/career-workspace discover --source SOURCE_ID
+uv run ajh --home /absolute/private/career-workspace discover --source SOURCE_ID --replay snapshots/SOURCE_ID/SNAPSHOT.txt
 ```
 
-Путь снимка относителен приватному пространству. Повторный анализ сохранённого
-снимка не обращается к сети. Сам повторный анализ не подтверждает актуальность
-вакансии на сегодняшнюю дату.
+A replay path is relative to the private workspace. Save original response/page bytes with URL, retrieval time, access method, coverage and hash. Replay expects the adapter's JSON response or HTML with JSON-LD. Screenshots and arbitrary prose need explicit manual normalization; they are not API responses. A manual JSON envelope uses `{"vacancies": [...]}` and the `manual` parser for offline ingestion.
 
-## Ошибки, ограничения и свежесть
+Replay does not make a network request, refresh live source health or establish current availability. Replayed observations are historical; vacancy availability is unknown until a current authorized check establishes otherwise. Existing research annotations and document history must survive recollection and replay.
 
-`success_empty` означает корректно разобранную пустую выдачу. `parse_changed`,
-`timeout`, `network_error`, `http_error`, `blocked` и `auth_required` означают
-разные причины отсутствия результата. `partial` сохраняет полученную часть и
-причину незавершения. Лимит страниц или общего бюджета запросов не позволяет
-называть сбор полным. Ошибка получения не переводит старые вакансии в закрытые.
+## Results and failure states
 
-Ответ 429 сохраняет cooldown с учётом `Retry-After`; повторные ограничения
-увеличивают ожидание. CLI ограничивает запросы на запуск и число страниц.
-401/403/407/999, CAPTCHA, authwall и запрет доступа останавливают текущий маршрут.
-Редирект требует проверки; автоматического перехода на новый хост нет.
-Встроенного демона нет: `interval_seconds` определяет допустимость следующего
-получения, а запуск по расписанию настраивает оператор отдельно.
+| Source state | Interpretation | Next action |
+| --- | --- | --- |
+| `success_nonempty` | Successful collection retained vacancies | Review scope, titles and freshness |
+| `success_empty` | This successful attempt retained no vacancies | Inspect filters and observed coverage; do not claim the company has no jobs |
+| `partial` | Some results were saved but collection did not finish | Inspect `failure_status` and limits; retain saved records |
+| `cooldown` | Next permitted attempt has not arrived | Wait until `next_attempt` |
+| `rate_limited` | Provider returned HTTP 429 | Respect Retry-After and persisted cooldown |
+| `blocked`, `auth_required` | Access is denied or requires authentication | Stop that route; use a permitted alternative |
+| `timeout`, `network_error`, `http_error` | Retrieval failed | Preserve prior success and diagnose the specific failure |
+| `parse_changed` | Response no longer matches the parser | Inspect saved bytes and update/test the adapter |
+| `redirect_requires_review` | Redirect was not followed | Review destination and source configuration |
+| `budget_exhausted`, `response_too_large` | A configured/runtime limit stopped collection | Adjust an appropriate budget after inspection |
 
-Сохраняйте даты публикации/изменения источника отдельно от времени наблюдения.
-Перед откликом повторно проверьте официальную актуальность. Последний успешный
-результат остаётся доступен при последующей ошибке, но должен читаться вместе
-с датой успеха и текущим состоянием источника.
+Source failures often appear as entries in a JSON list with process exit code zero. Check each result's `status`, not only the exit code. The journal retains last attempt, last success, count, HTTP status and next permitted attempt. An error does not erase successful observations or prove a vacancy closed.
 
-## Прокси
+Availability states such as `open`, `archived`, `expired_copy` and `unknown` describe evidence about the posting. A fresh successful official list can support `open`; missing data, blocked access or stale copies do not support a confident live-status claim.
 
-Прокси допустим только для разрешённого технического маршрута конкретного
-источника: `proxy_allowed: true` и `proxy_env`, содержащий имя переменной
-окружения. Сам URL с учётными данными остаётся за пределами репозитория и логов.
-Глобальные прокси окружения автоматически не наследуются клиентом.
+## Limits and access policy
 
-Прокси не применяются для обхода блокировок, CAPTCHA или авторизации. При отказе
-не меняйте IP и не запускайте ротацию; используйте разрешённый ручной маршрут
-или оставьте источник недоступным. Это правило относится и к внешним браузерным
-инструментам, которые могут быть доступны агенту.
+The default run budget is 20 requests. Page count defaults to 3 and is clamped to 1–20; inter-request spacing is clamped to 4–30 seconds, including a host-level record across commands. The default source interval is 3,600 seconds. The HTTP client has a 25-second timeout, refuses automatic redirects and rejects responses larger than 5 MB after receiving them. These are runtime controls, not provider rate-limit guarantees.
 
-## Добавление адаптера
+HTTP 429 stores Retry-After/cooldown; repeated rate limits increase the wait, with at least an hour after the third recorded attempt. There is no automatic retry loop, daemon or scheduler. Earlier successful pages are retained on a later failure.
 
-Сначала проверьте первичную документацию и разрешённый read-only маршрут. Задайте
-схему источника и ограничения. Парсер должен работать с сохранённым текстом без
-сети, выдавать стабильный внешний ID, исходный URL, происхождение и охват данных.
-Сетевой слой сохраняет оригинал до нормализации и явно сообщает частичность.
+Use HTTPS and approved hosts. Embedded credentials and obvious local/private literal addresses are rejected, but this is not a complete DNS-rebinding defense. Treat source configuration as trusted private input. Do not claim comprehensive network sandboxing.
 
-Тестируйте только синтетические ответы: пустую выдачу, дубли, изменение схемы,
-пагинацию, 429, авторизацию, повреждённый JSON, JSON-LD и конфликт идентичности.
-Не добавляйте методы отправки заявления или сообщения под видом адаптера сбора.
+The client ignores ambient proxy configuration. Proxy use requires `proxy_allowed: true` and `proxy_env` naming an environment variable for that source. Keep credentials outside JSON and Git. Do not rotate proxies after blocks; no CAPTCHA bypass, login bypass or anti-bot evasion. LinkedIn proxy routes are forbidden. Browser and search fallback are agent/user work outside this CLI.
+
+Never send a CV, contact a recruiter or submit an application because collection succeeded. Each external action requires its applicable user authorization.
+
+## Adding an adapter
+
+Check the provider's primary documentation and permitted read-only route. Define source fields and limits, then make the parser operate on saved bytes without a network dependency. Preserve stable external IDs, original URLs, provenance and content scope. The transport saves originals before normalization and reports partial coverage explicitly.
+
+Use synthetic fixtures for empty lists, duplicates, schema changes, pagination, 429, authorization failures, malformed JSON, JSON-LD and ambiguous identity. Do not add application or messaging methods under the label of a collection adapter.

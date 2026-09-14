@@ -1,0 +1,28 @@
+digraph architecture {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Eight roles. One shared working memory.</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Skills execute in Codex / Claude sessions</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  user [label="User\nGoal, facts, decisions", fillcolor="#E7F3EF", color="#A2CBBB"];
+  coordinator [label="Coordinator · career-copilot\nStage selection and exact-version handoffs", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45"];
+  skills [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Job discovery</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-job-search</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Company research</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-company-research</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>CV tailoring</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-cv-tailor</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Natural writing</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-natural-writing</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Cover letter</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-cover-letter</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Interview preparation</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-interview-prep</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF" COLSPAN="2" ALIGN="LEFT"><B>Journal and statistics</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">career-journal-stats</FONT></TD></TR>
+    </TABLE>>];
+  cli [label="Deterministic CLI · ajh\nCollection, versions, reviews, activity, report", fillcolor="#E8EEF8", color="#B5C6E0"];
+  private [shape=plain, label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="13" COLOR="#A4CABD" BGCOLOR="#F7FBF9">
+      <TR><TD COLSPAN="2"><FONT POINT-SIZE="12" COLOR="#356F60"><B>PRIVATE WORKSPACE</B><BR/>Explicit --home outside the application tree</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF"><B>SQLite</B><BR/><FONT POINT-SIZE="12">Records, events, statistics</FONT></TD><TD BGCOLOR="#E7F3EF"><B>Facts and artifacts</B><BR/><FONT POINT-SIZE="12">Snapshots, versions, SHA-256</FONT></TD></TR>
+    </TABLE>>];
+  report [label="Local overview and next action\nResults derived from the journal", fillcolor="#FFFFFF"];
+  note [shape=plain, label="Roles are independently callable. The CLI has no model calls,\napplication sending, or background scheduler.", fontsize=12, fontcolor="#526A72"];
+  user -> coordinator -> skills -> cli;
+  cli -> private -> report;
+  report -> note [style=invis];
+}

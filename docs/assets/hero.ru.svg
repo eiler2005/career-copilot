@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-labelledby="title desc">
+  <title id="title">Career Copilot</title>
+  <desc id="desc">Поиск вакансий, доказательные резюме и подготовка к интервью. Два трека и одна приватная база фактов.</desc>
+  <rect width="960" height="360" rx="24" fill="#102D39"/>
+  <path d="M620 0H936Q960 0 960 24V336Q960 360 936 360H620Z" fill="#163C48"/>
+  <circle cx="890" cy="50" r="115" fill="#1B4650"/>
+  <circle cx="690" cy="340" r="112" fill="#1B4650"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="40" y="34" width="168" height="26" rx="13" fill="#BEE9DD"/>
+    <text x="124" y="52" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="1.3" fill="#153B38">КАРЬЕРА · ФАКТЫ</text>
+    <text x="38" y="119" font-size="53" font-weight="700" letter-spacing="-1.6" fill="#FFFFFF">Career Copilot</text>
+    <text x="40" y="160" font-size="24" fill="#E5F0F2">От вакансии к сильному интервью.</text>
+    <text x="40" y="196" font-size="18" fill="#AECAD1">Ваш опыт. Проверяемые факты. Ясный текст.</text>
+    <rect x="40" y="229" width="145" height="36" rx="18" fill="#254D59"/>
+    <text x="112.5" y="252" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">product</text>
+    <rect x="195" y="229" width="217" height="36" rx="18" fill="#254D59"/>
+    <text x="303.5" y="252" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">technical-leadership</text>
+    <text x="40" y="313" font-size="15" fill="#BEE9DD">Одна приватная база · Версии · Независимое ревью</text>
+    <rect x="666" y="51" width="236" height="252" rx="18" fill="#FFFFFF"/>
+    <rect x="684" y="34" width="236" height="252" rx="18" fill="#E9F4F1"/>
+    <rect x="702" y="64" width="200" height="57" rx="10" fill="#D2EAE3"/>
+    <circle cx="725" cy="91" r="10" fill="#267568"/>
+    <path d="M720 91L724 95L731 87" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="745" y="89" font-size="14" font-weight="700" fill="#173D3A">ФАКТЫ</text>
+    <text x="745" y="108" font-size="12" fill="#35605B">Источники и контекст</text>
+    <path d="M802 123V139" stroke="#72A899" stroke-width="2"/>
+    <rect x="702" y="141" width="200" height="50" rx="10" fill="#FFFFFF"/>
+    <text x="719" y="163" font-size="14" font-weight="700" fill="#173D3A">CV + ПИСЬМО</text>
+    <text x="719" y="180" font-size="12" fill="#35605B">Точная версия, полное ревью</text>
+    <path d="M802 193V207" stroke="#72A899" stroke-width="2"/>
+    <rect x="702" y="209" width="200" height="50" rx="10" fill="#FFFFFF"/>
+    <text x="719" y="231" font-size="14" font-weight="700" fill="#173D3A">ИНТЕРВЬЮ</text>
+    <text x="719" y="248" font-size="12" fill="#35605B">Пробелы, практика, прогресс</text>
+    <text x="802" y="326" text-anchor="middle" font-size="13" fill="#BEE9DD">Codex / Claude · локально</text>
+  </g>
+</svg>

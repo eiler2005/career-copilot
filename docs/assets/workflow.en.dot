@@ -1,0 +1,19 @@
+digraph workflow {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>From a vacancy to a prepared candidate</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">An example full sequence; each role can also run independently</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  start [label="01 · Open an activity in the journal\nGoal, inputs, actual executor", fillcolor="#E7F3EF", width=5.3];
+  research [label="02 · Research the vacancy + company\nSources, dates, coverage, unknowns", fillcolor="#F2F7F8", width=5.3];
+  evaluate [label="03 · Evaluate fit\nRequirements ↔ verified evidence", fillcolor="#F2F7F8", width=5.3];
+  cv [label="04 · Tailor and edit the CV\nTrack, evidence, coverage matrix", fillcolor="#E8EEF8", width=5.3];
+  letter [label="05 · Write and edit the letter\nVacancy context and exact CV version", fillcolor="#E8EEF8", width=5.3];
+  review [label="06 · Content + visual review\nIndependent session, all pages and hashes", fillcolor="#FFF3DD", width=5.3];
+  interview [label="07 · Prepare for the interview\nGaps, questions, practice, STAR", fillcolor="#F2F7F8", width=5.3];
+  finish [label="08 · Close activity and refresh overview\nArtifacts, statistics, next action", fillcolor="#E7F3EF", width=5.3];
+  note [shape=plain, fontsize=12, fontcolor="#526A72", label="Every stage leaves a record in the shared journal.\nAn edit creates a new version that needs fresh review.\nDocument readiness does not mean an application was sent."];
+  start -> research -> evaluate -> cv -> letter -> review -> interview -> finish;
+  finish -> note [style=invis];
+}

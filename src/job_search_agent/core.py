@@ -121,6 +121,7 @@ def init_home(value: str | Path, *, demo: bool = False) -> Path:
 
 class Store:
     def __init__(self, home: str | Path):
+        self.activity_id: str | None = None
         self.home = validate_home(home)
         if not (self.home / "workspace.json").is_file():
             raise ValueError("Workspace is not initialized; use ajh init --home ABSOLUTE_PATH")
@@ -188,7 +189,33 @@ class Store:
         key = "evt-" + digest(value)[:24]
         if not self.get("events", key):
             self.put("events", {"id": key, "at": now(), **value}, immutable=True)
+        if self.activity_id:
+            link = {"activity_id": self.activity_id, "event_id": key}
+            link_id = "link-" + digest(link)[:24]
+            if not self.get("activity_events", link_id):
+                self.put("activity_events", {"id": link_id, "at": now(), **link}, immutable=True)
         return key
+
+    def artifact_intact(self, relative: str) -> bool:
+        row = self.db.execute(
+            "SELECT sha256,bytes FROM artifacts WHERE path=?", (relative,)
+        ).fetchone()
+        path = self.path(relative)
+        return bool(
+            row
+            and path.is_file()
+            and path.stat().st_size == row[1]
+            and digest(path.read_bytes()) == row[0]
+        )
+
+    def insertion_order(self, kind: str) -> list[dict]:
+        """Stable insertion chronology for immutable records predating explicit pointers."""
+        return [
+            json.loads(row[0])
+            for row in self.db.execute(
+                "SELECT payload FROM records WHERE kind=? ORDER BY rowid", (kind,)
+            )
+        ]
 
     def artifact(self, relative: str, data: str | bytes) -> str:
         value = data.encode() if isinstance(data, str) else data

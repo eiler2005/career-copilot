@@ -11,7 +11,7 @@ import webbrowser
 from contextlib import contextmanager
 from pathlib import Path
 
-from . import backup, privacy, report, sources, workflow
+from . import activity, backup, privacy, report, sources, stats, workflow
 from .core import TRACKS, Store, atomic_write, digest, encode, init_home, public_root, read_json
 
 
@@ -189,7 +189,15 @@ def parser() -> argparse.ArgumentParser:
         default=os.environ.get("AI_JOB_HUNTER_HOME"),
         help="Explicit external private workspace",
     )
+    root.add_argument("--activity-id", help="Link command events to a running activity")
     commands = root.add_subparsers(dest="command", required=True)
+    actions = commands.add_parser("activity").add_subparsers(dest="activity_command", required=True)
+    actions.add_parser("start").add_argument("--request", required=True, type=Path)
+    actions.add_parser("show").add_argument("activity")
+    finish = actions.add_parser("finish")
+    finish.add_argument("activity")
+    finish.add_argument("--result", required=True, type=Path)
+    commands.add_parser("stats")
     init = commands.add_parser("init")
     init.add_argument("--demo", action="store_true")
     commands.add_parser("demo")
@@ -215,6 +223,8 @@ def parser() -> argparse.ArgumentParser:
         prepare.add_argument("--" + option, type=Path)
     prepare.add_argument("--author-model")
     prepare.add_argument("--author-session")
+    prepare.add_argument("--contributors", type=Path)
+    prepare.add_argument("--letter-record")
     review = commands.add_parser("review")
     review.add_argument("package_id")
     review.add_argument("--report", type=Path, required=True)
@@ -273,6 +283,16 @@ def run(args) -> dict | list:
     if args.command == "init":
         return {"home": str(init_home(args.home, demo=args.demo)), "initialized": True}
     with Store(args.home) as store, locked(store):
+        if args.activity_id:
+            activity.bind(store, args.activity_id)
+        if args.command == "activity":
+            if args.activity_command == "start":
+                return activity.start(store, args.request)
+            if args.activity_command == "show":
+                return activity.show(store, args.activity)
+            return activity.finish(store, args.activity, args.result)
+        if args.command == "stats":
+            return stats.compute(store)
         if args.command == "demo":
             return seed_demo(store)
         if args.command == "facts":
@@ -307,6 +327,8 @@ def run(args) -> dict | list:
                 author_session=args.author_session,
                 letter=args.letter,
                 coverage_file=args.coverage,
+                contributors_file=args.contributors,
+                letter_record=args.letter_record,
             )
         if args.command == "review":
             return workflow.record_review(store, args.package_id, args.report)

@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="515px" height="810px" viewBox="0.00 0.00 514.57 810.46" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 790.3)">
+    <title>architecture</title>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-790.3 494.41,-790.3 494.41,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="8" y="-745.29" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Eight roles. One shared working memory.</text>
+    <text text-anchor="start" x="112.25" y="-731.79" font-family="Arial" font-size="13.00" fill="#526a72">Skills execute in Codex / Claude sessions</text>
+    <g id="node1" class="node">
+      <title>user</title>
+      <path fill="#e7f3ef" stroke="#a2cbbb" stroke-width="1.1" d="M311.15,-726.14C311.15,-726.14 163.1,-726.14 163.1,-726.14 157.1,-726.14 151.1,-720.14 151.1,-714.14 151.1,-714.14 151.1,-681.98 151.1,-681.98 151.1,-675.98 157.1,-669.98 163.1,-669.98 163.1,-669.98 311.15,-669.98 311.15,-669.98 317.15,-669.98 323.15,-675.98 323.15,-681.98 323.15,-681.98 323.15,-714.14 323.15,-714.14 323.15,-720.14 317.15,-726.14 311.15,-726.14" />
+      <text text-anchor="middle" x="237.12" y="-701.81" font-family="Arial" font-size="15.00" fill="#183d48">User</text>
+      <text text-anchor="middle" x="237.12" y="-683.81" font-family="Arial" font-size="15.00" fill="#183d48">Goal, facts, decisions</text>
+    </g>
+    <g id="node2" class="node">
+      <title>coordinator</title>
+      <path fill="#173b45" stroke="#173b45" stroke-width="1.1" d="M382.77,-643.98C382.77,-643.98 91.48,-643.98 91.48,-643.98 85.48,-643.98 79.47,-637.98 79.47,-631.98 79.47,-631.98 79.47,-599.82 79.47,-599.82 79.47,-593.82 85.47,-587.82 91.47,-587.82 91.47,-587.82 382.77,-587.82 382.77,-587.82 388.77,-587.82 394.77,-593.82 394.77,-599.82 394.77,-599.82 394.77,-631.98 394.77,-631.98 394.77,-637.98 388.77,-643.98 382.77,-643.98" />
+      <text text-anchor="middle" x="237.12" y="-619.65" font-family="Arial" font-size="15.00" fill="#ffffff">Coordinator · career-copilot</text>
+      <text text-anchor="middle" x="237.12" y="-601.65" font-family="Arial" font-size="15.00" fill="#ffffff">Stage selection and exact-version handoffs</text>
+    </g>
+    <g id="edge1" class="edge">
+      <title>user-&gt;coordinator</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M237.12,-669.92C237.12,-664.5 237.12,-658.72 237.12,-653.04" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="239.58,-653.18 237.13,-646.18 234.68,-653.18 239.58,-653.18" />
+    </g>
+    <g id="node3" class="node">
+      <title>skills</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M377.88,-561.82C377.88,-561.82 96.38,-561.82 96.38,-561.82 90.37,-561.82 84.38,-555.82 84.38,-549.82 84.38,-549.82 84.38,-361.82 84.38,-361.82 84.38,-355.82 90.38,-349.82 96.38,-349.82 96.38,-349.82 377.88,-349.82 377.88,-349.82 383.88,-349.82 389.88,-355.82 389.88,-361.82 389.88,-361.82 389.88,-549.82 389.88,-549.82 389.88,-555.82 383.88,-561.82 377.88,-561.82" />
+      <polygon fill="#f2f7f8" stroke="none" points="84.38,-508.82 84.38,-561.82 210.88,-561.82 210.88,-508.82 84.38,-508.82" />
+      <polygon fill="none" stroke="#d1dee2" points="84.38,-508.82 84.38,-561.82 210.88,-561.82 210.88,-508.82 84.38,-508.82" />
+      <text text-anchor="start" x="97.38" y="-535.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Job discovery</text>
+      <text text-anchor="start" x="100.75" y="-523.42" font-family="Arial" font-size="12.00" fill="#183d48">career-job-search</text>
+      <polygon fill="#f2f7f8" stroke="none" points="210.88,-508.82 210.88,-561.82 389.88,-561.82 389.88,-508.82 210.88,-508.82" />
+      <polygon fill="none" stroke="#d1dee2" points="210.88,-508.82 210.88,-561.82 389.88,-561.82 389.88,-508.82 210.88,-508.82" />
+      <text text-anchor="start" x="223.88" y="-535.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Company research</text>
+      <text text-anchor="start" x="223.88" y="-523.42" font-family="Arial" font-size="12.00" fill="#183d48">career-company-research</text>
+      <polygon fill="#f2f7f8" stroke="none" points="84.38,-455.82 84.38,-508.82 210.88,-508.82 210.88,-455.82 84.38,-455.82" />
+      <polygon fill="none" stroke="#d1dee2" points="84.38,-455.82 84.38,-508.82 210.88,-508.82 210.88,-455.82 84.38,-455.82" />
+      <text text-anchor="start" x="97.38" y="-482.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">CV tailoring</text>
+      <text text-anchor="start" x="100" y="-470.42" font-family="Arial" font-size="12.00" fill="#183d48">career-cv-tailor</text>
+      <polygon fill="#f2f7f8" stroke="none" points="210.88,-455.82 210.88,-508.82 389.88,-508.82 389.88,-455.82 210.88,-455.82" />
+      <polygon fill="none" stroke="#d1dee2" points="210.88,-455.82 210.88,-508.82 389.88,-508.82 389.88,-455.82 210.88,-455.82" />
+      <text text-anchor="start" x="223.88" y="-482.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Natural writing</text>
+      <text text-anchor="start" x="223.88" y="-470.42" font-family="Arial" font-size="12.00" fill="#183d48">career-natural-writing</text>
+      <polygon fill="#f2f7f8" stroke="none" points="84.38,-402.82 84.38,-455.82 210.88,-455.82 210.88,-402.82 84.38,-402.82" />
+      <polygon fill="none" stroke="#d1dee2" points="84.38,-402.82 84.38,-455.82 210.88,-455.82 210.88,-402.82 84.38,-402.82" />
+      <text text-anchor="start" x="97.38" y="-429.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Cover letter</text>
+      <text text-anchor="start" x="97.38" y="-417.42" font-family="Arial" font-size="12.00" fill="#183d48">career-cover-letter</text>
+      <polygon fill="#f2f7f8" stroke="none" points="210.88,-402.82 210.88,-455.82 389.88,-455.82 389.88,-402.82 210.88,-402.82" />
+      <polygon fill="none" stroke="#d1dee2" points="210.88,-402.82 210.88,-455.82 389.88,-455.82 389.88,-402.82 210.88,-402.82" />
+      <text text-anchor="start" x="223.88" y="-429.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Interview preparation</text>
+      <text text-anchor="start" x="243.75" y="-417.42" font-family="Arial" font-size="12.00" fill="#183d48">career-interview-prep</text>
+      <polygon fill="#e7f3ef" stroke="none" points="84.38,-349.82 84.38,-402.82 389.88,-402.82 389.88,-349.82 84.38,-349.82" />
+      <polygon fill="none" stroke="#d1dee2" points="84.38,-349.82 84.38,-402.82 389.88,-402.82 389.88,-349.82 84.38,-349.82" />
+      <text text-anchor="start" x="97.38" y="-376.57" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Journal and statistics</text>
+      <text text-anchor="start" x="123.62" y="-364.42" font-family="Arial" font-size="12.00" fill="#183d48">career-journal-stats</text>
+    </g>
+    <g id="edge2" class="edge">
+      <title>coordinator-&gt;skills</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M237.12,-587.36C237.12,-582.13 237.12,-576.37 237.12,-570.27" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="239.58,-570.65 237.13,-563.65 234.68,-570.65 239.58,-570.65" />
+    </g>
+    <g id="node4" class="node">
+      <title>cli</title>
+      <path fill="#e8eef8" stroke="#b5c6e0" stroke-width="1.1" d="M385.02,-323.82C385.02,-323.82 89.23,-323.82 89.23,-323.82 83.23,-323.82 77.22,-317.82 77.22,-311.82 77.22,-311.82 77.22,-279.66 77.22,-279.66 77.22,-273.66 83.22,-267.66 89.22,-267.66 89.22,-267.66 385.02,-267.66 385.02,-267.66 391.02,-267.66 397.02,-273.66 397.02,-279.66 397.02,-279.66 397.02,-311.82 397.02,-311.82 397.02,-317.82 391.02,-323.82 385.02,-323.82" />
+      <text text-anchor="middle" x="237.12" y="-299.49" font-family="Arial" font-size="15.00" fill="#183d48">Deterministic CLI · ajh</text>
+      <text text-anchor="middle" x="237.12" y="-281.49" font-family="Arial" font-size="15.00" fill="#183d48">Collection, versions, reviews, activity, report</text>
+    </g>
+    <g id="edge3" class="edge">
+      <title>skills-&gt;cli</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M237.12,-350.26C237.12,-344.23 237.12,-338.42 237.12,-332.99" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="239.58,-333.14 237.13,-326.14 234.68,-333.14 239.58,-333.14" />
+    </g>
+    <g id="node5" class="node">
+      <title>private</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M402.88,-241.66C402.88,-241.66 71.38,-241.66 71.38,-241.66 65.38,-241.66 59.38,-235.66 59.38,-229.66 59.38,-229.66 59.38,-148.66 59.38,-148.66 59.38,-142.66 65.38,-136.66 71.38,-136.66 71.38,-136.66 402.88,-136.66 402.88,-136.66 408.88,-136.66 414.88,-142.66 414.88,-148.66 414.88,-148.66 414.88,-229.66 414.88,-229.66 414.88,-235.66 408.88,-241.66 402.88,-241.66" />
+      <polygon fill="#f7fbf9" stroke="none" points="59.38,-136.66 59.38,-241.66 414.88,-241.66 414.88,-136.66 59.38,-136.66" />
+      <text text-anchor="start" x="170.75" y="-217.26" font-family="Arial" font-weight="bold" font-size="12.00" fill="#356f60">PRIVATE WORKSPACE</text>
+      <text text-anchor="start" x="124.25" y="-205.26" font-family="Arial" font-size="12.00" fill="#356f60">Explicit --home outside the application tree</text>
+      <polygon fill="#e7f3ef" stroke="none" points="60.38,-137.66 60.38,-190.66 224.38,-190.66 224.38,-137.66 60.38,-137.66" />
+      <text text-anchor="start" x="118" y="-164.41" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">SQLite</text>
+      <text text-anchor="start" x="73.38" y="-152.26" font-family="Arial" font-size="12.00" fill="#183d48">Records, events, statistics</text>
+      <polygon fill="#e7f3ef" stroke="none" points="224.38,-137.66 224.38,-190.66 413.88,-190.66 413.88,-137.66 224.38,-137.66" />
+      <text text-anchor="start" x="252.38" y="-164.41" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Facts and artifacts</text>
+      <text text-anchor="start" x="237.38" y="-152.26" font-family="Arial" font-size="12.00" fill="#183d48">Snapshots, versions, SHA-256</text>
+      <polygon fill="none" stroke="#a4cabd" points="59.38,-136.66 59.38,-241.66 414.88,-241.66 414.88,-136.66 59.38,-136.66" />
+    </g>
+    <g id="edge4" class="edge">
+      <title>cli-&gt;private</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M237.12,-267.26C237.12,-261.9 237.12,-256.07 237.12,-250.12" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="239.58,-250.22 237.13,-243.22 234.68,-250.22 239.58,-250.22" />
+    </g>
+    <g id="node6" class="node">
+      <title>report</title>
+      <path fill="#ffffff" stroke="#c2d3d8" stroke-width="1.1" d="M345.65,-110.66C345.65,-110.66 128.6,-110.66 128.6,-110.66 122.6,-110.66 116.6,-104.66 116.6,-98.66 116.6,-98.66 116.6,-66.5 116.6,-66.5 116.6,-60.5 122.6,-54.5 128.6,-54.5 128.6,-54.5 345.65,-54.5 345.65,-54.5 351.65,-54.5 357.65,-60.5 357.65,-66.5 357.65,-66.5 357.65,-98.66 357.65,-98.66 357.65,-104.66 351.65,-110.66 345.65,-110.66" />
+      <text text-anchor="middle" x="237.12" y="-86.33" font-family="Arial" font-size="15.00" fill="#183d48">Local overview and next action</text>
+      <text text-anchor="middle" x="237.12" y="-68.33" font-family="Arial" font-size="15.00" fill="#183d48">Results derived from the journal</text>
+    </g>
+    <g id="edge5" class="edge">
+      <title>private-&gt;report</title>
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M237.12,-136.79C237.12,-131.1 237.12,-125.39 237.12,-119.94" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="239.58,-119.95 237.13,-112.95 234.68,-119.95 239.58,-119.95" />
+    </g>
+    <g id="node7" class="node">
+      <title>note</title>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M392.62,-28.5C392.62,-28.5 81.62,-28.5 81.62,-28.5 76.88,-28.5 72.12,-23.75 72.12,-19 72.12,-19 72.12,-9.5 72.12,-9.5 72.12,-4.75 76.88,0 81.62,0 81.62,0 392.62,0 392.62,0 397.38,0 402.12,-4.75 402.12,-9.5 402.12,-9.5 402.12,-19 402.12,-19 402.12,-23.75 397.38,-28.5 392.62,-28.5" />
+      <text text-anchor="middle" x="237.12" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">Roles are independently callable. The CLI has no model calls,</text>
+      <text text-anchor="middle" x="237.12" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">application sending, or background scheduler.</text>
+    </g>
+  </g>
+</svg>

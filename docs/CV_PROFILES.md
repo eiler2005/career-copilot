@@ -1,95 +1,58 @@
-# Два мастер-профиля CV
+# Two master CV profiles
 
-## Каркасы и модули
+[English](CV_PROFILES.md) · [Русский](ru/CV_PROFILES.md) · [Documentation](../README.md#documentation)
 
-| Ключ | Семейство ролей | Основной акцент |
+Two master profiles share one evidence base. A vacancy-specific CV selects and explains relevant evidence from the chosen profile.
+
+| Track key | Roles | Evidence to foreground |
 | --- | --- | --- |
-| `product` | Product Manager, Product Lead, Head/Director of Product, CPO | Клиентские потребности, discovery, стратегия, метрики, коммерциализация, P&L и развитие продукта |
-| `technical-leadership` | Engineering Manager, Head/Director of Engineering, CTO; подходящее техническое лидерство в крупных компаниях | Архитектура, инженерная организация, платформы, качество, надёжность, масштабирование и команды |
+| `product` | Product Manager, Product Lead, Head/Director of Product, CPO | Customer needs, discovery, strategy, metrics, commercialization, P&L and product growth |
+| `technical-leadership` | Engineering Manager, Head/Director of Engineering, CTO; suitable senior technical leadership | Architecture, engineering organization, platforms, quality, reliability, scale and teams |
 
-Мастер-профилей ровно два. AI, payments, enterprise/API, developer tools и
-industrial technology — тематические модули: они меняют выбор и порядок
-подтверждённых доказательств внутри каркаса. Они не создают отдельную базу фактов
-или третье мастер-резюме. Технический трек применим в разных отраслях.
+AI, payments, enterprise/API, developer tools and industrial technology are overlays. They change emphasis and ordering within a track; they do not create another master CV or a competing biography. The technical track applies across industries.
 
-Порядок адаптации: **подтверждённые факты → каркас → модуль → компания и уровень**.
-Официальная должность остаётся неизменной даже при другом целевом позиционировании.
-Заполненные профили и личные приоритеты хранятся приватно; публичные примеры
-используют только вымышленные биографии.
+Adapt in this order: **verified facts → master track → domain overlay → company and level**. Preserve official job titles even when target positioning differs. Filled profiles and individual priorities remain private.
 
-## Структура документа
+## Document structure
 
-1. Контакты и целевое позиционирование.
-2. Краткое профессиональное резюме выбранного трека.
-3. Избранные достижения и профессиональное признание.
-4. Основной опыт: официальные должности, периоды, ответственность и результаты.
-5. Релевантные проекты, клиенты и международные партнёрства.
-6. Собственные продукты и инженерные проекты.
-7. Образование, компетенции, полная библиография и остальные подтверждённые достижения.
+1. Contact details and target positioning.
+2. A short track-specific professional summary.
+3. Selected achievements and professional distinctions.
+4. Employment history with official titles, dates, responsibilities and results.
+5. Relevant projects, clients and international partnerships.
+6. Independently created products and engineering projects.
+7. Education, competencies, full bibliography and remaining verified achievements.
 
-Блок отличий размещается непосредственно после summary и виден на первой странице.
-Выберите 3–5 сильных доказательств: авторство, точное участие в отмеченном наградой
-проекте, созданный продукт и результаты его применения, подтверждённую экспертную
-роль, сочетание технического, управленческого и коммерческого масштаба.
+Place the distinctions block immediately after the summary, visible on page one. Select three to five meaningful facts when the evidence supports them: authorship, accurately attributed participation in an award-winning project, a shipped product and its demonstrated use, a verified expert role, or evidence spanning technical, management and commercial responsibilities.
 
-В продуктовом варианте приоритет получают признание продукта, авторство,
-коммерческий эффект и международный опыт. В техническом — инженерные продукты,
-архитектурные результаты, публикации, экспертиза и масштаб команд. Подтверждённые
-книги и награды заметны в обоих вариантах. Наличие этих категорий в шаблоне не
-разрешает придумывать их кандидату, у которого таких фактов нет.
+Product positioning gives priority to product recognition, authorship, commercial effect and international experience. Technical positioning foregrounds engineering products, architectural outcomes, publications, expertise and team scale. Verified books and awards remain visible in both versions when applicable. A template category never authorizes inventing an achievement.
 
-Записка о публикациях и наградах, если она есть в приватной базе, служит отправной
-точкой проверки. Личная награда и награда клиентского проекта различаются.
-Указывайте роль кандидата и статус подтверждения; неподтверждённый факт нельзя
-усилить словами «независимо проверено».
+A private publication/award note can start verification. Distinguish a personal award from recognition of a client project; state the candidate's contribution and verification status. Self-reported claims cannot become “independently verified” through editing.
 
-## Сохранение доказательств
+## Preserve the evidence
 
-Автоматического лимита в две страницы нет. Читаемые 3–4 страницы допустимы,
-если они сохраняют релевантные доказательства. Число страниц не заменяет оценку
-плотности, иерархии и читаемости. Верхний блок не оправдывает потерю существенных
-клиентов, хронологии и инженерных проектов.
+There is no default two-page cutoff. Readable three- or four-page CVs can be appropriate when they preserve relevant evidence. Review density, hierarchy and readability; page count is not a quality score. A concise opening must not erase important clients, chronology or engineering projects.
 
-Матрица покрытия содержит каждый существенный факт из исходной базы: включён ли
-он, где раскрыт либо почему исключён. Причина должна объяснять содержательное
-решение, например нерелевантность конкретной роли или конфликт источников.
-«Не поместилось» требует переработки структуры, а не автоматического удаления.
+The coverage JSON includes exactly one row for every fact in the package context, with `fact_id`, boolean `included` and a specific nonempty `reason`. Explain where an included fact appears or why it is omitted. “It did not fit” calls for a layout/structure decision, not automatic deletion.
 
-Не смешивайте работодателей, клиентов, партнёров и собственные проекты. Сохраняйте
-даты и официальные должности. Плановая экономия, целевой объём продаж и ожидаемый
-эффект — цели, пока результат не подтверждён. Учебный проект не является
-коммерческим стажем, а упоминание навыка не доказывает владение.
+Keep employers, clients, partners and independent projects distinct. Retain dates and official roles. Planned savings, target revenue and expected outcomes stay targets until confirmed as results. Practice projects do not create commercial tenure; a skill keyword does not prove ability.
 
-## Уровень вакансии
+Natural editing should preserve the candidate's voice, meaning, confidence and factual limits. Remove vague boilerplate and repetitive phrasing while retaining precise claims. Do not add anecdotes or numerical outcomes to sound more human. There is no promise of passing AI detectors.
 
-Политика уровня задаётся в приватных настройках. Для выбранных бигтехов может
-применяться порог L5+ в обоих треках и на любом рынке, включая российский.
-Это исключение проверяется до российского директорского фильтра для остальных
-работодателей. Публичная конфигурация не содержит личного списка бигтехов.
+## Level and role-family policy
 
-Храните исходное обозначение работодателя (`level.raw`), источник обозначения,
-семейство роли, управленческий/IC-характер и доказательство соответствия порогу.
-`company_levels` задаёт подтверждённые допустимые и более низкие уровни отдельно
-для каждой компании со ссылкой на источник. Одинаковые числа разных компаний не
-означают одинаковый уровень; универсальной числовой таблицы нет.
+Configure level rules privately. Selected large technology employers can use a confirmed L5+ policy in both tracks and all markets, including Russia. Apply this exception before the Russian director filter for other companies. Public defaults contain no personal employer list.
 
-Неизвестный или несопоставленный уровень — «уточнить». В техническом треке основной
-фокус — руководство. Техническое лидерство без прямых подчинённых в бигтехе
-оценивается отдельно от менеджмента и только при соответствии опыту. Само L5+
-не делает подходящей любую инженерную или исследовательскую вакансию.
+Preserve `level.raw`, its source, role family, management/IC status and evidence of threshold equivalence. `policy.company_levels` stores company-specific accepted and below-threshold labels with a source. The same number at two employers need not mean the same level; there is no universal numerical conversion table.
 
-Географический баланс, например 70/30, — настраиваемый ориентир усилий. Он не
-ограничивает число результатов и не заставляет отклонять подходящую вакансию.
+Unknown or unmapped levels require clarification. Technical leadership primarily targets management. A senior IC role at a large technology company needs its own evidence-based assessment of leadership scope and candidate experience. L5+ alone does not make every engineering or research opening relevant.
 
-## Приёмка пакета
+A market effort ratio, for example 70/30, guides research time. It is not a result quota or a reason to discard a suitable vacancy.
 
-Пакет сохраняет исходник, PDF, извлечённый текст, письмо при необходимости,
-контекст фактов и вакансии, матрицу покрытия, версии и проверки. Авторство и
-независимое содержательное ревью следуют [WORKFLOW](WORKFLOW.md). Проверяющий
-осматривает каждую страницу PDF, порядок чтения, переносы, символы, контакты,
-ссылки, блок отличий на первой странице и извлечённый текст. Письмо проверяется
-так же, если включено в пакет.
+## Acceptance
 
-Изменение любого проверенного артефакта требует новой проверки его новой версии.
-Факт генерации PDF, число страниц и успешный хеш-контроль не подтверждают
-содержательную или визуальную готовность.
+Each package preserves source Markdown, PDF, extracted text, optional letter, fact/vacancy context, coverage, version metadata and reviews. Authorship follows [the workflow model policy](WORKFLOW.md#people-models-and-authority).
+
+Review every PDF page, reading order, line breaks, Unicode characters, contacts, links, page-one distinctions and extracted text. When a letter is included, review its full PDF and text too. Source, renderer or font changes require a new version and new applicable reviews.
+
+Generating a PDF, counting its pages or matching its checksum establishes no content or visual approval. See [operations](OPERATIONS.md#document-review) for the exact review fields.

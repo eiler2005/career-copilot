@@ -1,0 +1,21 @@
+digraph states {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad=0.28, nodesep=0.25, ranksep=0.36,
+    fontname="Arial", fontsize=23, fontcolor="#173B45", labelloc=t,
+    label=<<B>Independent states. Verifiable numbers.</B><BR/><FONT POINT-SIZE="13" COLOR="#526A72">Separate dimensions, not a single status funnel</FONT>>];
+  node [shape=box, style="rounded,filled", fillcolor="#F2F7F8", color="#C2D3D8",
+    fontname="Arial", fontsize=15, fontcolor="#183D48", penwidth=1.1, margin="0.20,0.14"];
+  edge [color="#668C95", penwidth=1.25, arrowsize=0.7, fontname="Arial", fontsize=11, fontcolor="#526A72"];
+  dimensions [shape=plain, label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Vacancy availability</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Open / closed / unknown</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Observation</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Official source + date.<BR ALIGN="LEFT"/>A collection error does not mean closed.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Candidate fit</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Requirements and constraints</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Evidence</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Facts, level, eligibility, track.<BR ALIGN="LEFT"/>Unknowns need clarification.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E7F3EF" ALIGN="LEFT"><B>Document readiness</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">pending / passed</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Exact version</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Authorship, content and visual review.<BR ALIGN="LEFT"/>New hashes require a fresh review.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#FFF3DD" ALIGN="LEFT"><B>Submission evidence</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Version, channel, time, confirmation</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>External action</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Separate authorization and evidence.<BR ALIGN="LEFT"/>A ready package does not send itself.</FONT></TD></TR>
+      <TR><TD BGCOLOR="#F1EEF8" ALIGN="LEFT"><B>Interview preparation</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Plan, practice, feedback</FONT></TD><TD BGCOLOR="#F2F7F8" ALIGN="LEFT"><B>Demonstrated progress</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Reading a resource does not prove skill.<BR ALIGN="LEFT"/>A learning project does not become work history.</FONT></TD></TR>
+    </TABLE>>];
+  activity [label="Activity lifecycle\nStarted → completed / blocked / failed\nActual model and session, inputs, outputs, next action", fillcolor="#E7F3EF", fontsize=14];
+  stats [label="Statistics derived from SQLite\nCount records and evidenced events without duplicates.\nUnobserved tokens, cost and duration remain unknown.", fillcolor="#173B45", fontcolor="#FFFFFF", color="#173B45", fontsize=14];
+  note [shape=plain, label="verify checks integrity, not readiness to submit.", fontsize=12, fontcolor="#526A72"];
+  dimensions -> activity [style=invis];
+  activity -> stats; stats -> note [style=invis];
+}
