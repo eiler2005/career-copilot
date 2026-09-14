@@ -1,4 +1,4 @@
-# Job Search Agent
+# Career Copilot
 
 Read README.md, docs/WORKFLOW.md and docs/PRIVACY.md before work.
 The canonical behavior is documented in docs/, not duplicated in runtime-specific prompts.
