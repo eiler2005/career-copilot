@@ -1,0 +1,23 @@
+{
+  "id": "synthetic-platform-manager",
+  "company_id": "example-systems",
+  "title": "Platform Product Manager (fictional)",
+  "location": "Example City",
+  "market": "unknown",
+  "urls": ["https://example.invalid/jobs/platform-manager"],
+  "availability": "unknown",
+  "level": {"raw": null, "source": null},
+  "role_family": "product",
+  "requirements": [
+    {
+      "id": "metrics",
+      "text": "Explain platform adoption and retention metrics",
+      "source": "Synthetic posting text",
+      "mandatory": true,
+      "tag": "product-metrics",
+      "gap_type": "knowledge",
+      "evidence_fact_ids": [],
+      "evidence_reviewed": false
+    }
+  ]
+}

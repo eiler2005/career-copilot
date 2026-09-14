@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "job-search-agent"
+version = "0.1.0"
+description = "Private-by-design job search, evidence-led CVs and interview preparation"
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.28,<1", "reportlab>=4.2,<5", "pypdf>=5,<7"]
+
+[project.scripts]
+ajh = "job_search_agent.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/job_search_agent"]

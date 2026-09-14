@@ -1,0 +1,26 @@
+{
+  "sources": [
+    {
+      "id": "synthetic-board",
+      "provider": "greenhouse",
+      "board": "REPLACE_WITH_PUBLIC_BOARD_TOKEN",
+      "company_id": "example-systems",
+      "company_name": "Example Systems (fictional)",
+      "enabled": false,
+      "market": "unknown",
+      "interval_seconds": 3600,
+      "request_gap_seconds": 4,
+      "max_pages": 3,
+      "proxy_allowed": false
+    }
+  ],
+  "policy": {
+    "bigtech_company_ids": [],
+    "company_levels": {},
+    "russia_director_only": false,
+    "market_effort": {}
+  },
+  "max_requests_per_run": 20,
+  "weeks": 6,
+  "hours_per_week": 6
+}

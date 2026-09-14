@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+uv run --frozen ajh privacy check --scope index --gitleaks
+uv run --frozen ajh privacy check --scope history --gitleaks
