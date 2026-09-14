@@ -22,6 +22,7 @@ SAFE_ROOT_FILES = {
     "pyproject.toml",
     "uv.lock",
     ".gitignore",
+    ".gitattributes",
     ".gitleaks.toml",
     ".pre-commit-config.yaml",
     "SECURITY.md",
