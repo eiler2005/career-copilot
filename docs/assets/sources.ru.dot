@@ -9,6 +9,7 @@ digraph sources {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
       <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Публичные API / ATS</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Greenhouse · Lever · Ashby · HH</FONT></TD></TR>
       <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Официальная страница</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Статический HTML с JSON-LD JobPosting</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Датасет зарплат</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">LinkedIn Salaries · публичный jobs.json · агрегированная зарплата</FONT></TD></TR>
     </TABLE>>];
   access [label="Разрешённый маршрут\nХосты, бюджет запросов, лимит страниц"];
   snapshot [label="Сохранить исходный снимок\nИсточник, URL, время, охват, SHA-256", fillcolor="#E7F3EF"];
@@ -17,7 +18,7 @@ digraph sources {
   manual [label="Агент / пользователь вне CLI\nБраузер, поисковый лид, ручной импорт", fillcolor="#FFF3DD"];
   replay [label="Офлайн replay\nПоддержанный JSON / JSON-LD", fillcolor="#E7F3EF"];
   health [label="Различать результаты\nПустая выдача · частичная · ошибка · блокировка\nCooldown сохраняется; ошибка не закрывает вакансии", fillcolor="#FFF3DD", fontsize=13];
-  note [shape=plain, label="HH-список может быть сокращённым. Скриншот — не API-ответ.\nReplay не подтверждает актуальность вакансии сегодня.", fontsize=12, fontcolor="#526A72"];
+  note [shape=plain, label="HH-список может быть сокращённым. Скриншот — не API-ответ.\nАгрегированная зарплата и replay не подтверждают актуальность вакансии сегодня.", fontsize=12, fontcolor="#526A72"];
   providers -> access -> snapshot -> normalize -> store;
   manual -> replay [style=dashed];
   replay -> snapshot [style=dashed, label="без сети"];

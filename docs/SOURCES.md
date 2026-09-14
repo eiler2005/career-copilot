@@ -2,23 +2,53 @@
 
 [English](SOURCES.md) · [Русский](ru/SOURCES.md) · [Documentation](../README.md#documentation)
 
-Career Copilot collects published vacancies through five adapters and can replay compatible saved responses offline. It does not discover every employer automatically or guarantee that a previously observed vacancy is still open.
+Career Copilot collects published vacancies through six adapters and can replay compatible saved responses offline. Official employer boards support verification of hiring details; aggregator cards add leads and salary context. Neither route guarantees complete market coverage or that a previously observed vacancy is still open.
 
 ![Source collection and fallback routes](assets/sources.en.svg)
 
 ## Provider reference
 
-| Provider | Private configuration | Implemented route | Official reference |
+| Provider | Private configuration | Implemented route | Primary reference |
 | --- | --- | --- | --- |
 | `greenhouse` | `board` | Public jobs list with `content=true` | [Greenhouse Job Board API](https://docs.greenhouse.io/job-board.html) |
 | `lever` | `board` | Postings list, `limit=100`, bounded `skip` pagination | [Lever Postings API](https://github.com/lever/postings-api) |
 | `ashby` | `board` | Public job-board endpoint with compensation requested | [Ashby Job Postings API](https://developers.ashbyhq.com/docs/public-job-posting-api) |
 | `hh` | `employer_id` | Employer vacancies, `per_page=100`, bounded pages | [HH API documentation](https://api.hh.ru/openapi/redoc) |
 | `corporate` | `url` | Static HTML containing JSON-LD `JobPosting` objects | [Schema.org JobPosting](https://schema.org/JobPosting) |
+| `linkedinsalaries` | `url: https://linkedinsalaries.com/jobs.json` | Public salary-index JSON dataset; one response | [Dataset](https://linkedinsalaries.com/jobs.json) · [Publisher](https://linkedinsalaries.com/) |
 
 The adapter implementation is [sources.py](../src/job_search_agent/sources.py). Provider APIs offer more operations than this client implements. It performs read-only collection; application submission endpoints are not used. Current API behavior should be checked against the linked provider documentation when adding or changing a source.
 
 The HH list can contain excerpts. Retrieve the full official posting through an allowed route before assessing mandatory requirements. Absence from an excerpt is not evidence that a requirement does not exist. Corporate HTML without usable JSON-LD needs browser/manual research; the adapter is not a general JavaScript browser.
+
+## LinkedIn Salaries: salary context for new leads
+
+[LinkedIn Salaries](https://linkedinsalaries.com/) publishes a [public JSON dataset](https://linkedinsalaries.com/jobs.json) with job cards and compensation context. The `linkedinsalaries` adapter reads that dataset directly. It is an aggregator source, separate from LinkedIn and the employer's official vacancy page.
+
+| Dataset information | How Career Copilot uses it |
+| --- | --- |
+| `generatedAtMs`, `todayKey` | Retained in the original dataset snapshot as collection context |
+| `jobs[]`: `id`, `url`, `title`, `company`, `companyLocation` | Posting identity, outbound link, title and employer/location context |
+| `jobType`, `jobLevel`, `jobMode`, `jobPayments`, `jobTime`, `region`, `easyApply` | Source-provided classifications; these do not establish candidate fit or eligibility |
+| `salaryCite` | Original compensation wording, retained as `compensation.raw` |
+| `salaryUsdMo` | The provider's monthly USD figure, retained as `compensation.normalized_monthly_usd` |
+| `publishedMs`, `dayKey` | Publication context retained in the snapshot; `dayKey` is also recorded as the source publication label |
+
+Normalized listings use `content_scope: "salary_index_card"`, with empty vacancy text and requirements until separately researched. `companyLocation` is the provider's company-location label, not a verified work location or proof of remote eligibility.
+
+Compensation metadata identifies `source: "linkedinsalaries.com"`, `currency: "USD"`, `period: "month"` and `reliability: "aggregated"`. Currency and period describe the normalized figure; the original wording may use a different currency, range or payment interval. Missing or unusable normalized values remain null.
+
+The monthly USD figure is the provider's conversion, not an exchange-rate calculation performed by Career Copilot or a verified employer offer. Preserve the original salary text when comparing leads. Dataset classifications, including `jobLevel`, do not replace the employer-specific seniority and role-family checks.
+
+**One request reads one dataset.** The adapter does not paginate, scrape landing-page HTML, traverse archives or follow outbound posting links. Increasing `max_pages` does not expand this route. Dataset coverage and freshness belong to the source; a recent generation timestamp does not establish completeness across LinkedIn or the job market.
+
+Every newly discovered listing uses `availability: unknown`. Confirm that the role is still open and obtain its full requirements from an official employer/ATS source before treating it as application-ready. A source publication date alone does not establish current availability.
+
+Each card creates or updates its own employer record, with a `linkedinsalaries-` ID derived from the dataset's company name. The configured `company_id: "linkedinsalaries-index"` identifies the source; it is not counted as the employer of every listing. Reconcile company-name aliases deliberately when connecting an aggregator lead to an existing researched company.
+
+The request goes only to the public dataset endpoint. The adapter does not request LinkedIn pages, log in, automate a browser or use a proxy route. Normal request budgets, cooldown, size limits and error reporting apply. Inspect a changed JSON schema rather than treating a parsing failure as an empty search result.
+
+Use the [private configuration example](CONFIGURATION.md#linkedin-salaries-source). The original JSON is saved with the source observation; its outbound LinkedIn URL identifies the advertised posting but is never fetched during collection or replay. Replaying the saved dataset works offline and does not refresh availability.
 
 ## Configure the source registry
 
@@ -37,7 +67,7 @@ uv run ajh --home /absolute/private/career-workspace discover --source SOURCE_ID
 uv run ajh --home /absolute/private/career-workspace discover --source SOURCE_ID --replay snapshots/SOURCE_ID/SNAPSHOT.txt
 ```
 
-A replay path is relative to the private workspace. Save original response/page bytes with URL, retrieval time, access method, coverage and hash. Replay expects the adapter's JSON response or HTML with JSON-LD. Screenshots and arbitrary prose need explicit manual normalization; they are not API responses. A manual JSON envelope uses `{"vacancies": [...]}` and the `manual` parser for offline ingestion.
+A replay path is relative to the private workspace. Save original response/page bytes with URL, retrieval time, access method, coverage and hash. Replay expects the adapter's JSON response, including the LinkedIn Salaries dataset, or corporate HTML with JSON-LD. Screenshots and arbitrary prose need explicit manual normalization; they are not API responses. A manual JSON envelope uses `{"vacancies": [...]}` and the `manual` parser for offline ingestion.
 
 Replay does not make a network request, refresh live source health or establish current availability. Replayed observations are historical; vacancy availability is unknown until a current authorized check establishes otherwise. Existing research annotations and document history must survive recollection and replay.
 

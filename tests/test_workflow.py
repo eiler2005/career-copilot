@@ -53,6 +53,38 @@ def test_dedup_canonical_url_and_preserve_decision(store):
     assert store.get("vacancies", original["id"])["decision"] == "user decision"
 
 
+def test_incomplete_source_refresh_keeps_researched_vacancy_text(store):
+    researched = {
+        "id": "synthetic-researched-role",
+        "company_id": "synthetic-employer",
+        "external_id": "123",
+        "provider": "manual",
+        "title": "Synthetic role",
+        "location": "unknown",
+        "market": "intl",
+        "urls": ["https://example.invalid/jobs/123"],
+        "text": "Verified full vacancy requirements.",
+        "requirements": [],
+        "availability": "unknown",
+        "content_scope": "full",
+    }
+    store.observe_vacancy(researched, "manual-research", "research-snapshot")
+    salary_index_card = {
+        **researched,
+        "id": "linkedinsalaries-123",
+        "provider": "linkedinsalaries",
+        "text": "",
+        "content_scope": "salary_index_card",
+    }
+    assert (
+        store.observe_vacancy(salary_index_card, "linkedinsalaries-public", "salary-snapshot")
+        == researched["id"]
+    )
+    refreshed = store.get("vacancies", researched["id"])
+    assert refreshed["text"] == "Verified full vacancy requirements."
+    assert refreshed["content_scope"] == "full"
+
+
 @pytest.mark.parametrize(
     "raw,evidence,expected",
     [("L5", True, "pass"), ("L4", True, "fail"), ("L5", False, "flag"), ("Other", True, "flag")],
@@ -204,6 +236,128 @@ def test_corporate_jsonld_and_schema_failure():
     assert sources.parse_jobs("corporate", body, source)[0]["availability"] == "unknown"
     with pytest.raises(ValueError):
         sources.parse_jobs("corporate", "No JSON-LD", source)
+
+
+def linkedinsalaries_payload(**overrides):
+    job = {
+        "id": "4444444444",
+        "url": "https://www.linkedin.com/jobs/view/4444444444/",
+        "title": "Synthetic Product Lead",
+        "company": "Synthetic Company",
+        "companyLocation": "Exampleland",
+        "jobType": "po",
+        "jobLevel": "senior",
+        "jobMode": "remote",
+        "jobPayments": "salary",
+        "jobTime": "fulltime",
+        "region": "remote",
+        "easyApply": False,
+        "salaryUsdMo": 12345,
+        "salaryCite": "120,000–180,000 Example Currency yearly",
+        "dayKey": "2026-09-14",
+    }
+    job.update(overrides)
+    return {"todayKey": "2026-09-14", "jobs": [job]}
+
+
+def linkedinsalaries_source():
+    return {
+        "id": "linkedinsalaries-public-dataset",
+        "provider": "linkedinsalaries",
+        "company_id": "linkedinsalaries-index",
+        "url": "https://linkedinsalaries.com/jobs.json",
+        "allowed_hosts": ["linkedinsalaries.com"],
+        "market": "intl",
+        "max_pages": 1,
+        "interval_seconds": 4,
+    }
+
+
+def test_linkedinsalaries_parser_preserves_salary_as_aggregated_metadata():
+    jobs = sources.parse_jobs(
+        "linkedinsalaries", json.dumps(linkedinsalaries_payload()), linkedinsalaries_source()
+    )
+    job = jobs[0]
+    assert job["company_id"] == sources.source_company_id("Synthetic Company")
+    assert job["availability"] == "unknown"
+    assert job["urls"] == ["https://www.linkedin.com/jobs/view/4444444444"]
+    assert job["compensation"] == {
+        "source": "linkedinsalaries.com",
+        "raw": "120,000–180,000 Example Currency yearly",
+        "normalized_monthly_usd": 12345,
+        "currency": "USD",
+        "period": "month",
+        "reliability": "aggregated",
+    }
+    assert job["source_labels"]["dataset_date"] == "2026-09-14"
+    without_salary = sources.parse_jobs(
+        "linkedinsalaries",
+        json.dumps(linkedinsalaries_payload(salaryUsdMo=None)),
+        linkedinsalaries_source(),
+    )
+    assert without_salary[0]["compensation"]["normalized_monthly_usd"] is None
+    for unusable_salary in (float("inf"), float("nan"), -1, True):
+        parsed = sources.parse_jobs(
+            "linkedinsalaries",
+            json.dumps(linkedinsalaries_payload(salaryUsdMo=unusable_salary)),
+            linkedinsalaries_source(),
+        )
+        assert parsed[0]["compensation"]["normalized_monthly_usd"] is None
+    for identity_override in (
+        {"id": None},
+        {"id": True},
+        {"title": None},
+        {"title": 42},
+        {"company": None},
+        {"company": 42},
+    ):
+        with pytest.raises(ValueError, match="identity fields"):
+            sources.parse_jobs(
+                "linkedinsalaries",
+                json.dumps(linkedinsalaries_payload(**identity_override)),
+                linkedinsalaries_source(),
+            )
+    with pytest.raises(ValueError, match="LinkedIn vacancy"):
+        sources.parse_jobs(
+            "linkedinsalaries",
+            json.dumps(linkedinsalaries_payload(url="https://example.invalid/job")),
+            linkedinsalaries_source(),
+        )
+
+
+def test_linkedinsalaries_company_ids_preserve_unicode_identity():
+    assert sources.source_company_id("Synthetic A+B") != sources.source_company_id("Synthetic A B")
+    assert sources.source_company_id("Example") != sources.source_company_id("Example 公司")
+    assert sources.source_company_id(" Example\u00a0Company ") == sources.source_company_id(
+        "Example Company"
+    )
+
+
+def test_linkedinsalaries_discovery_creates_employer_not_aggregate_source(store):
+    settings = store.settings
+    settings["sources"] = [linkedinsalaries_source()]
+    atomic_write(store.home / "settings.json", encode(settings))
+    with httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, text=json.dumps(linkedinsalaries_payload()))
+        )
+    ) as client:
+        result = sources.discover(store, client=client)
+    assert result[0]["status"] == "success_nonempty"
+    assert store.get("companies", "linkedinsalaries-index") is None
+    company = store.get("companies", sources.source_company_id("Synthetic Company"))
+    assert company["name"] == "Synthetic Company"
+    vacancy = store.get("vacancies", "linkedinsalaries-4444444444")
+    assert vacancy["availability"] == "unknown"
+    assert vacancy["content_scope"] == "salary_index_card"
+
+
+def test_linkedinsalaries_rejects_any_route_except_public_dataset():
+    source = linkedinsalaries_source()
+    assert sources.endpoint(source) == "https://linkedinsalaries.com/jobs.json"
+    source["url"] = "https://www.linkedin.com/jobs/view/4444444444"
+    with pytest.raises(ValueError, match="jobs.json"):
+        sources.endpoint(source)
 
 
 def configure_source(store):

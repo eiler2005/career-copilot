@@ -55,7 +55,7 @@ The **CLI** hashes and preserves inputs, collects supported sources, applies exp
 
 ## Sources and trustworthy progress
 
-Read-only adapters support Greenhouse, Lever, Ashby, HH and corporate pages with static JSON-LD. Original snapshots make parser replay possible without another network request. Collection records empty results, partial coverage, cooldowns and errors separately; a blocked page does not become “no vacancies.”
+Six read-only adapters support Greenhouse, Lever, Ashby, HH, corporate pages with static JSON-LD and the public LinkedIn Salaries JSON dataset. The salary index adds leads with original pay wording and the provider's monthly USD figures; LinkedIn pages are never requested by that adapter, and discovered availability stays unknown. Original snapshots support offline replay. Collection records empty results, partial coverage, cooldowns and errors separately; a blocked page does not become “no vacancies.”
 
 Availability, suitability, document readiness, demonstrated learning and actual submission are separate states. A technically valid PDF is not a reviewed CV. A ready package is not a sent application. Company size includes its metric, date, organizational scope and source; missing evidence remains unknown.
 

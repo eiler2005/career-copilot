@@ -9,6 +9,7 @@ digraph sources {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="12" COLOR="#D1DEE2">
       <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Public APIs / ATS</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Greenhouse · Lever · Ashby · HH</FONT></TD></TR>
       <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Official careers page</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">Static HTML with JSON-LD JobPosting</FONT></TD></TR>
+      <TR><TD BGCOLOR="#E8EEF8" ALIGN="LEFT"><B>Salary-index dataset</B><BR ALIGN="LEFT"/><FONT POINT-SIZE="12">LinkedIn Salaries · public jobs.json · aggregated pay</FONT></TD></TR>
     </TABLE>>];
   access [label="Allowed access route\nHosts, request budget, page limit"];
   snapshot [label="Preserve the source snapshot\nSource, URL, time, coverage, SHA-256", fillcolor="#E7F3EF"];
@@ -17,7 +18,7 @@ digraph sources {
   manual [label="Agent / user outside the CLI\nBrowser, search lead, manual import", fillcolor="#FFF3DD"];
   replay [label="Offline replay\nSupported JSON / JSON-LD", fillcolor="#E7F3EF"];
   health [label="Keep outcomes distinct\nEmpty · partial · error · blocked\nCooldown persists; errors do not close vacancies", fillcolor="#FFF3DD", fontsize=13];
-  note [shape=plain, label="HH listing content can be abbreviated. A screenshot is not an API response.\nReplay does not confirm that a vacancy is still open today.", fontsize=12, fontcolor="#526A72"];
+  note [shape=plain, label="HH listing content can be abbreviated. A screenshot is not an API response.\nAggregated pay and replay do not confirm that a vacancy is still open today.", fontsize=12, fontcolor="#526A72"];
   providers -> access -> snapshot -> normalize -> store;
   manual -> replay [style=dashed];
   replay -> snapshot [style=dashed, label="no network"];

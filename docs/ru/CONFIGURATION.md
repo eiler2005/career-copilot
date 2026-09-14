@@ -71,10 +71,10 @@
 
 | Поле | Обязательность / default | Поведение |
 | --- | --- | --- |
-| `id`, `provider`, `company_id` | Обязательны | Идентичность источника/компании и парсер |
+| `id`, `provider`, `company_id` | Обязательны | Идентичность источника/компании и парсер; LinkedIn Salaries определяет работодателя по карточке |
 | `board` | Greenhouse, Lever, Ashby | Токен публичной доски |
 | `employer_id` | HH | Фильтр работодателя |
-| `url` | Corporate/manual | URL страницы или endpoint |
+| `url` | Corporate/manual или LinkedIn Salaries | URL страницы/endpoint; для LinkedIn Salaries — `https://linkedinsalaries.com/jobs.json` |
 | `enabled` | True, если не задано | Участие в поиске |
 | `company_name`, `market` | Необязательны; рынок `unknown` | Исходное имя компании и рынок |
 | `include_title` | Необязательное regex | Фильтр названия без учёта регистра после сохранения снимка |
@@ -87,6 +87,40 @@
 | `proxy_env` | Необязательно | Имя переменной с прокси; требует разрешения |
 
 Клиент не следует редиректам и не наследует обычные proxy-переменные, использует timeout 25 секунд и проверяет размер ответа 5 МБ после загрузки. Повторы и доступ описаны в [источниках](SOURCES.md). Это не полная сетевая изоляция.
+
+## Источник LinkedIn Salaries
+
+Добавьте объект в массив `sources` приватного `settings.json`, сохранив остальные настройки. Пример отключён до явной установки `enabled: true`; для выбора источника при replay он тоже должен быть включён.
+
+```json
+{
+  "id": "linkedinsalaries-public",
+  "provider": "linkedinsalaries",
+  "company_id": "linkedinsalaries-index",
+  "url": "https://linkedinsalaries.com/jobs.json",
+  "enabled": false,
+  "allowed_hosts": ["linkedinsalaries.com"],
+  "max_pages": 1,
+  "interval_seconds": 86400,
+  "request_gap_seconds": 4,
+  "proxy_allowed": false
+}
+```
+
+URL выбирает публичный `jobs.json` издателя, а не LinkedIn-страницу или HTML сайта. `company_id` здесь — обязательный идентификатор источника; парсер присваивает карточкам отдельные ID работодателей и не относит все вакансии к агрегатору.
+
+Интервал 86 400 секунд в примере предлагает сбор не чаще раза в сутки. Он не меняет общий default 3600 секунд и не устанавливает планировщик. Провайдер читает один ответ: большее `max_pages` не запрашивает дополнительные записи. Общие бюджеты, паузы по хосту, cooldown и предел размера сохраняются. Оставьте `proxy_allowed: false` без `proxy_env`: этот маршрут не использует прокси.
+
+После включения источника:
+
+```sh
+uv run ajh --home /absolute/private/career-workspace discover --source linkedinsalaries-public
+uv run ajh --home /absolute/private/career-workspace discover --source linkedinsalaries-public --replay snapshots/linkedinsalaries-public/SNAPSHOT.txt
+```
+
+Вместо `SNAPSHOT.txt` подставьте фактический путь сохранённого снимка. Replay читает исходный JSON из приватного хранилища без сетевого запроса.
+
+Необязательный `include_title` фильтрует локально после сохранения снимка. Он не меняет запрос набора, не определяет карьерный трек и не подтверждает уровень. Оплата сохраняет `salaryCite` и `salaryUsdMo` источника с надёжностью `aggregated`; отсутствующее число остаётся null. Новая вакансия сохраняет `availability: unknown` до отдельной проверки официального работодателя/ATS. Подробнее — [охват и смысл полей](SOURCES.md#linkedin-salaries-зарплатный-контекст-для-новых-вакансий).
 
 ## Факты и изменение политики
 

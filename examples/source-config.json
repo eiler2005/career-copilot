@@ -12,6 +12,21 @@
       "request_gap_seconds": 4,
       "max_pages": 3,
       "proxy_allowed": false
+    },
+    {
+      "id": "linkedinsalaries-public",
+      "provider": "linkedinsalaries",
+      "company_id": "linkedinsalaries-index",
+      "url": "https://linkedinsalaries.com/jobs.json",
+      "enabled": false,
+      "allowed_hosts": [
+        "linkedinsalaries.com"
+      ],
+      "market": "intl",
+      "interval_seconds": 86400,
+      "request_gap_seconds": 4,
+      "max_pages": 1,
+      "proxy_allowed": false
     }
   ],
   "policy": {

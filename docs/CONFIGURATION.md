@@ -71,10 +71,10 @@ The disabled [example configuration](../examples/source-config.json) can be adap
 
 | Field | Required/default | Effect |
 | --- | --- | --- |
-| `id`, `provider`, `company_id` | Required | Stable source/company identity and parser |
+| `id`, `provider`, `company_id` | Required | Stable source/company identity and parser; LinkedIn Salaries assigns employers per listing |
 | `board` | Greenhouse, Lever, Ashby | Public board token |
 | `employer_id` | HH | Employer filter |
-| `url` | Corporate/manual route | Source endpoint/page |
+| `url` | Corporate/manual or LinkedIn Salaries | Source endpoint/page; LinkedIn Salaries uses `https://linkedinsalaries.com/jobs.json` |
 | `enabled` | True when omitted | Participates in discovery |
 | `company_name`, `market` | Optional; market defaults `unknown` | Initial company label and vacancy market |
 | `include_title` | Optional regex | Case-insensitive title filter after snapshot preservation |
@@ -87,6 +87,40 @@ The disabled [example configuration](../examples/source-config.json) can be adap
 | `proxy_env` | Optional | Proxy environment-variable name; requires permission |
 
 The client disables redirects and ambient proxy inheritance, uses a 25-second timeout and a 5 MB post-download response check. See [sources](SOURCES.md) for retry and access policy. Source rules are not a full network sandbox.
+
+## LinkedIn Salaries source
+
+Add this object to the private `settings.json` → `sources` array, preserving other settings. It is disabled until you deliberately set `enabled: true`; source selection for replay also requires the source to be enabled.
+
+```json
+{
+  "id": "linkedinsalaries-public",
+  "provider": "linkedinsalaries",
+  "company_id": "linkedinsalaries-index",
+  "url": "https://linkedinsalaries.com/jobs.json",
+  "enabled": false,
+  "allowed_hosts": ["linkedinsalaries.com"],
+  "max_pages": 1,
+  "interval_seconds": 86400,
+  "request_gap_seconds": 4,
+  "proxy_allowed": false
+}
+```
+
+The URL selects the publisher's public `jobs.json` dataset, not a LinkedIn page or the site's HTML. `company_id` is a required source identifier here; the parser assigns each listing a separate employer ID rather than assigning every job to the aggregator.
+
+The example's 86,400-second interval suggests at most a daily collection attempt; it does not change the general 3,600-second default or install a scheduler. This provider reads one response, so higher `max_pages` values do not request more records. Global request budgets, host spacing, cooldown and response-size limits still apply. Keep `proxy_allowed: false` and omit `proxy_env`; this route does not use proxies.
+
+After enabling the source:
+
+```sh
+uv run ajh --home /absolute/private/career-workspace discover --source linkedinsalaries-public
+uv run ajh --home /absolute/private/career-workspace discover --source linkedinsalaries-public --replay snapshots/linkedinsalaries-public/SNAPSHOT.txt
+```
+
+Use the actual saved snapshot path for `SNAPSHOT.txt`. Replay reads the original dataset JSON from private storage and makes no network request.
+
+An optional `include_title` expression filters locally after snapshot retention. It does not alter the dataset request, map a career track or establish seniority. Compensation retains the source's `salaryCite` text and `salaryUsdMo` figure with `aggregated` reliability; unavailable numeric data stays null. New listings remain `availability: unknown` until a separate official employer/ATS check. See [source scope and field meanings](SOURCES.md#linkedin-salaries-salary-context-for-new-leads).
 
 ## Facts and policy changes
 

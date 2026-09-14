@@ -1,21 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" width="703px" height="671px" viewBox="0.00 0.00 703.22 670.62" role="img" preserveAspectRatio="xMidYMid meet">
-  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 650.46)">
+<svg xmlns="http://www.w3.org/2000/svg" width="703px" height="724px" viewBox="0.00 0.00 703.22 723.62" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 703.46)">
     <title>sources</title>
-    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-650.46 683.06,-650.46 683.06,20.16 -20.16,20.16" />
-    <text text-anchor="start" x="152.95" y="-605.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Sources, provenance and replay</text>
-    <text text-anchor="start" x="193.82" y="-591.95" font-family="Arial" font-size="13.00" fill="#526a72">Read-only network access; source text is data</text>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-703.46 683.06,-703.46 683.06,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="152.95" y="-658.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Sources, provenance and replay</text>
+    <text text-anchor="start" x="193.82" y="-644.95" font-family="Arial" font-size="13.00" fill="#526a72">Read-only network access; source text is data</text>
     <g id="node1" class="node">
       <title>providers</title>
-      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M567.52,-586.3C567.52,-586.3 357.77,-586.3 357.77,-586.3 351.77,-586.3 345.77,-580.3 345.77,-574.3 345.77,-574.3 345.77,-492.3 345.77,-492.3 345.77,-486.3 351.77,-480.3 357.77,-480.3 357.77,-480.3 567.52,-480.3 567.52,-480.3 573.52,-480.3 579.52,-486.3 579.52,-492.3 579.52,-492.3 579.52,-574.3 579.52,-574.3 579.52,-580.3 573.52,-586.3 567.52,-586.3" />
-      <polygon fill="#e8eef8" stroke="none" points="345.77,-533.3 345.77,-586.3 579.52,-586.3 579.52,-533.3 345.77,-533.3" />
-      <polygon fill="none" stroke="#d1dee2" points="345.77,-533.3 345.77,-586.3 579.52,-586.3 579.52,-533.3 345.77,-533.3" />
-      <text text-anchor="start" x="358.77" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Public APIs / ATS</text>
-      <text text-anchor="start" x="358.77" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
-      <polygon fill="#e8eef8" stroke="none" points="345.77,-480.3 345.77,-533.3 579.52,-533.3 579.52,-480.3 345.77,-480.3" />
-      <polygon fill="none" stroke="#d1dee2" points="345.77,-480.3 345.77,-533.3 579.52,-533.3 579.52,-480.3 345.77,-480.3" />
-      <text text-anchor="start" x="358.77" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Official careers page</text>
-      <text text-anchor="start" x="358.77" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">Static HTML with JSON-LD JobPosting</text>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M603.15,-639.3C603.15,-639.3 322.15,-639.3 322.15,-639.3 316.15,-639.3 310.15,-633.3 310.15,-627.3 310.15,-627.3 310.15,-492.3 310.15,-492.3 310.15,-486.3 316.15,-480.3 322.15,-480.3 322.15,-480.3 603.15,-480.3 603.15,-480.3 609.15,-480.3 615.15,-486.3 615.15,-492.3 615.15,-492.3 615.15,-627.3 615.15,-627.3 615.15,-633.3 609.15,-639.3 603.15,-639.3" />
+      <polygon fill="#e8eef8" stroke="none" points="310.15,-586.3 310.15,-639.3 615.15,-639.3 615.15,-586.3 310.15,-586.3" />
+      <polygon fill="none" stroke="#d1dee2" points="310.15,-586.3 310.15,-639.3 615.15,-639.3 615.15,-586.3 310.15,-586.3" />
+      <text text-anchor="start" x="323.15" y="-613.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Public APIs / ATS</text>
+      <text text-anchor="start" x="323.15" y="-600.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
+      <polygon fill="#e8eef8" stroke="none" points="310.15,-533.3 310.15,-586.3 615.15,-586.3 615.15,-533.3 310.15,-533.3" />
+      <polygon fill="none" stroke="#d1dee2" points="310.15,-533.3 310.15,-586.3 615.15,-586.3 615.15,-533.3 310.15,-533.3" />
+      <text text-anchor="start" x="323.15" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Official careers page</text>
+      <text text-anchor="start" x="323.15" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Static HTML with JSON-LD JobPosting</text>
+      <polygon fill="#e8eef8" stroke="none" points="310.15,-480.3 310.15,-533.3 615.15,-533.3 615.15,-480.3 310.15,-480.3" />
+      <polygon fill="none" stroke="#d1dee2" points="310.15,-480.3 310.15,-533.3 615.15,-533.3 615.15,-480.3 310.15,-480.3" />
+      <text text-anchor="start" x="323.15" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Salary-index dataset</text>
+      <text text-anchor="start" x="323.15" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">LinkedIn Salaries · public jobs.json · aggregated pay</text>
     </g>
     <g id="node2" class="node">
       <title>access</title>
@@ -25,8 +29,8 @@
     </g>
     <g id="edge1" class="edge">
       <title>providers-&gt;access</title>
-      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-480.5C462.65,-474.43 462.65,-468.33 462.65,-462.53" />
-      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-462.6 462.65,-455.6 460.2,-462.6 465.1,-462.6" />
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M462.65,-480.53C462.65,-474.27 462.65,-468.17 462.65,-462.44" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="465.1,-462.68 462.65,-455.68 460.2,-462.68 465.1,-462.68" />
     </g>
     <g id="node3" class="node">
       <title>snapshot</title>
@@ -99,7 +103,7 @@
       <title>note</title>
       <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M653.4,-28.5C653.4,-28.5 271.9,-28.5 271.9,-28.5 267.15,-28.5 262.4,-23.75 262.4,-19 262.4,-19 262.4,-9.5 262.4,-9.5 262.4,-4.75 267.15,0 271.9,0 271.9,0 653.4,0 653.4,0 658.15,0 662.9,-4.75 662.9,-9.5 662.9,-9.5 662.9,-19 662.9,-19 662.9,-23.75 658.15,-28.5 653.4,-28.5" />
       <text text-anchor="middle" x="462.65" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">HH listing content can be abbreviated. A screenshot is not an API response.</text>
-      <text text-anchor="middle" x="462.65" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Replay does not confirm that a vacancy is still open today.</text>
+      <text text-anchor="middle" x="462.65" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Aggregated pay and replay do not confirm that a vacancy is still open today.</text>
     </g>
   </g>
 </svg>

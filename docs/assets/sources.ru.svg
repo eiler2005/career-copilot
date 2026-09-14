@@ -1,21 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" width="718px" height="671px" viewBox="0.00 0.00 718.37 670.62" role="img" preserveAspectRatio="xMidYMid meet">
-  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 650.46)">
+<svg xmlns="http://www.w3.org/2000/svg" width="770px" height="724px" viewBox="0.00 0.00 769.97 723.62" role="img" preserveAspectRatio="xMidYMid meet">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(20.16 703.46)">
     <title>sources</title>
-    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-650.46 698.21,-650.46 698.21,20.16 -20.16,20.16" />
-    <text text-anchor="start" x="59.27" y="-605.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Источники, происхождение и повторный разбор</text>
-    <text text-anchor="start" x="146.65" y="-591.95" font-family="Arial" font-size="13.00" fill="#526a72">Сетевой доступ только для чтения; текст источника — данные</text>
+    <polygon fill="#ffffff" stroke="none" points="-20.16,20.16 -20.16,-703.46 749.81,-703.46 749.81,20.16 -20.16,20.16" />
+    <text text-anchor="start" x="85.07" y="-658.45" font-family="Arial" font-weight="bold" font-size="23.00" fill="#173b45">Источники, происхождение и повторный разбор</text>
+    <text text-anchor="start" x="172.45" y="-644.95" font-family="Arial" font-size="13.00" fill="#526a72">Сетевой доступ только для чтения; текст источника — данные</text>
     <g id="node1" class="node">
       <title>providers</title>
-      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M611.02,-586.3C611.02,-586.3 376.52,-586.3 376.52,-586.3 370.52,-586.3 364.52,-580.3 364.52,-574.3 364.52,-574.3 364.52,-492.3 364.52,-492.3 364.52,-486.3 370.52,-480.3 376.52,-480.3 376.52,-480.3 611.02,-480.3 611.02,-480.3 617.02,-480.3 623.02,-486.3 623.02,-492.3 623.02,-492.3 623.02,-574.3 623.02,-574.3 623.02,-580.3 617.02,-586.3 611.02,-586.3" />
-      <polygon fill="#e8eef8" stroke="none" points="364.52,-533.3 364.52,-586.3 623.02,-586.3 623.02,-533.3 364.52,-533.3" />
-      <polygon fill="none" stroke="#d1dee2" points="364.52,-533.3 364.52,-586.3 623.02,-586.3 623.02,-533.3 364.52,-533.3" />
-      <text text-anchor="start" x="377.52" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Публичные API / ATS</text>
-      <text text-anchor="start" x="377.52" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
-      <polygon fill="#e8eef8" stroke="none" points="364.52,-480.3 364.52,-533.3 623.02,-533.3 623.02,-480.3 364.52,-480.3" />
-      <polygon fill="none" stroke="#d1dee2" points="364.52,-480.3 364.52,-533.3 623.02,-533.3 623.02,-480.3 364.52,-480.3" />
-      <text text-anchor="start" x="377.52" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Официальная страница</text>
-      <text text-anchor="start" x="377.52" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">Статический HTML с JSON-LD JobPosting</text>
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M678.52,-639.3C678.52,-639.3 309.02,-639.3 309.02,-639.3 303.02,-639.3 297.02,-633.3 297.02,-627.3 297.02,-627.3 297.02,-492.3 297.02,-492.3 297.02,-486.3 303.02,-480.3 309.02,-480.3 309.02,-480.3 678.52,-480.3 678.52,-480.3 684.52,-480.3 690.52,-486.3 690.52,-492.3 690.52,-492.3 690.52,-627.3 690.52,-627.3 690.52,-633.3 684.52,-639.3 678.52,-639.3" />
+      <polygon fill="#e8eef8" stroke="none" points="297.02,-586.3 297.02,-639.3 690.52,-639.3 690.52,-586.3 297.02,-586.3" />
+      <polygon fill="none" stroke="#d1dee2" points="297.02,-586.3 297.02,-639.3 690.52,-639.3 690.52,-586.3 297.02,-586.3" />
+      <text text-anchor="start" x="310.02" y="-613.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Публичные API / ATS</text>
+      <text text-anchor="start" x="310.02" y="-600.9" font-family="Arial" font-size="12.00" fill="#183d48">Greenhouse · Lever · Ashby · HH</text>
+      <polygon fill="#e8eef8" stroke="none" points="297.02,-533.3 297.02,-586.3 690.52,-586.3 690.52,-533.3 297.02,-533.3" />
+      <polygon fill="none" stroke="#d1dee2" points="297.02,-533.3 297.02,-586.3 690.52,-586.3 690.52,-533.3 297.02,-533.3" />
+      <text text-anchor="start" x="310.02" y="-560.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Официальная страница</text>
+      <text text-anchor="start" x="310.02" y="-547.9" font-family="Arial" font-size="12.00" fill="#183d48">Статический HTML с JSON-LD JobPosting</text>
+      <polygon fill="#e8eef8" stroke="none" points="297.02,-480.3 297.02,-533.3 690.52,-533.3 690.52,-480.3 297.02,-480.3" />
+      <polygon fill="none" stroke="#d1dee2" points="297.02,-480.3 297.02,-533.3 690.52,-533.3 690.52,-480.3 297.02,-480.3" />
+      <text text-anchor="start" x="310.02" y="-507.05" font-family="Arial" font-weight="bold" font-size="15.00" fill="#183d48">Датасет зарплат</text>
+      <text text-anchor="start" x="310.02" y="-494.9" font-family="Arial" font-size="12.00" fill="#183d48">LinkedIn Salaries · публичный jobs.json · агрегированная зарплата</text>
     </g>
     <g id="node2" class="node">
       <title>access</title>
@@ -25,8 +29,8 @@
     </g>
     <g id="edge1" class="edge">
       <title>providers-&gt;access</title>
-      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-480.5C493.77,-474.43 493.77,-468.33 493.77,-462.53" />
-      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-462.6 493.78,-455.6 491.33,-462.6 496.23,-462.6" />
+      <path fill="none" stroke="#668c95" stroke-width="1.25" d="M493.77,-480.53C493.77,-474.27 493.77,-468.17 493.77,-462.44" />
+      <polygon fill="#668c95" stroke="#668c95" stroke-width="1.25" points="496.23,-462.68 493.78,-455.68 491.33,-462.68 496.23,-462.68" />
     </g>
     <g id="node3" class="node">
       <title>snapshot</title>
@@ -97,9 +101,9 @@
     </g>
     <g id="node9" class="node">
       <title>note</title>
-      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M664.27,-28.5C664.27,-28.5 323.27,-28.5 323.27,-28.5 318.52,-28.5 313.77,-23.75 313.77,-19 313.77,-19 313.77,-9.5 313.77,-9.5 313.77,-4.75 318.52,0 323.27,0 323.27,0 664.27,0 664.27,0 669.02,0 673.77,-4.75 673.77,-9.5 673.77,-9.5 673.77,-19 673.77,-19 673.77,-23.75 669.02,-28.5 664.27,-28.5" />
+      <path fill="#f2f7f8" stroke="none" stroke-width="1.1" d="M720.15,-28.5C720.15,-28.5 267.4,-28.5 267.4,-28.5 262.65,-28.5 257.9,-23.75 257.9,-19 257.9,-19 257.9,-9.5 257.9,-9.5 257.9,-4.75 262.65,0 267.4,0 267.4,0 720.15,0 720.15,0 724.9,0 729.65,-4.75 729.65,-9.5 729.65,-9.5 729.65,-19 729.65,-19 729.65,-23.75 724.9,-28.5 720.15,-28.5" />
       <text text-anchor="middle" x="493.77" y="-17.1" font-family="Arial" font-size="12.00" fill="#526a72">HH-список может быть сокращённым. Скриншот — не API-ответ.</text>
-      <text text-anchor="middle" x="493.77" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Replay не подтверждает актуальность вакансии сегодня.</text>
+      <text text-anchor="middle" x="493.77" y="-2.85" font-family="Arial" font-size="12.00" fill="#526a72">Агрегированная зарплата и replay не подтверждают актуальность вакансии сегодня.</text>
     </g>
   </g>
 </svg>

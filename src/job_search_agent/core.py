@@ -273,6 +273,9 @@ class Store:
             for field in ("decision", "assessments", "review_status", "requirements", "level"):
                 if field in old:
                     merged[field] = old[field]
+            if not value.get("text") and old.get("text"):
+                merged["text"] = old["text"]
+                merged["content_scope"] = old.get("content_scope", "full")
         merged["source_observation"] = observation["id"]
         self.put("vacancies", merged)
         return key
