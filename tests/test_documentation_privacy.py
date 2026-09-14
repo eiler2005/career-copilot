@@ -21,6 +21,18 @@ def test_bilingual_docs_and_exact_skill_locations():
         assert not privacy.allowed_path(f"{runtime}/skills/career-copilot/private/facts.json")
 
 
+@pytest.mark.parametrize("name", ["Dockerfile", "compose.yaml", ".dockerignore"])
+def test_container_configuration_keeps_content_privacy_checks(name):
+    assert privacy.scan_blob(name, b"# Generic container configuration", []) == []
+    marker = "Synthetic" + "PrivateMarker"
+    assert privacy.scan_blob(name, marker.encode(), [marker]) == ["private-dictionary-match"]
+    key_header = b"-----BEGIN " + b"PRIVATE KEY-----"
+    assert privacy.scan_blob(name, key_header, []) == ["private-key"]
+    assert not privacy.allowed_path(".env")
+    assert not privacy.allowed_path(".env.production")
+    assert not privacy.allowed_path("private/compose.yaml")
+
+
 def test_static_graphics_scoped_and_decoded_for_privacy():
     assert privacy.scan_blob("docs/assets/flow.svg", svg("<text>Public flow</text>"), []) == []
     assert privacy.scan_blob("docs/assets/flow.dot", b"digraph { a -> b }", []) == []

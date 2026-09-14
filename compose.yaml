@@ -1,0 +1,24 @@
+services:
+  dashboard:
+    build: .
+    container_name: career-copilot-dashboard
+    ports:
+      - "127.0.0.1:8100:8100"
+    volumes:
+      - "${AJH_WORKSPACE:?Set AJH_WORKSPACE to the private workspace}:/data/workspace:ro"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: 1.0
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "1m"
+        max-file: "2"

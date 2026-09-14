@@ -10,6 +10,8 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 
 Omit `--activity-id` outside a running hosted-skill activity. `AI_JOB_HUNTER_HOME` can supply the workspace. Commands print JSON; `report --open` also opens a local browser file.
 
+The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] [--port 8080]` entry point runs a private read-only web server in the foreground. Its workspace option belongs to that command; it does not start a skill activity or alter journal records. See [dashboard and deployment](DASHBOARD.md).
+
 ## Commands and effects
 
 | Command | Input/options | Result |

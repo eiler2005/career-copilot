@@ -77,6 +77,8 @@ Company research should maintain `about`, `business_areas`, products, markets, c
 
 Vacancies need `id`, `company_id`, `title`, canonical `urls` and the relevant target track(s). Keep `role_family`, `role_type`, `level.raw`, `level.source`, `market`, `availability` and `status_checked_on` independent. Source-derived cards initially need human/agent annotation; discovery does not infer a reliable role-family or level mapping.
 
+The dashboard preserves these fields under each API record's `payload`. Its separate `display.location` contains `raw`, `country`, `city` and `remote` for presentation and filtering. Explicit country/city fields and supported unambiguous geographic formats inform that projection; unsupported places remain unknown. This does not migrate records, overwrite the source location or treat remote work as permission to work from any country. See [dashboard](DASHBOARD.md) for the read-only API and deployment contract.
+
 Requirements use stable `id`, `text`, `source`, `mandatory`, optional `tag`, `evidence_fact_ids`, `evidence_reviewed` and `gap_type`. Structural fields such as `minimum_years`, `authorization` and `license` override a generic learning gap. Gates `language_gate`, `eligibility_gate` and `role_family_gates[TRACK]` use explicit pass/fail/unknown judgments.
 
 `record companies PATH` and `record vacancies PATH` are **whole-record replacement**. Read the current record and merge deliberately in a private working JSON; submitting only an ID and one changed field loses other fields.

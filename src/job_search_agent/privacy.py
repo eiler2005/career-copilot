@@ -30,6 +30,9 @@ SAFE_ROOT_FILES = {
     ".gitleaks.toml",
     ".pre-commit-config.yaml",
     "SECURITY.md",
+    "Dockerfile",
+    "compose.yaml",
+    ".dockerignore",
 }
 SAFE_ROOT_DIRS = {"src", "tests", "docs", "examples", "scripts", ".github", ".githooks"}
 SKILL_NAMES = {

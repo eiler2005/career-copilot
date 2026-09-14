@@ -60,6 +60,10 @@ Reviews bind to an exact version and complete artifact hash dictionary. `pending
 
 HTML and exported JSON/Markdown/CSV are derived views. Editing them does not update SQLite. `report --open` generates `report/index.html` and opens a local file; no frontend build or web server is required. The report contains private data and should not be publicly hosted.
 
+The optional [dashboard server](DASHBOARD.md) serves local HTML/CSS/JavaScript and reads the same journal through read-only SQLite connections. Browser requests do not initialize a workspace, migrate the schema or write records. It preserves the original record payload and adds display fields for geography; those fields do not replace source evidence. Registered document downloads remain inside the selected private workspace.
+
+Docker packages public application code and browser assets only. Mount a separate, verified private workspace read-only. The provided Compose configuration publishes its HTTP port on host loopback; remote access uses an SSH tunnel. A copied remote snapshot is a read-only replica, with the local workspace remaining authoritative. Updating that replica is an explicit deployment operation, not two-way synchronization.
+
 Entry points are [cli.py](../src/job_search_agent/cli.py), persistence is [core.py](../src/job_search_agent/core.py), collection is [sources.py](../src/job_search_agent/sources.py), document/evaluation work is [workflow.py](../src/job_search_agent/workflow.py), and the local UI is [report.py](../src/job_search_agent/report.py). The distribution `job-search-agent`, import module `job_search_agent` and command `ajh` remain for compatibility with earlier versions.
 
 Adapters follow [source policy](SOURCES.md); migrations and recovery follow [operations](OPERATIONS.md); public artifacts follow [privacy](PRIVACY.md). See [data model](DATA_MODEL.md) before extending record kinds or contracts.
