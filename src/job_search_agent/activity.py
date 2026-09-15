@@ -35,6 +35,7 @@ RESULT_KINDS = {
     "cv_edit_proposal": "cv_edits",
     "preparation_brief": "preparation_briefs",
     "practice_review": "practice_reviews",
+    "preparation_overview": "preparation_overviews",
 }
 
 
@@ -257,6 +258,10 @@ def validate_record(
         data = preparation.validate_brief(store, data)
         if data.get("brief_artifact"):
             data["brief_file"] = artifact("brief_artifact")
+    elif kind == "preparation_overview":
+        from . import preparation
+
+        data = preparation.validate_overview(store, data)
     elif kind == "practice_review":
         from . import preparation
 

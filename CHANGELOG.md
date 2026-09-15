@@ -2,6 +2,12 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Unified preparation overview
+
+### Added
+- `preparation_overview` activity results (`preparation_overviews`): one agent-authored review of product and technical-leadership preparation with evidence-labelled themes (verified / candidate-reported / gap / unknown), market notes, interview focus, priority vacancies, facts to back with evidence, a unified weekly plan, a question bank, STAR stories with cautions, CV advice and a "do not" list. Validation ties labels to fact verification, checks every fact and vacancy ID and rejects coding exercises.
+- Preparation shows the current overview as a tabbed card; every exercise and question can be practised (`plan_kind: preparation_overviews`) and the next open exercise becomes the next step.
+
 ## 2026-09-15 — Preparation page redesign
 
 ### Fixed

@@ -401,3 +401,148 @@ def test_practice_can_follow_a_vacancy_learning_plan_week_or_gap(store):
         for key, status in record["display"]["topic_status"].items()
         if key != "week-1"
     )
+
+
+def overview(**updates):
+    exercise = {
+        "id": "w1-pitch",
+        "text": "Two-minute pitch",
+        "type": "self_presentation",
+        "track": "both",
+        "tests": "Positioning",
+    }
+    track = {
+        "positioning": "Synthetic positioning",
+        "target_vacancy_ids": [VACANCY],
+        "themes": [
+            {
+                "title": "Platforms",
+                "strength": "verified",
+                "fact_ids": ["sample-book"],
+                "action": {"type": "preparation", "text": "Case"},
+            }
+        ],
+    }
+    return {
+        "type": "preparation_overview",
+        "data": {
+            "title": "Synthetic overview",
+            "as_of": "2026-09-15",
+            "summary": "Synthetic summary.",
+            "basis": {"vacancy_ids": [VACANCY]},
+            "tracks": [{**track, "track": "product"}, {**track, "track": "technical-leadership"}],
+            "common": [
+                {"title": "Evidence", "strength": "unknown", "action": {"type": "verify_evidence"}}
+            ],
+            "evidence_to_verify": [{"fact_id": "sample-job", "why": "Title", "how": "Letter"}],
+            "plan": {
+                "hours_per_week": 6,
+                "weeks": [
+                    {
+                        "theme": "Positioning",
+                        "track": "both",
+                        "exercises": [exercise],
+                        "deliverable": "Pitch",
+                    }
+                ],
+            },
+            "questions": [
+                {
+                    "id": "q-platform",
+                    "text": "Grow adoption",
+                    "type": "product_case",
+                    "track": "product",
+                    "tests": "Metrics",
+                }
+            ],
+            "stories": [{"title": "Team", "fact_ids": ["sample-job"], "use_for": "Leadership"}],
+            **updates,
+        },
+    }
+
+
+def test_overview_ties_strength_to_evidence_and_links_practice(store, tmp_path):
+    from job_search_agent.dashboard import Journal
+
+    facts = store.facts
+    facts["facts"].append(
+        {**facts["facts"][1], "id": "reported-only", "verification": "self_reported"}
+    )
+    atomic_write(store.home / "facts.json", encode(facts))
+    base = overview()["data"]
+    bad = [
+        ({"tracks": base["tracks"][:1]}, "both tracks"),
+        (
+            {
+                "tracks": [
+                    {
+                        **base["tracks"][0],
+                        "themes": [
+                            {"title": "x", "strength": "verified", "fact_ids": ["reported-only"]}
+                        ],
+                    },
+                    base["tracks"][1],
+                ]
+            },
+            "verified facts only",
+        ),
+        (
+            {
+                "questions": [
+                    {
+                        "id": "q",
+                        "text": "Reverse a list",
+                        "type": "coding",
+                        "track": "technical-leadership",
+                        "tests": "t",
+                    }
+                ]
+            },
+            "non-coding",
+        ),
+        ({"stories": [{"title": "x", "fact_ids": [], "use_for": "y"}]}, "tied to facts"),
+        ({"basis": {"vacancy_ids": ["missing"]}}, "unknown IDs"),
+    ]
+    for updates, message in bad:
+        with pytest.raises(ValueError, match=message):
+            run_activity(store, tmp_path, "career-interview-prep", overview(**updates))
+    run_activity(store, tmp_path, "career-interview-prep", overview())
+    [record] = store.all("preparation_overviews")
+    assert record["plan"]["weeks"][0]["week"] == 1
+    session = preparation.create_session(
+        store,
+        {
+            "track": "product",
+            "plan_id": record["id"],
+            "plan_kind": "preparation_overviews",
+            "topic_id": "w1-pitch",
+            "question": "Two-minute pitch",
+            "type": "self_presentation",
+            "tests": "Positioning",
+            "provenance": "generated",
+        },
+    )
+    preparation.submit_answer(store, {"session_id": session["id"], "answer": "My pitch."})
+    data = Journal.open(store.home).workspace()
+    shown = next(item for item in data["preparations"] if item["kind"] == "preparation_overviews")
+    assert shown["display"]["topic_status"] == {"w1-pitch": "attempted", "q-platform": "open"}
+
+
+def test_practice_requests_accept_only_known_plan_kinds(tmp_path):
+    base = {
+        "question": "q",
+        "type": "product_case",
+        "tests": "t",
+        "provenance": "generated",
+        "plan_id": "plan-1",
+    }
+    for kind in ("track_plans", "learning", "interview_plans", "preparation_overviews"):
+        request = inbox.write_request(
+            tmp_path / "state", {"type": "prep_create", "payload": {**base, "plan_kind": kind}}
+        )
+        assert request["payload"]["plan_kind"] == kind
+    with pytest.raises(ValueError):
+        inbox.write_request(
+            tmp_path / "state",
+            {"type": "prep_create", "payload": {**base, "plan_kind": "vacancies"}},
+        )

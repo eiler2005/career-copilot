@@ -115,3 +115,29 @@ def test_preparation_layout_keeps_document_tables_readable():
     body = script.split("function renderPreparationModule(list) {", 1)[1][:400]
     assert '"module-view prep-view"' in body and "sources-view" not in body
     assert "function markdownWithToc(text)" in script and "function prepSummary(list)" in script
+
+
+def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice():
+    script = app_js()
+    body = script.split("function overviewView(record) {", 1)[1].split(
+        "\n  function focusSession", 1
+    )[0]
+    for tab in (
+        '"summary"',
+        '"product"',
+        '"technical-leadership"',
+        '"plan"',
+        '"questions"',
+        '"stories"',
+        '"cv"',
+    ):
+        assert tab in script.split("const OVERVIEW_TABS = [", 1)[1].split("];", 1)[0]
+    assert 'setAttribute("role", "tablist")' in body and '"ArrowRight"' in body
+    assert 'plan_kind: "preparation_overviews"' in script
+    for key in ("strength_verified", "strength_reported", "strength_gap", "strength_unknown"):
+        assert f'{key}: "' in script
+    # The overview never presents itself as verified progress or a CV change.
+    assert "overviewNote" in body
+    assert (
+        "currentOverview()" in script.split("function renderPreparationModule(list) {", 1)[1][:600]
+    )

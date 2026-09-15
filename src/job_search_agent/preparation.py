@@ -33,7 +33,7 @@ PROVENANCE = frozenset({"published", "generated"})
 CODING = frozenset({"required", "not_required", "unknown"})
 TOPIC_STATUSES = ("open", "attempted", "reviewed")
 # Plans a practice session can belong to: general-gap plans, vacancy learning plans, interview plans.
-PLAN_KINDS = frozenset({"track_plans", "learning", "interview_plans"})
+PLAN_KINDS = frozenset({"track_plans", "learning", "interview_plans", "preparation_overviews"})
 BASELINE = {
     "product": [
         (
@@ -566,3 +566,223 @@ def topic_statuses(store: Store, plan: dict) -> dict[str, str]:
             else "open"
         )
     return result
+
+
+# --------------------------------------------------------------------------- preparation overview
+
+STRENGTHS = frozenset({"verified", "reported", "gap", "unknown"})
+OVERVIEW_ACTIONS = frozenset({"verify_evidence", "cv_edit", "preparation", "clarify", "none"})
+PLAN_TRACKS = frozenset({*TRACKS, "both"})
+
+
+def _ids(values: object, known: dict | set, name: str) -> list[str]:
+    items = values or []
+    if not isinstance(items, list) or any(not isinstance(item, str) for item in items):
+        raise ValueError(f"{name} must be a list of IDs")
+    unknown = [item for item in items if item not in known]
+    if unknown:
+        raise ValueError(f"{name}: unknown IDs {unknown[:5]}")
+    return list(dict.fromkeys(items))
+
+
+def validate_overview(store: Store, data: dict) -> dict:
+    """Validate a `preparation_overview`: one unified preparation review across both tracks.
+
+    Strength labels are tied to evidence: `verified` needs verified non-target facts,
+    `reported` needs existing facts that are neither conflicting nor targets. Coding
+    exercises are not accepted here: coding is set per vacancy with a basis.
+    """
+    facts = {fact["id"]: fact for fact in store.facts["facts"]}
+    vacancies = {item["id"] for item in store.all("vacancies")}
+
+    def evidence(item: dict, name: str) -> dict:
+        strength = item.get("strength", "unknown")
+        if strength not in STRENGTHS:
+            raise ValueError(f"{name}.strength must be one of {sorted(STRENGTHS)}")
+        fact_ids = _ids(item.get("fact_ids"), facts, f"{name}.fact_ids")
+        if strength == "verified" and (
+            not fact_ids
+            or any(
+                facts[key].get("verification") != "verified"
+                or facts[key].get("claim_type") == "target"
+                for key in fact_ids
+            )
+        ):
+            raise ValueError(f"{name}: 'verified' needs verified facts only")
+        if strength == "reported" and (
+            not fact_ids
+            or any(
+                facts[key].get("verification") == "conflicting"
+                or facts[key].get("claim_type") == "target"
+                for key in fact_ids
+            )
+        ):
+            raise ValueError(f"{name}: 'reported' needs existing non-conflicting, non-target facts")
+        action = item.get("action") or {"type": "none"}
+        if action.get("type") not in OVERVIEW_ACTIONS:
+            raise ValueError(f"{name}.action.type must be one of {sorted(OVERVIEW_ACTIONS)}")
+        return {
+            "title": _text(item.get("title"), f"{name}.title", 300),
+            "why": _text(item.get("why"), f"{name}.why", 1500, required=False),
+            "strength": strength,
+            "fact_ids": fact_ids,
+            "vacancy_ids": _ids(item.get("vacancy_ids"), vacancies, f"{name}.vacancy_ids"),
+            "action": {
+                "type": action["type"],
+                "text": _text(action.get("text"), f"{name}.action.text", 800, required=False),
+            },
+        }
+
+    tracks = []
+    for index, section in enumerate(data.get("tracks") or []):
+        if section.get("track") not in TRACKS:
+            raise ValueError(f"tracks[{index}].track must be one of {list(TRACKS)}")
+        tracks.append(
+            {
+                "track": section["track"],
+                "positioning": _text(
+                    section.get("positioning"), f"tracks[{index}].positioning", 1500
+                ),
+                "target_vacancy_ids": _ids(
+                    section.get("target_vacancy_ids"),
+                    vacancies,
+                    f"tracks[{index}].target_vacancy_ids",
+                ),
+                "market_notes": [
+                    _text(item, f"tracks[{index}].market_notes", 800)
+                    for item in section.get("market_notes") or []
+                ],
+                "themes": [
+                    evidence(item, f"tracks[{index}].themes[{n}]")
+                    for n, item in enumerate(section.get("themes") or [])
+                ],
+                "interview_focus": [
+                    _text(item, f"tracks[{index}].interview_focus", 500)
+                    for item in section.get("interview_focus") or []
+                ],
+            }
+        )
+    if {section["track"] for section in tracks} != set(TRACKS):
+        raise ValueError("A preparation overview covers both tracks")
+    seen: set[str] = set()
+
+    def exercise(item: dict, name: str) -> dict:
+        key = safe_id(str(item.get("id") or ""))
+        if key in seen:
+            raise ValueError(f"{name}: duplicate id {key}")
+        seen.add(key)
+        if item.get("type") not in QUESTION_TYPES - {"coding"}:
+            raise ValueError(f"{name}.type must be a non-coding question type")
+        if item.get("track") not in PLAN_TRACKS:
+            raise ValueError(f"{name}.track must be product, technical-leadership or both")
+        return {
+            "id": key,
+            "text": _text(item.get("text"), f"{name}.text", 1000),
+            "type": item["type"],
+            "track": item["track"],
+            "tests": _text(item.get("tests"), f"{name}.tests", 500),
+            "fact_ids": _ids(item.get("fact_ids"), facts, f"{name}.fact_ids"),
+            "vacancy_ids": _ids(item.get("vacancy_ids"), vacancies, f"{name}.vacancy_ids"),
+        }
+
+    plan = data.get("plan") or {}
+    hours = plan.get("hours_per_week")
+    if isinstance(hours, bool) or not isinstance(hours, (int, float)) or not 0 < hours <= 80:
+        raise ValueError("plan.hours_per_week must be between 0 and 80")
+    weeks = []
+    for index, week in enumerate(plan.get("weeks") or []):
+        if week.get("track") not in PLAN_TRACKS:
+            raise ValueError(
+                f"plan.weeks[{index}].track must be product, technical-leadership or both"
+            )
+        weeks.append(
+            {
+                "week": index + 1,
+                "theme": _text(week.get("theme"), f"plan.weeks[{index}].theme", 300),
+                "track": week["track"],
+                "goals": [
+                    _text(item, f"plan.weeks[{index}].goals", 500)
+                    for item in week.get("goals") or []
+                ],
+                "tasks": [
+                    _text(item, f"plan.weeks[{index}].tasks", 500)
+                    for item in week.get("tasks") or []
+                ],
+                "exercises": [
+                    exercise(item, f"plan.weeks[{index}].exercises[{n}]")
+                    for n, item in enumerate(week.get("exercises") or [])
+                ],
+                "deliverable": _text(
+                    week.get("deliverable"), f"plan.weeks[{index}].deliverable", 500
+                ),
+            }
+        )
+    if not weeks:
+        raise ValueError("plan.weeks is required")
+    stories = []
+    for index, story in enumerate(data.get("stories") or []):
+        fact_ids = _ids(story.get("fact_ids"), facts, f"stories[{index}].fact_ids")
+        if not fact_ids:
+            raise ValueError(
+                f"stories[{index}] must be tied to facts; list missing stories in story_gaps"
+            )
+        stories.append(
+            {
+                "title": _text(story.get("title"), f"stories[{index}].title", 300),
+                "fact_ids": fact_ids,
+                "tracks": [track for track in story.get("tracks") or [] if track in TRACKS]
+                or list(TRACKS),
+                "use_for": _text(story.get("use_for"), f"stories[{index}].use_for", 800),
+                "caution": _text(
+                    story.get("caution"), f"stories[{index}].caution", 800, required=False
+                ),
+            }
+        )
+    evidence_to_verify = []
+    for index, item in enumerate(data.get("evidence_to_verify") or []):
+        [fact_id] = _ids([item.get("fact_id")], facts, f"evidence_to_verify[{index}].fact_id")
+        evidence_to_verify.append(
+            {
+                "fact_id": fact_id,
+                "why": _text(item.get("why"), f"evidence_to_verify[{index}].why", 800),
+                "how": _text(item.get("how"), f"evidence_to_verify[{index}].how", 800),
+            }
+        )
+    return {
+        **data,
+        "title": _text(data.get("title"), "title", 300),
+        "as_of": _text(data.get("as_of"), "as_of", 20),
+        "summary": _text(data.get("summary"), "summary", 4000),
+        "basis": {
+            "vacancy_ids": _ids(
+                (data.get("basis") or {}).get("vacancy_ids"), vacancies, "basis.vacancy_ids"
+            ),
+            "notes": _text(
+                (data.get("basis") or {}).get("notes"), "basis.notes", 2000, required=False
+            ),
+        },
+        "tracks": tracks,
+        "common": [
+            evidence(item, f"common[{n}]") for n, item in enumerate(data.get("common") or [])
+        ],
+        "evidence_to_verify": evidence_to_verify,
+        "plan": {"hours_per_week": hours, "weeks": weeks},
+        "questions": [
+            exercise(item, f"questions[{n}]") for n, item in enumerate(data.get("questions") or [])
+        ],
+        "stories": stories,
+        "story_gaps": [_text(item, "story_gaps", 500) for item in data.get("story_gaps") or []],
+        "cv_advice": [
+            {
+                "track": item.get("track") if item.get("track") in PLAN_TRACKS else "both",
+                "text": _text(item.get("text"), f"cv_advice[{n}].text", 1000),
+                "fact_ids": _ids(item.get("fact_ids"), facts, f"cv_advice[{n}].fact_ids"),
+            }
+            for n, item in enumerate(data.get("cv_advice") or [])
+        ],
+        "do_not": [_text(item, "do_not", 500) for item in data.get("do_not") or []],
+        "next_actions": [
+            _text(item, "next_actions", 500) for item in data.get("next_actions") or []
+        ],
+        "note": "Agent-authored review from recorded facts and vacancies; strength labels follow fact verification. It changes no facts, CV or assessment.",
+    }

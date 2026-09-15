@@ -40,6 +40,7 @@ ALLOWED_KINDS = frozenset(
         "practice_reviews",
         "practice_sessions",
         "preparation_briefs",
+        "preparation_overviews",
         "track_plans",
         "tasks",
         "activities",
@@ -89,6 +90,7 @@ WORKSPACE_GROUPS = {
         "interview_feedback",
         "interview_progress",
         "track_plans",
+        "preparation_overviews",
         "preparation_briefs",
         "practice_sessions",
         "practice_attempts",
@@ -460,6 +462,12 @@ def _topic_statuses(records: list[dict]) -> None:
         payload = record["payload"]
         if record["kind"] == "track_plans":
             topic_ids = [topic.get("id") for topic in payload.get("topics") or []]
+        elif record["kind"] == "preparation_overviews":
+            topic_ids = [
+                exercise.get("id")
+                for week in (payload.get("plan") or {}).get("weeks") or []
+                for exercise in week.get("exercises") or []
+            ] + [question.get("id") for question in payload.get("questions") or []]
         elif record["kind"] == "learning":
             topic_ids = [
                 gap.get("id") for gap in payload.get("gaps") or [] if isinstance(gap, dict)
