@@ -643,3 +643,86 @@ def _apply_cv_import(store: Store, request: dict) -> dict:
 
 
 request_type("cv_import")((_validate_cv_import, _apply_cv_import))
+
+
+# --------------------------------------------------------------------------- stage 4 request types
+
+
+def _validate_prep_plan(payload: dict) -> dict:
+    hours = payload.get("hours")
+    if isinstance(hours, bool) or not isinstance(hours, (int, float)):
+        raise ValueError("hours must be a number")  # noqa: TRY004
+    vacancies = payload.get("vacancy_ids") or []
+    if not isinstance(vacancies, list):
+        raise ValueError("vacancy_ids must be a list")  # noqa: TRY004
+    return {
+        "track": _choice(payload.get("track"), "track", TRACKS),
+        "goal": _text(payload.get("goal"), "goal", 500),
+        "hours": hours,
+        "experience": _text(payload.get("experience"), "experience", 2000, required=False),
+        "vacancy_ids": [safe_id(str(item)) for item in vacancies][:50],
+    }
+
+
+def _apply_prep_plan(store: Store, request: dict) -> dict:
+    from . import preparation
+
+    p = request["payload"]
+    plan = preparation.track_plan(
+        store, p["track"], p["goal"], p["hours"], p["experience"], p["vacancy_ids"] or None
+    )
+    return {"plan_id": plan["id"], "basis": plan["basis"]["kind"], "topics": len(plan["topics"])}
+
+
+request_type("prep_plan")((_validate_prep_plan, _apply_prep_plan))
+
+
+def _validate_prep_create(payload: dict) -> dict:
+    from . import preparation
+
+    def optional_id(key: str) -> str | None:
+        return safe_id(str(payload[key])) if payload.get(key) else None
+
+    return {
+        "track": _choice(payload["track"], "track", TRACKS) if payload.get("track") else None,
+        "vacancy_id": optional_id("vacancy_id"),
+        "plan_id": optional_id("plan_id"),
+        "topic_id": optional_id("topic_id"),
+        "question": _text(payload.get("question"), "question", 1000),
+        "type": _choice(payload.get("type"), "type", preparation.QUESTION_TYPES),
+        "tests": _text(payload.get("tests"), "tests", 500),
+        "provenance": _choice(payload.get("provenance"), "provenance", preparation.PROVENANCE),
+        "source": payload.get("source") if isinstance(payload.get("source"), dict) else None,
+    }
+
+
+def _apply_prep_create(store: Store, request: dict) -> dict:
+    from . import preparation
+
+    session = preparation.create_session(store, request["payload"])
+    return {"session_id": session["id"]}
+
+
+request_type("prep_create")((_validate_prep_create, _apply_prep_create))
+
+
+def _validate_practice_answer(payload: dict) -> dict:
+    def optional_id(key: str) -> str | None:
+        return safe_id(str(payload[key])) if payload.get(key) else None
+
+    return {
+        "session_id": safe_id(str(payload.get("session_id"))),
+        "answer": _text(payload.get("answer"), "answer", 12_000),
+        "previous_attempt_id": optional_id("previous_attempt_id"),
+        "follow_up_to": optional_id("follow_up_to"),
+    }
+
+
+def _apply_practice_answer(store: Store, request: dict) -> dict:
+    from . import preparation
+
+    attempt = preparation.submit_answer(store, request["payload"], request["id"])
+    return {"attempt_id": attempt["id"], "task_id": attempt["task_id"]}
+
+
+request_type("practice_answer")((_validate_practice_answer, _apply_practice_answer))

@@ -75,6 +75,13 @@ A blocked or login-only page is refused with a message to paste the text instead
 | `cv decide PROPOSAL EDIT --decision accept\|reject\|edit [--text]` | Adds a decision to the edit's history |
 | `cv apply-edits PROPOSAL --output PATH` | Writes a draft from accepted edits; not a version and not reviewed |
 
+## Preparation
+
+| Command | Effect |
+| --- | --- |
+| `prep plan --track T --goal TEXT --hours N [--experience TEXT] [--vacancies IDS]` | Builds a track plan from preparation gaps (duplicates add no weight) or an explicit baseline |
+| `prep status` | Track plans with derived topic status, briefs, practice sessions, attempts and reviews |
+
 ## Dashboard requests and agent tasks
 
 | Command | Effect |

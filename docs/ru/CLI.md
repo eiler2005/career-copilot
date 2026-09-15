@@ -75,6 +75,13 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 | `cv decide PROPOSAL EDIT --decision accept\|reject\|edit [--text]` | Добавляет решение в историю правки |
 | `cv apply-edits PROPOSAL --output PATH` | Пишет черновик из принятых правок; это не версия и не ревью |
 
+## Подготовка
+
+| Команда | Результат |
+| --- | --- |
+| `prep plan --track T --goal TEXT --hours N [--experience TEXT] [--vacancies IDS]` | Составляет план по пробелам подготовки (дубли не добавляют вес) или явный базовый план |
+| `prep status` | Планы со статусами тем, памятки, вопросы практики, попытки и разборы |
+
 ## Заявки из веб-интерфейса и задачи агента
 
 | Команда | Результат |

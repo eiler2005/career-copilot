@@ -158,3 +158,13 @@ button:disabled{cursor:not-allowed;opacity:.5}
 .inline-editor{flex:1 1 100%;margin-top:4px}
 .inline-editor textarea{display:block;width:calc(100% - 30px);margin:12px 15px;border:1px solid var(--line);padding:8px 10px;font:inherit;font-size:13px}
 @media(max-width:650px){.edit-diff{grid-template-columns:1fr}.pdf-preview iframe{height:70vh}}
+
+/* Preparation module: entries, briefs and practice */
+.practice-answer{white-space:pre-wrap;font-size:13px;line-height:1.6;background:#fff;border:1px solid var(--line);padding:10px 12px;margin:8px 0;overflow-wrap:anywhere}
+.practice-answer mark,.criteria-list mark{background:#f6df9a;color:inherit;padding:0 2px}
+.practice-form textarea{display:block;width:100%;border:1px solid var(--line);padding:9px 11px;font:inherit;font-size:13px;margin-top:10px;background:#fff;resize:vertical}
+.brief-body{padding:4px 15px 15px}
+.brief-body h4{font-size:14px;margin:16px 0 8px}
+.record-card>.form-field{margin:10px 0}
+.record-card>h3{margin:0 0 6px;font-size:17px}
+.fit-row .practice{background:#fff}

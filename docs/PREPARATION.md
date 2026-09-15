@@ -41,6 +41,16 @@ The default plan spans six weeks and six hours per week. A useful allocation is 
 
 Add coding when the actual interview requires it. In both tracks, an AI module can cover evaluation quality, model limits, cost, safety and operation at the depth the role needs. Ask for a metric choice, error analysis and a quality/cost tradeoff case, not a list of fashionable terms.
 
+## Preparation module: two entries and a practice cycle
+
+Preparation starts from the Preparation section or from a vacancy's Preparation tab. Neither entry needs a finished CV or a scheduled interview.
+
+**For a vacancy.** An agent session produces a `preparation_brief` (task `prepare_vacancy_brief`). Company and interview-stage claims are marked `confirmed` or `participant_report` (both need a source URL and the date it was read) or `assumption`. The brief lists role tasks linked to requirement IDs, interview stages and format, the coding requirement (`required`, `not_required`, `unknown` with basis, source and date), questions with type (`behavioral`, `leadership`, `product_case`, `system_design`, `self_presentation`, `coding`), what each question tests and its provenance (`published` with a dated source, or `generated`), STAR stories tied to verified facts (missing stories are listed as gaps), a plan for the available hours, a short brief and questions for the employer. Coding questions appear only when coding is required with a basis; the flag is never inferred from a job title and LeetCode is never assigned automatically. A researched coding flag fills the vacancy unless the user already set one.
+
+**General gaps.** `ajh prep plan --track T --goal TEXT --hours N [--experience TEXT] [--vacancies IDS]` (or the dashboard form) builds a `track_plans` record. Topics come from requirements whose route is `preparation` across current assessments; identical gaps merge, and duplicate postings of the same role at the same company add no weight. Without such gaps the plan is explicitly a baseline for the direction. Each topic has why, where it was found, weight, exercise, criterion, materials and a status derived only from practice: `open`, `attempted`, `reviewed`. Reading materials never changes the status; an agent adds dated materials through the `track_plan_materials` task.
+
+**Text practice.** A practice question (`prep_create` request) records its type, what it tests and provenance. An answer (`practice_answer`) is stored as an artifact and queues `review_practice`. The review (`practice_review` result) quotes exact fragments of the answer with criterion, problem and improvement, may ask a follow-up and proposes a retry question. A follow-up answer and a retry are new attempts linked to the earlier one, so the same rubric can be compared. Practice never creates experience, never changes the CV and does not replace the `interview_progress` decision by an independent reviewer. Voice and video practice are not implemented.
+
 ## Use the CLI and adapt the plan
 
 `learn --track product` and `learn --track technical-leadership` use current assessments. `learn VACANCY_ID --track TRACK` limits the context to one vacancy. The plan keeps topics, gaps, next actions and the interview date when available. With no annotated requirements, the output is explicitly a baseline plan, not purported employer requirements.

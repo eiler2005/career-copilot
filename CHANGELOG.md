@@ -2,6 +2,18 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Preparation module
+
+### Added
+- **Vacancy briefs** (`preparation_brief` results): company and interview claims labelled confirmed, participant report or assumption with dated sources; role tasks; coding requirement with basis (never inferred, no automatic LeetCode); questions with type, what they test and provenance; STAR stories from verified facts and story gaps; plan, brief and employer questions.
+- **Plans for general gaps** (`ajh prep plan`, `prep_plan` requests): topics merged from preparation routes across assessments with weight by distinct roles, or an explicit baseline; status changes only through practice.
+- **Text practice**: questions (`prep_create`), answers stored as artifacts with retry and follow-up links (`practice_answer`), agent reviews that quote exact fragments (`practice_review`). Practice changes no facts or CV.
+- Preparation section with two entries, plan topics, briefs and a practice screen; vacancy Preparation tab shows briefs and practice.
+- [CRM module specification](docs/CRM_MODULE.md) (not implemented; off by default when built).
+
+### Fixed
+- Learning plans no longer repeat a vacancy in a gap's `vacancy_ids`.
+
 ## 2026-09-15 — CV module
 
 ### Added

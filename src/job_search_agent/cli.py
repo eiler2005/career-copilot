@@ -233,6 +233,16 @@ def parser() -> argparse.ArgumentParser:
     prepare.add_argument("--letter-record")
     prepare.add_argument("--based-on", help="PACKAGE_ID:VERSION_ID this version starts from")
     prepare.add_argument("--requirement-coverage", type=Path)
+    prep = commands.add_parser("prep", help="Preparation: track plans and practice").add_subparsers(
+        dest="prep_command", required=True
+    )
+    planning = prep.add_parser("plan", help="Track plan from vacancy gaps or an explicit baseline")
+    planning.add_argument("--track", choices=TRACKS, required=True)
+    planning.add_argument("--goal", required=True)
+    planning.add_argument("--hours", type=float, required=True, help="Hours per week")
+    planning.add_argument("--experience")
+    planning.add_argument("--vacancies", nargs="*")
+    prep.add_parser("status", help="Plans, sessions, attempts and reviews")
     resume = commands.add_parser(
         "cv", help="CV versions, edit proposals and import"
     ).add_subparsers(dest="cv_command", required=True)
@@ -509,6 +519,23 @@ def run(args) -> dict | list:
                 store.db.execute("ROLLBACK")
                 raise
             return result
+        if args.command == "prep":
+            from . import preparation
+
+            if args.prep_command == "plan":
+                return preparation.track_plan(
+                    store, args.track, args.goal, args.hours, args.experience, args.vacancies
+                )
+            return {
+                "track_plans": [
+                    {**plan, "topic_status": preparation.topic_statuses(store, plan)}
+                    for plan in store.all("track_plans")
+                ],
+                "briefs": [item["id"] for item in store.all("preparation_briefs")],
+                "sessions": len(store.all("practice_sessions")),
+                "attempts": len(store.all("practice_attempts")),
+                "reviews": len(store.all("practice_reviews")),
+            }
         if args.command == "cv":
             from . import cv
 

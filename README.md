@@ -85,6 +85,7 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
 | [Operations](docs/OPERATIONS.md) | Review, diagnostics, migration, backup and restoration |
 | [Privacy](docs/PRIVACY.md) | Worktree, staged/history and release checks |
+| [CRM module (specification)](docs/CRM_MODULE.md) | Optional contacts, interactions, agreements and reminders; off by default, not implemented |
 | [Product research 2026-09-15](docs/PRODUCT_RESEARCH_2026-09-15.md) | User jobs, gaps, priorities and the collection → matching → CV → preparation roadmap |
 | [Contributing](CONTRIBUTING.md) | Development workflow and documentation parity |
 

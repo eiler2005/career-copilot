@@ -297,7 +297,8 @@ def learning_plan(store: Store, vacancy_id: str | None, track: str):
                         ),
                     },
                 )
-                gaps[key]["vacancy_ids"].append(assessment["vacancy_id"])
+                if assessment["vacancy_id"] not in gaps[key]["vacancy_ids"]:
+                    gaps[key]["vacancy_ids"].append(assessment["vacancy_id"])
     weeks = int(store.settings.get("weeks", 6))
     plan = {
         "track": track,

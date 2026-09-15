@@ -3,7 +3,7 @@
 [English](PRODUCT_RESEARCH_2026-09-15.md) · [Русский](ru/PRODUCT_RESEARCH_2026-09-15.md) · [Project overview](../README.md)
 
 **Research date:** 15 September 2026.  
-**Status:** research and a refined product focus; the proposed improvements are not yet implemented.  
+**Status:** research and a refined product focus. Implemented on 15 September 2026: F00 state accuracy, the request and task queue (F04, first step), collection with campaigns, conditions and add-by-link (F02, F09 for existing sources), clear vacancy cards (F14), explainable matching (F15), the CV module (F01, F05, F10) and the Preparation module with vacancy briefs, general gaps and text practice (F06, F16). CRM (F07) is specified in [CRM module](CRM_MODULE.md) and not implemented; voice and video practice, new source adapters, F03, F08, F11–F13 remain open.  
 **Scope:** Career Copilot's public code and documentation and fourteen external products and open-source projects. The original ten-product sample is extended with Treparo, Koru, Exponent / Aced and Interview Query to examine information gathering and interview preparation.
 
 ## 1. Main conclusion

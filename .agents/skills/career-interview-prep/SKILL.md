@@ -17,7 +17,7 @@ Inputs are track, date/format, requirements, candidate evidence, gaps, company c
 
 ## Queued work from the dashboard
 
-Check `ajh --home PRIVATE_HOME tasks next` for `prepare_vacancy_brief`, `track_plan_materials` and `review_practice` tasks. Start the activity from the returned template so `related.task_id` binds the task. Mark each claim as confirmed, participant report or assumption with sources and dates; a coding requirement needs a basis and never follows from the job title alone.
+Check `ajh --home PRIVATE_HOME tasks next` for `prepare_vacancy_brief`, `track_plan_materials` and `review_practice` tasks. Start the activity from the returned template so `related.task_id` binds the task. Mark each claim as confirmed, participant report or assumption with sources and dates; a coding requirement needs a basis and never follows from the job title alone. Register vacancy work as `preparation_brief` and practice feedback as `practice_review` with exact answer fragments; build general-gap plans with `ajh prep plan`. Practice never creates experience or changes a CV.
 
 ## Journal and execution
 

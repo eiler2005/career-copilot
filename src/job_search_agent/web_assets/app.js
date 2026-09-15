@@ -64,7 +64,7 @@
   const known = (value) => { const v = scalar(value).trim(); return v && !/^(unknown|not specified|n\/a|null|none|неизвестно|не указано)$/i.test(v) ? v : ""; };
   const CV_KINDS = new Set(["cv_edits", "cv_edit_decisions", "cv_imports"]);
   const records = (section) => section === "pipeline" ? (state.data?.vacancies || []).filter((record) => record.kind === "vacancies") : section === "resume" ? (state.data?.documents || []).filter((record) => record.kind === "packages" || CV_KINDS.has(record.kind)) : section === "documents" ? (state.data?.documents || []).filter((record) => !CV_KINDS.has(record.kind)) : state.data?.[section] || [];
-  const primaryRecords = (section) => ["companies", "vacancies", "activities"].includes(section) ? records(section).filter((record) => record.kind === section) : section === "documents" ? records(section).filter((record) => record.kind !== "legacy_files") : section === "resume" ? records(section).filter((record) => record.kind === "packages") : records(section);
+  const primaryRecords = (section) => ["companies", "vacancies", "activities"].includes(section) ? records(section).filter((record) => record.kind === section) : section === "documents" ? records(section).filter((record) => record.kind !== "legacy_files") : section === "resume" ? records(section).filter((record) => record.kind === "packages") : section === "preparations" ? records(section).filter((record) => ["learning", "interview_plans", "track_plans", "preparation_briefs"].includes(record.kind)) : records(section);
   const defaultFilters = (section) => ["companies", "vacancies", "activities"].includes(section) ? {kind: section} : {};
   const unwrap = (record) => record.payload && typeof record.payload === "object" && !Array.isArray(record.payload) ? record.payload : record;
   const normalize = (record, section) => ({...record, id: String(record.id ?? unwrap(record).id ?? ""), kind: record.kind || kinds[section] || section, payload: unwrap(record)});
@@ -223,8 +223,8 @@
     const totalPages = Math.max(1, Math.ceil(filtered.length / state.pageSize)); state.page = Math.min(state.page, totalPages);
     const active = filtersActive(), reset = document.querySelector(".reset-button"); if (reset) reset.disabled = !active;
     $("results-heading").replaceChildren(el("span", "", `${t("found")}: ${filtered.length.toLocaleString(state.lang)} ${recordsWord(filtered.length)}`), el("span", "", active ? t("activeFilters") : `${String(sections.indexOf(state.section) + 1).padStart(2, "0")} / ${t(state.section)}`));
-    if (["sources", "resume"].includes(state.section) || (filtered.length && ["preparations", "history", "pipeline"].includes(state.section))) {
-      $("results").replaceChildren(state.section === "resume" ? renderResume(filtered) : state.section === "sources" ? renderSources(filtered) : state.section === "history" ? renderHistory(filtered) : state.section === "pipeline" ? renderPipeline(filtered) : renderPreparations(filtered));
+    if (["sources", "resume", "preparations"].includes(state.section) || (filtered.length && ["history", "pipeline"].includes(state.section))) {
+      $("results").replaceChildren(state.section === "resume" ? renderResume(filtered) : state.section === "sources" ? renderSources(filtered) : state.section === "history" ? renderHistory(filtered) : state.section === "pipeline" ? renderPipeline(filtered) : renderPreparationModule(filtered));
       $("pagination").replaceChildren(); renderFiles(); syncHash(); return;
     }
     if (!filtered.length) { const block = emptyState(records(state.section).length ? "noResults" : "noRecords", records(state.section).length ? "noResultsDesc" : "noRecordsDesc"); if (records(state.section).length && active) block.append(button(t("reset"), "primary-button", resetFilters)); $("results").replaceChildren(block); } else { const grid = el("div", "records-grid"); filtered.slice((state.page - 1) * state.pageSize, state.page * state.pageSize).forEach((record) => grid.append(recordCard(record))); $("results").replaceChildren(grid); }
@@ -407,7 +407,7 @@
     return article;
   }
   function renderPreparations(list) {
-    const container = el("div", "plans"), plans = list.filter((record) => ["learning", "interview_plans"].includes(record.kind)), others = list.filter((record) => !plans.includes(record));
+    const container = el("div", "plans"), plans = list.filter((record) => ["learning", "interview_plans"].includes(record.kind)), others = list.filter((record) => !plans.includes(record) && !PREP_KINDS.has(record.kind));
     const superseded = plans.filter((record) => record.display?.current === false), visible = state.showSuperseded ? plans : plans.filter((record) => record.display?.current !== false);
     const order = (record) => (record.kind === "interview_plans" ? 0 : 1) + (record.display?.current === false ? 2 : 0);
     const paths = new Map(); plans.filter((record) => record.kind === "interview_plans").forEach((record) => { const path = record.payload.plan?.path; if (path) paths.set(path, [...(paths.get(path) || []), ...tracks(record)]); });
@@ -724,7 +724,7 @@
     requestBrief: "Поставить задачу: памятка к вакансии", briefNote: "Исследование компании, этапов и вопросов с источниками. Готовое резюме не требуется.",
     requestsUnavailable: "Действия из интерфейса доступны, когда веб-интерфейс запущен с каталогом состояния (--state-dir).", requestQueued: "Заявка сохранена. Она применится к журналу при следующей синхронизации.", taskQueued: "Задача сохранена и будет передана агентской сессии при синхронизации.", requestConflict: "Запись изменилась с момента открытия. Данные обновлены — повторите действие.", requestInvalid: "Заявка не принята", requestBusy: "Слишком много необработанных заявок. Дождитесь синхронизации.", requestFailed: "Не удалось сохранить заявку.",
     awaitingImport: "ожидает синхронизации", workTitle: "Заявки и задачи", workDesc: "Заявки из интерфейса применяются к журналу командой ajh inbox apply. Задачи выполняются агентской сессией; «готово» появляется только после завершённой активности.", noWork: "Заявок и задач нет.",
-    request_vacancy_decision: "Личное решение", request_clarification_answer: "Ответ на вопрос", request_coding_requirement: "Флаг coding", request_evaluate: "Оценка", request_vacancy_add: "Добавление вакансии", request_campaign_upsert: "Кампания поиска",
+    request_vacancy_decision: "Личное решение", request_clarification_answer: "Ответ на вопрос", request_coding_requirement: "Флаг coding", request_evaluate: "Оценка", request_vacancy_add: "Добавление вакансии", request_prep_plan: "План подготовки", request_prep_create: "Вопрос для практики", request_practice_answer: "Ответ на практике", request_cv_edit_decision: "Решение по правке резюме", request_cv_import: "Импорт резюме", request_campaign_upsert: "Кампания поиска",
     task_collect: "Сбор вакансий", task_annotate_requirements: "Разметка требований", task_tailor_cv: "Адаптация резюме", task_fix_master_cv: "Правка master-резюме", task_extract_cv_facts: "Извлечение фактов из CV", task_prepare_vacancy_brief: "Памятка к вакансии", task_track_plan_materials: "Материалы плана", task_review_practice: "Разбор ответа",
     collectTitle: "Сбор и добавление вакансий", collectDesc: "Запуск сбора ставит задачу агентской сессии. Добавленная ссылка или текст сохраняются с оригиналом.", runCollection: "Запустить сбор", collectQueued: "Задача сбора сохранена.",
     lastRun: "Последний сбор", noRuns: "Сбор через адаптеры ещё не запускался.", runTime: "Время", runNew: "Новые", runChanged: "Изменились", runUnchanged: "Без изменений", runDuplicates: "Возможные дубли", runErrors: "Ошибки источников", changedFields: "поля", duplicateOf: "похожа на",
@@ -760,7 +760,7 @@
     requestBrief: "Queue task: vacancy brief", briefNote: "Company, interview stages and questions with sources. A finished CV is not required.",
     requestsUnavailable: "Interface actions are available when the dashboard runs with a state directory (--state-dir).", requestQueued: "Request saved. It is applied to the journal at the next sync.", taskQueued: "Task saved; it is handed to an agent session at the next sync.", requestConflict: "The record changed since you opened it. Data refreshed — repeat the action.", requestInvalid: "Request rejected", requestBusy: "Too many unprocessed requests. Wait for the next sync.", requestFailed: "The request could not be saved.",
     awaitingImport: "awaiting sync", workTitle: "Requests and tasks", workDesc: "Interface requests are applied to the journal by ajh inbox apply. Tasks run in an agent session; “done” appears only after a finished activity.", noWork: "No requests or tasks.",
-    request_vacancy_decision: "Personal decision", request_clarification_answer: "Clarification answer", request_coding_requirement: "Coding flag", request_evaluate: "Assessment", request_vacancy_add: "Add vacancy", request_campaign_upsert: "Search campaign",
+    request_vacancy_decision: "Personal decision", request_clarification_answer: "Clarification answer", request_coding_requirement: "Coding flag", request_evaluate: "Assessment", request_vacancy_add: "Add vacancy", request_prep_plan: "Preparation plan", request_prep_create: "Practice question", request_practice_answer: "Practice answer", request_cv_edit_decision: "CV edit decision", request_cv_import: "CV import", request_campaign_upsert: "Search campaign",
     task_collect: "Collect vacancies", task_annotate_requirements: "Annotate requirements", task_tailor_cv: "Tailor CV", task_fix_master_cv: "Fix master CV", task_extract_cv_facts: "Extract CV facts", task_prepare_vacancy_brief: "Vacancy brief", task_track_plan_materials: "Plan materials", task_review_practice: "Answer review",
     collectTitle: "Collect and add vacancies", collectDesc: "Running collection queues a task for an agent session. An added link or text is stored with its original.", runCollection: "Run collection", collectQueued: "Collection task saved.",
     lastRun: "Last collection", noRuns: "Adapter collection has not run yet.", runTime: "Time", runNew: "New", runChanged: "Changed", runUnchanged: "Unchanged", runDuplicates: "Possible duplicates", runErrors: "Source errors", changedFields: "fields", duplicateOf: "looks like",
@@ -1126,6 +1126,10 @@
     codingForm.append(choice, basis, source, requestButton(t("saveCoding"), "quiet-button", () => { if (!basis.value.trim()) { showNotice(t("codingBasisRequired")); basis.focus(); return null; } return {type: "coding_requirement", base: {kind: "vacancies", id: record.id, version: record.version}, payload: {status: choice.value, basis: basis.value.trim(), source: source.value.trim() || null, date: new Date().toISOString().slice(0, 10)}}; }));
     codingBox.append(codingForm, el("p", "muted small-note", t("codingNote")));
     const briefWork = workList(relatedWork(record.id, ["prepare_vacancy_brief"])); if (briefWork) section.append(briefWork);
+    records("preparations").filter((item) => item.kind === "preparation_briefs" && item.payload.vacancy_id === record.id).sort((a, b) => scalar(b.payload.created_at).localeCompare(scalar(a.payload.created_at))).forEach((item) => section.append(briefView(item)));
+    const sessions = records("preparations").filter((item) => item.kind === "practice_sessions" && item.payload.vacancy_id === record.id);
+    if (sessions.length) { section.append(el("h4", "", t("practiceTitle"))); sessions.forEach((item) => section.append(practiceView(item))); }
+    section.append(newPracticeForm({vacancy_id: record.id, track: tracks(record)[0]}));
     const codingWork = workList(relatedWork(record.id, ["coding_requirement"])); if (codingWork) codingBox.append(codingWork);
     fragment.append(section, codingBox);
     return fragment;
@@ -1239,6 +1243,135 @@
       section.append(el("h3", "", t("importsList")), box);
     }
     return section;
+  }
+
+  // Preparation module: vacancy briefs (mode A), track plans for general gaps (mode B), text practice.
+  const PREP_KINDS = new Set(["track_plans", "preparation_briefs", "practice_sessions", "practice_attempts", "practice_reviews"]);
+  Object.assign(copy.ru, {
+    prepEntryVacancy: "К вакансии", prepEntryVacancyDesc: "Компания, этапы, вопросы, истории и памятка с источниками. Резюме и назначенное интервью не требуются.", chooseVacancy: "Вакансия", prepEntryGaps: "Общие пробелы", prepEntryGapsDesc: "Направление, цель, время и опыт → темы из пробелов по вакансиям (дубли не добавляют вес) или базовая подготовка → практика → разбор → повтор.", goalField: "Цель", hoursField: "Часов в неделю", experienceField: "Опыт (кратко, необязательно)", createPlan: "Составить план", goalRequired: "Укажите цель и часы.",
+    trackPlansTitle: "Планы по общим пробелам", basis_vacancies: "из пробелов вакансий", basis_baseline: "базовая подготовка по направлению — не из требований вакансий", topicWhy: "Почему", topicWhere: "Где найдено", topicWeight: "Вес (разных ролей)", topicCriterion: "Критерий", topicExercise: "Упражнение", topicMaterials: "Материалы", topic_open: "не начато", topic_attempted: "есть попытка", topic_reviewed: "есть разбор", practiceTopic: "Практиковать", requestMaterials: "Поставить задачу: подобрать материалы", readingNote: "Чтение материалов не закрывает пробел — статус меняет только разобранная попытка.",
+    briefsTitle: "Памятки к вакансиям", briefCompany: "Компания", briefRole: "Роль и интервью", briefQuestions: "Вопросы", briefStories: "Истории STAR", briefPlan: "План", briefSummary: "Памятка", claim_confirmed: "подтверждено", claim_participant_report: "со слов участников", claim_assumption: "допущение", provenance_published: "опубликован", provenance_generated: "сгенерирован", storyGaps: "Не хватает историй", employerQuestions: "Вопросы работодателю", tests: "Что проверяет",
+    practiceTitle: "Практика", newPractice: "Новый вопрос для практики", questionField: "Вопрос", typeField: "Тип", testsField: "Что проверяет", provenanceField: "Происхождение", createSession: "Создать", questionRequired: "Укажите вопрос и что он проверяет.", answerField: "Ваш ответ", submitAnswer: "Отправить ответ на разбор", retryAnswer: "Повторить попытку", followUpAnswer: "Ответить на уточнение", awaitingReview: "ждёт разбора агентом", reviewTitle: "Разбор", attemptLabel: "Попытка", reviewProblem: "Проблема", reviewImprovement: "Как улучшить", followUpLabel: "Уточняющий вопрос", retryQuestion: "Вопрос для повтора", practiceNote: "Практика не создаёт опыт и не меняет резюме. Подтверждённый прогресс фиксирует независимый проверяющий.", draftSaved: "черновик сохранён в браузере", answerRequired: "Напишите ответ.",
+    attemptKind_answer: "ответ", attemptKind_retry: "повтор", attemptKind_follow_up: "ответ на уточнение", qtype_behavioral: "поведенческий", qtype_leadership: "лидерство", qtype_product_case: "продуктовый кейс", qtype_system_design: "системный дизайн", qtype_self_presentation: "самопрезентация", qtype_coding: "coding"
+  });
+  Object.assign(copy.en, {
+    prepEntryVacancy: "For a vacancy", prepEntryVacancyDesc: "Company, stages, questions, stories and a brief with sources. No CV or scheduled interview is required.", chooseVacancy: "Vacancy", prepEntryGaps: "General gaps", prepEntryGapsDesc: "Direction, goal, time and experience → topics from vacancy gaps (duplicates add no weight) or baseline preparation → practice → review → retry.", goalField: "Goal", hoursField: "Hours per week", experienceField: "Experience (short, optional)", createPlan: "Build plan", goalRequired: "Give a goal and hours.",
+    trackPlansTitle: "Plans for general gaps", basis_vacancies: "from vacancy gaps", basis_baseline: "baseline preparation for the direction — not from vacancy requirements", topicWhy: "Why", topicWhere: "Found in", topicWeight: "Weight (distinct roles)", topicCriterion: "Criterion", topicExercise: "Exercise", topicMaterials: "Materials", topic_open: "not started", topic_attempted: "attempted", topic_reviewed: "reviewed", practiceTopic: "Practice", requestMaterials: "Queue task: find materials", readingNote: "Reading materials does not close a gap; only a reviewed attempt changes the status.",
+    briefsTitle: "Vacancy briefs", briefCompany: "Company", briefRole: "Role and interview", briefQuestions: "Questions", briefStories: "STAR stories", briefPlan: "Plan", briefSummary: "Brief", claim_confirmed: "confirmed", claim_participant_report: "participant report", claim_assumption: "assumption", provenance_published: "published", provenance_generated: "generated", storyGaps: "Missing stories", employerQuestions: "Questions for the employer", tests: "What it tests",
+    practiceTitle: "Practice", newPractice: "New practice question", questionField: "Question", typeField: "Type", testsField: "What it tests", provenanceField: "Provenance", createSession: "Create", questionRequired: "Give the question and what it tests.", answerField: "Your answer", submitAnswer: "Send the answer for review", retryAnswer: "Retry", followUpAnswer: "Answer the follow-up", awaitingReview: "awaiting review by an agent", reviewTitle: "Review", attemptLabel: "Attempt", reviewProblem: "Problem", reviewImprovement: "How to improve", followUpLabel: "Follow-up question", retryQuestion: "Retry question", practiceNote: "Practice creates no experience and never changes the CV. Confirmed progress is recorded by an independent reviewer.", draftSaved: "draft saved in this browser", answerRequired: "Write an answer.",
+    attemptKind_answer: "answer", attemptKind_retry: "retry", attemptKind_follow_up: "follow-up answer", qtype_behavioral: "behavioral", qtype_leadership: "leadership", qtype_product_case: "product case", qtype_system_design: "system design", qtype_self_presentation: "self-presentation", qtype_coding: "coding"
+  });
+  Object.assign(enums, {reviewed: ["Разобрано", "Reviewed"], attempted: ["Есть попытка", "Attempted"], baseline: ["Базовый план", "Baseline"]});
+  const PREP_TEXT_RU = {"Product sense and discovery": "Продуктовое мышление и исследование", "Strategy and prioritization": "Стратегия и приоритизация", "Metrics and experiments": "Метрики и эксперименты", "Pricing, GTM and unit economics": "Ценообразование, выход на рынок и юнит-экономика", "Stakeholder leadership": "Работа со стейкхолдерами", "Self-presentation": "Самопрезентация", "Architecture and system design": "Архитектура и системный дизайн", "Distributed systems and trade-offs": "Распределённые системы и компромиссы", "Reliability and incident analysis": "Надёжность и разбор инцидентов", "Engineering organization and delivery": "Инженерная организация и поставка", "Hiring, feedback and team growth": "Найм, обратная связь и развитие команды", "Frame a problem, segments and success criteria": "Сформулировать проблему, сегменты и критерии успеха", "Choose between alternatives and explain trade-offs": "Выбрать из альтернатив и объяснить компромиссы", "Design a testable experiment with a guardrail metric": "Спроектировать проверяемый эксперимент с защитной метрикой", "Ground a pricing decision in inputs and constraints": "Обосновать ценовое решение входными данными и ограничениями", "Describe influencing without authority with a real story": "Рассказать реальную историю влияния без формальной власти", "Two-minute story of the career path and motivation": "Двухминутный рассказ о карьерном пути и мотивации", "Design a service with explicit trade-offs": "Спроектировать сервис с явными компромиссами", "Explain consistency and failure handling": "Объяснить согласованность и обработку сбоев", "Analyse an incident and propose SLOs": "Разобрать инцидент и предложить SLO", "Explain how delivery and quality were improved": "Объяснить, как улучшались поставка и качество", "A real story about developing an engineer": "Реальная история о развитии инженера", "Baseline preparation for the direction; not derived from vacancy requirements": "Базовая подготовка по направлению; не из требований вакансий", "Preparation gap in vacancy requirements": "Пробел подготовки в требованиях вакансий", "A reviewed answer that meets the rubric on a retry": "Разобранный ответ, который на повторе соответствует критериям", "A reviewed answer or exercise that meets the requirement without new CV claims": "Разобранный ответ или упражнение, которое закрывает требование без новых утверждений в резюме"};
+  const prepText = (value) => { const text = scalar(value); if (state.lang !== "ru") return tx(text); if (PREP_TEXT_RU[text]) return PREP_TEXT_RU[text]; const exercise = text.match(/^(?:Explain or solve a realistic case for|How would you demonstrate): (.*?)\??$/); return exercise ? `${text.startsWith("How") ? "Как бы вы показали" : "Объяснить или решить реалистичный кейс"}: ${tx(exercise[1])}` : tx(text); };
+  const prepRecords = (kind) => (state.data?.preparations || []).filter((record) => record.kind === kind);
+  function renderPreparationModule(list) {
+    const container = el("div", "sources-view"), entries = el("section", "view-section"), grid = el("div", "records-grid");
+    const vacancyEntry = el("article", "record-card"), vacancies = primaryRecords("vacancies").filter((record) => !inactiveVacancy(record)).sort((a, b) => recordTitle(a).localeCompare(recordTitle(b), state.lang));
+    const choice = formSelect(vacancies.map((record) => [record.id, `${recordTitle(record)} · ${companyName(record)}`]), vacancies[0]?.id || "");
+    vacancyEntry.append(el("h3", "", t("prepEntryVacancy")), el("p", "muted small-note", t("prepEntryVacancyDesc")), formField(t("chooseVacancy"), choice), button(`${t("tab_prep")} →`, "primary-button", () => { const record = byId(choice.value, "vacancies"); if (record) openRecord(record, "prep"); }));
+    const gapsCard = el("article", "record-card"), track = trackSelect(state.filters.track), goal = formInput("text", {maxlength: "500"}), hours = formInput("number", {min: "1", max: "80", step: "1", value: "6"}), experience = formInput("text", {maxlength: "2000"});
+    gapsCard.append(el("h3", "", t("prepEntryGaps")), el("p", "muted small-note", t("prepEntryGapsDesc")), formField(t("trackField"), track), formField(t("goalField"), goal), formField(t("hoursField"), hours), formField(t("experienceField"), experience), requestButton(t("createPlan"), "primary-button", () => { const value = Number(hours.value); if (!goal.value.trim() || !(value > 0)) { showNotice(t("goalRequired")); return null; } return {type: "prep_plan", payload: {track: track.value, goal: goal.value.trim(), hours: value, experience: experience.value.trim() || null}}; }));
+    grid.append(vacancyEntry, gapsCard); entries.append(grid);
+    const trackFilter = state.filters.track || "", plans = prepRecords("track_plans").filter((record) => !trackFilter || record.payload.track === trackFilter).sort((a, b) => scalar(b.payload.created_at).localeCompare(scalar(a.payload.created_at)));
+    const plansSection = el("section", "view-section"); plansSection.append(el("h2", "view-title", t("trackPlansTitle")), el("p", "muted", t("readingNote")));
+    plans.forEach((record) => plansSection.append(trackPlanView(record)));
+    const briefs = prepRecords("preparation_briefs"), briefsSection = el("section", "view-section");
+    if (briefs.length) { briefsSection.append(el("h2", "view-title", t("briefsTitle"))); briefs.forEach((record) => { const vacancy = byId(record.payload.vacancy_id, "vacancies"); if (vacancy) briefsSection.append(vacancyReference(vacancy, {compact: true})); briefsSection.append(briefView(record)); }); }
+    const sessions = prepRecords("practice_sessions").filter((record) => !record.payload.vacancy_id), practice = el("section", "view-section");
+    practice.append(el("h2", "view-title", t("practiceTitle")), el("p", "muted", t("practiceNote")));
+    sessions.forEach((record) => practice.append(practiceView(record)));
+    practice.append(newPracticeForm({track: trackFilter || undefined}));
+    const work = workList({pending: (state.data?.pending_requests || []).filter((request) => ["prep_plan", "prep_create", "practice_answer"].includes(request.type)), requests: workRecords("inbox_requests").map((item) => item.payload).filter((request) => ["prep_plan", "prep_create", "practice_answer"].includes(request.type) && ["failed", "conflict", "rejected"].includes(request.status)), tasks: []});
+    if (work) practice.append(work);
+    container.append(entries, plansSection, briefsSection, practice, renderPreparations(list));
+    return container;
+  }
+  function trackPlanView(record) {
+    const p = record.payload, box = el("article", "plan"), head = el("header", "plan-header"), statuses = record.display?.topic_status || {};
+    const heading = el("div", "plan-heading"); heading.append(el("p", "eyebrow", `${translated(p.track)} · ${formatDateTime(p.created_at)}`), el("h2", "plan-title", scalar(p.goal)));
+    const meta = el("div", "card-meta"); meta.append(badge(p.basis?.kind === "baseline" ? "baseline" : "current"), el("span", "muted small-note", t(`basis_${p.basis?.kind || "baseline"}`)), el("span", "muted small-note", `${p.hours_per_week} ${t("hoursShort")}/${t("weeksShort")}`)); heading.append(meta); head.append(heading); box.append(head);
+    const list = el("ol", "fit-matrix");
+    (p.topics || []).forEach((topic) => {
+      const item = el("li", `fit-row is-${statuses[topic.id] === "reviewed" ? "match" : statuses[topic.id] === "attempted" ? "unknown" : "gap"}`), top = el("div", "fit-row-head");
+      top.append(el("strong", "", prepText(topic.title))); const tags = el("span", "card-meta"); tags.append(badge(topic.type), el("span", "badge", t(`topic_${statuses[topic.id] || "open"}`))); top.append(tags); item.append(top);
+      const where = el("div", "stacked-refs"); (topic.where_found || []).forEach((id) => { const vacancy = byId(id, "vacancies"); if (vacancy) where.append(vacancyReference(vacancy, {compact: true, date: false})); });
+      item.append(factList([[t("topicWhy"), prepText(topic.why)], [t("topicWhere"), where.childElementCount ? where : ""], [t("topicWeight"), topic.weight ? String(topic.weight) : ""], [t("topicExercise"), prepText(topic.exercise)], [t("topicCriterion"), prepText(topic.criterion)], [t("topicMaterials"), (topic.materials || []).length ? renderValue(topic.materials, "materials") : ""]]));
+      const bar = el("div", "inline-form");
+      bar.append(requestButton(t("practiceTopic"), "quiet-button", () => ({type: "prep_create", payload: {track: p.track, plan_id: record.id, topic_id: topic.id, question: scalar(topic.diagnostic_question || topic.exercise), type: ["behavioral", "leadership", "product_case", "system_design", "self_presentation"].includes(topic.type) ? topic.type : "behavioral", tests: scalar(topic.criterion), provenance: "generated"}})));
+      item.append(bar);
+      const sessions = prepRecords("practice_sessions").filter((session) => session.payload.plan_id === record.id && session.payload.topic_id === topic.id);
+      sessions.forEach((session) => item.append(practiceView(session)));
+      list.append(item);
+    });
+    box.append(list);
+    const actions = el("div", "inline-form"); actions.append(requestButton(t("requestMaterials"), "quiet-button", () => ({type: "task", payload: {task_type: "track_plan_materials", related: {plan_id: record.id, track: p.track}}}), t("taskQueued"))); box.append(actions);
+    return box;
+  }
+  function claimList(claims) {
+    const list = el("ul", "criteria-list");
+    (claims || []).forEach((claim) => { const item = el("li"); item.append(el("span", `badge ${claim.kind === "confirmed" ? "good" : claim.kind === "assumption" ? "attention" : "blue"}`, t(`claim_${claim.kind}`)), el("span", "", tx(scalar(claim.text)))); (claim.sources || []).forEach((source) => { const link = externalLink(source.url, `${new URL(source.url).hostname.replace(/^www\./, "")} · ${source.date} ↗`); if (link) item.append(link); }); list.append(item); });
+    return list;
+  }
+  function briefView(record) {
+    const p = record.payload, box = el("details", "form-details brief"), body = el("div", "brief-body");
+    box.append(el("summary", "", `${t("briefSummary")} · ${translated(p.track)} · ${formatDateTime(p.created_at)}`));
+    if (p.brief) body.append(el("p", "fit-reason", tx(p.brief)));
+    body.append(el("h4", "", t("briefCompany")), claimList(p.company?.claims));
+    body.append(el("h4", "", t("briefRole")));
+    if ((p.role?.tasks || []).length) { const tasks = el("ul", "plain-list"); p.role.tasks.forEach((task) => tasks.append(el("li", "", tx(task)))); body.append(tasks); }
+    body.append(claimList((p.interview?.stages || []).map((stage) => ({kind: stage.kind, text: [stage.name, stage.format].filter(Boolean).join(" — "), sources: stage.sources}))));
+    body.append(factList([[t("codingTitle"), `${t(`coding_${p.coding?.status || "unknown"}`)}${p.coding?.basis ? ` — ${tx(p.coding.basis)}` : ""}`]]));
+    if ((p.questions || []).length) { const list = el("ul", "criteria-list"); p.questions.forEach((question) => { const item = el("li"); item.append(el("span", "badge", t(`qtype_${question.type}`)), el("span", "badge blue", t(`provenance_${question.provenance}`)), el("span", "", tx(question.text)), el("span", "muted", `${t("tests")}: ${tx(question.tests)}`)); list.append(item); }); body.append(el("h4", "", t("briefQuestions")), list); }
+    if ((p.stories || []).length) { const list = el("ul", "plain-list"); p.stories.forEach((story) => list.append(el("li", "", `${story.title}: ${story.situation} → ${story.task} → ${story.action} → ${story.result} (${(story.fact_ids || []).join(", ")})`))); body.append(el("h4", "", t("briefStories")), list); }
+    if ((p.story_gaps || []).length) body.append(factList([[t("storyGaps"), p.story_gaps.map(tx).join("; ")]]));
+    if ((p.plan || []).length) body.append(el("h4", "", t("briefPlan")), tableFrom([[t("dateLabel"), label("hours"), t("focusColumn")], ...p.plan.map((step) => [step.when, String(step.hours), tx(step.focus)])]));
+    if ((p.employer_questions || []).length) { const list = el("ul", "plain-list"); p.employer_questions.forEach((question) => list.append(el("li", "", tx(question)))); body.append(el("h4", "", t("employerQuestions")), list); }
+    box.append(body); return box;
+  }
+  function highlighted(text, fragments) {
+    const container = el("p", "practice-answer"), spans = [];
+    fragments.forEach((fragment) => { let from = 0; while (fragment && (from = text.indexOf(fragment, from)) >= 0) { spans.push([from, from + fragment.length]); from += fragment.length; } });
+    spans.sort((a, b) => a[0] - b[0]); let cursor = 0;
+    spans.forEach(([start, end]) => { if (start < cursor) return; container.append(document.createTextNode(text.slice(cursor, start)), el("mark", "", text.slice(start, end))); cursor = end; });
+    container.append(document.createTextNode(text.slice(cursor)));
+    return container;
+  }
+  function practiceView(session) {
+    const p = session.payload, box = el("div", "assessment-block practice"), attempts = prepRecords("practice_attempts").filter((item) => item.payload.session_id === session.id).sort((a, b) => a.payload.number - b.payload.number);
+    const reviews = prepRecords("practice_reviews"), pending = (state.data?.pending_requests || []).filter((request) => request.type === "practice_answer" && request.payload?.session_id === session.id);
+    const head = el("div", "fit-head"); head.append(el("strong", "", prepText(p.question)), el("span", "card-meta")); head.lastChild.append(badge(p.type), el("span", "badge blue", t(`provenance_${p.provenance}`))); box.append(head, el("p", "muted small-note", `${t("tests")}: ${prepText(p.tests)}`));
+    let lastReview = null, lastAttempt = null;
+    attempts.forEach((attempt) => {
+      const a = attempt.payload, review = reviews.find((item) => item.payload.attempt_id === attempt.id), row = el("div", "edit-row");
+      row.append(el("span", "eyebrow", `${t("attemptLabel")} ${a.number} · ${t(`attemptKind_${a.kind}`)} · ${formatDateTime(a.submitted_at)}`));
+      const holder = el("div"); row.append(holder);
+      artifactText(a.answer.path).then((text) => holder.replaceChildren(highlighted(text, review ? review.payload.items.map((item) => item.fragment) : []))).catch(() => holder.replaceChildren(el("p", "detail-warning", t("planUnavailable"))));
+      if (review) {
+        const list = el("ul", "criteria-list"); review.payload.items.forEach((item) => { const li = el("li"); li.append(el("mark", "", item.fragment), el("span", "criterion-name", item.criterion), el("span", "", `${t("reviewProblem")}: ${item.problem}`), el("span", "muted", `${t("reviewImprovement")}: ${item.improvement}`)); list.append(li); });
+        row.append(el("h4", "", t("reviewTitle")), list, factList([[t("followUpLabel"), scalar(review.payload.follow_up)], [t("retryQuestion"), scalar(review.payload.retry?.question)], [label("next_action"), scalar(review.payload.next_action)]]));
+        lastReview = review;
+      } else row.append(el("p", "muted small-note", t("awaitingReview")));
+      lastAttempt = attempt; box.append(row);
+    });
+    pending.forEach((request) => box.append(el("p", "muted small-note", `${t("attemptLabel")} · ${formatDateTime(request.created_at)} · ${t("awaitingImport")}`)));
+    const key = `career-copilot-draft-${session.id}`, area = formInput("textarea", {rows: "5", maxlength: "12000", "aria-label": t("answerField"), placeholder: t("answerField")});
+    try { area.value = localStorage.getItem(key) || ""; } catch (_) { /* Storage is optional. */ }
+    area.addEventListener("input", () => { try { localStorage.setItem(key, area.value); } catch (_) { /* Storage is optional. */ } });
+    const form = el("div", "practice-form"), bar = el("div", "inline-form");
+    const send = (extra) => { if (!area.value.trim()) { showNotice(t("answerRequired")); area.focus(); return null; } const body = {type: "practice_answer", payload: {session_id: session.id, answer: area.value.trim(), ...extra}}; try { localStorage.removeItem(key); } catch (_) { /* Storage is optional. */ } return body; };
+    if (!lastAttempt) bar.append(requestButton(t("submitAnswer"), "primary-button", () => send({})));
+    else { bar.append(requestButton(t("retryAnswer"), "primary-button", () => send({previous_attempt_id: lastAttempt.id}))); if (lastReview?.payload.follow_up) bar.append(requestButton(t("followUpAnswer"), "quiet-button", () => send({follow_up_to: lastAttempt.id}))); }
+    form.append(area, bar, el("p", "muted small-note", t("draftSaved")));
+    box.append(form);
+    return box;
+  }
+  function newPracticeForm(context) {
+    const details = el("details", "form-details"), form = el("div", "form-grid"), question = formInput("text", {maxlength: "1000"}), tests = formInput("text", {maxlength: "500"});
+    const type = formSelect(["behavioral", "leadership", "product_case", "system_design", "self_presentation", "coding"].map((value) => [value, t(`qtype_${value}`)]), "behavioral"), provenance = formSelect([["generated", t("provenance_generated")], ["published", t("provenance_published")]], "generated");
+    form.append(formField(t("questionField"), question, true), formField(t("testsField"), tests, true), formField(t("typeField"), type), formField(t("provenanceField"), provenance));
+    details.append(el("summary", "", t("newPractice")), form, requestButton(t("createSession"), "primary-button", () => { if (!question.value.trim() || !tests.value.trim()) { showNotice(t("questionRequired")); return null; } return {type: "prep_create", payload: {...context, question: question.value.trim(), tests: tests.value.trim(), type: type.value, provenance: provenance.value}}; }));
+    return details;
   }
 
   // Sources: collection runs, adding vacancies, search campaigns and the request queue.

@@ -33,6 +33,8 @@ RESULT_KINDS = {
     "submission": "submissions",
     "employer_response": "employer_responses",
     "cv_edit_proposal": "cv_edits",
+    "preparation_brief": "preparation_briefs",
+    "practice_review": "practice_reviews",
 }
 
 
@@ -249,6 +251,16 @@ def validate_record(
         from . import cv
 
         data = cv.validate_proposal(store, data, activity)
+    elif kind == "preparation_brief":
+        from . import preparation
+
+        data = preparation.validate_brief(store, data)
+        if data.get("brief_artifact"):
+            data["brief_file"] = artifact("brief_artifact")
+    elif kind == "practice_review":
+        from . import preparation
+
+        data = preparation.validate_review(store, data)
     elif kind == "company_dossier":
         data["profile_before"] = reference("company_id", "companies")
         data["dossier"] = artifact("dossier_artifact")
@@ -403,6 +415,10 @@ def finish(store: Store, activity_id: str, result_path: Path) -> dict:
     try:
         for (kind, key), value in pending.items():
             store.put(kind, value, immutable=True)
+            if kind == "preparation_briefs":
+                from . import preparation
+
+                preparation.after_brief(store, value)
             if kind == "company_dossiers":
                 company = store.get("companies", value["company_id"])
                 profile = {**company, **value.get("profile", {})}

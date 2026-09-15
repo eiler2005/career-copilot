@@ -36,6 +36,11 @@ ALLOWED_KINDS = frozenset(
         "cv_edits",
         "cv_imports",
         "inbox_requests",
+        "practice_attempts",
+        "practice_reviews",
+        "practice_sessions",
+        "preparation_briefs",
+        "track_plans",
         "tasks",
         "activities",
         "activity_events",
@@ -83,6 +88,11 @@ WORKSPACE_GROUPS = {
         "interview_practices",
         "interview_feedback",
         "interview_progress",
+        "track_plans",
+        "preparation_briefs",
+        "practice_sessions",
+        "practice_attempts",
+        "practice_reviews",
     ),
     "sources": ("source_health", "source_settings", "collection_runs"),
     "history": ("events", "submissions", "employer_responses", "imports"),
@@ -438,6 +448,32 @@ def _mark_superseded(records: list[dict], kind: str = "assessments") -> None:
             record["display"]["current"] = False
 
 
+def _topic_statuses(records: list[dict]) -> None:
+    """Topic status from practice attempts and reviews only; materials never change it."""
+    sessions = [r["payload"] for r in records if r["kind"] == "practice_sessions"]
+    attempts = [r["payload"] for r in records if r["kind"] == "practice_attempts"]
+    reviewed = {r["payload"].get("attempt_id") for r in records if r["kind"] == "practice_reviews"}
+    for record in records:
+        if record["kind"] != "track_plans":
+            continue
+        statuses = {}
+        for topic in record["payload"].get("topics") or []:
+            own = {
+                s["id"]
+                for s in sessions
+                if s.get("plan_id") == record["id"] and s.get("topic_id") == topic.get("id")
+            }
+            tried = [a for a in attempts if a.get("session_id") in own]
+            statuses[topic.get("id")] = (
+                "reviewed"
+                if any(a["id"] in reviewed for a in tried)
+                else "attempted"
+                if tried
+                else "open"
+            )
+        record["display"]["topic_status"] = statuses
+
+
 @dataclass(frozen=True)
 class Journal:
     home: Path
@@ -587,6 +623,7 @@ class Journal:
         }
         registered = {item["path"] for item in artifacts}
         self._cv_states(grouped["documents"], legacy)
+        _topic_statuses(grouped["preparations"])
         for record in grouped["vacancies"]:
             if record["kind"] == "vacancies":
                 _availability_display(record, checks.get(record["id"]))
