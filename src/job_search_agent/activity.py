@@ -32,6 +32,7 @@ RESULT_KINDS = {
     "interview_progress": "interview_progress",
     "submission": "submissions",
     "employer_response": "employer_responses",
+    "cv_edit_proposal": "cv_edits",
 }
 
 
@@ -244,7 +245,11 @@ def validate_record(
             raise ValueError("Typed result references a missing record")
         return value
 
-    if kind == "company_dossier":
+    if kind == "cv_edit_proposal":
+        from . import cv
+
+        data = cv.validate_proposal(store, data, activity)
+    elif kind == "company_dossier":
         data["profile_before"] = reference("company_id", "companies")
         data["dossier"] = artifact("dossier_artifact")
         if not isinstance(data.get("profile", {}), dict):

@@ -141,3 +141,20 @@ button:disabled{cursor:not-allowed;opacity:.5}
 .fit-row-head .card-meta{margin:0}
 .fit-row .plan-facts{margin:8px 0 0}
 .fit-action{margin-top:8px}
+
+/* CV module: versions, PDF preview, edit proposals */
+.cv-version .vacancy-actions{margin-top:10px}
+.pdf-preview{margin-top:12px;border:1px solid var(--line);background:#fff}
+.pdf-preview>summary{cursor:pointer;padding:10px 13px;font-size:12px;color:var(--blue)}
+.pdf-preview iframe{display:block;width:100%;height:min(80vh,900px);border:0;border-top:1px solid var(--line);background:#fff}
+.cv-group{margin-top:16px}
+.cv-group>.vacancy-ref{margin-bottom:6px}
+.proposal .edit-row{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.edit-diff{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0}
+.edit-before,.edit-after{padding:10px 12px;border:1px solid var(--line);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.edit-before{background:#f7ebdf}
+.edit-after{background:#e7efea}
+.edit-before p,.edit-after p{margin:6px 0 0;white-space:pre-wrap}
+.inline-editor{flex:1 1 100%;margin-top:4px}
+.inline-editor textarea{display:block;width:calc(100% - 30px);margin:12px 15px;border:1px solid var(--line);padding:8px 10px;font:inherit;font-size:13px}
+@media(max-width:650px){.edit-diff{grid-template-columns:1fr}.pdf-preview iframe{height:70vh}}

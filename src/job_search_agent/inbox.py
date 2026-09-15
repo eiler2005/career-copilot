@@ -64,6 +64,7 @@ RELATED_KEYS = frozenset(
         "proposal_id",
         "campaign_id",
         "requirement_id",
+        "import_id",
     }
 )
 
@@ -599,3 +600,46 @@ def _apply_campaign(store: Store, request: dict) -> dict:
 
 
 request_type("campaign_upsert")((_validate_campaign, _apply_campaign))
+
+
+# --------------------------------------------------------------------------- stage 3 request types
+
+
+def _validate_cv_decision(payload: dict) -> dict:
+    decision = _choice(payload.get("decision"), "decision", {"accept", "reject", "edit"})
+    return {
+        "proposal_id": safe_id(str(payload.get("proposal_id"))),
+        "edit_id": safe_id(str(payload.get("edit_id"))),
+        "decision": decision,
+        "text": _text(payload.get("text"), "text", 4000, required=decision == "edit"),
+        "note": _text(payload.get("note"), "note", 1000, required=False),
+    }
+
+
+def _apply_cv_decision(store: Store, request: dict) -> dict:
+    from . import cv
+
+    value = cv.record_decision(store, request["payload"], request["id"])
+    return {"decision_id": value["id"], "edit_id": value["edit_id"], "decision": value["decision"]}
+
+
+request_type("cv_edit_decision", "cv_edits")((_validate_cv_decision, _apply_cv_decision))
+
+
+def _validate_cv_import(payload: dict) -> dict:
+    return {
+        "track": _choice(payload.get("track"), "track", TRACKS),
+        "text": _text(payload.get("text"), "text", 35_000),
+        "filename": _text(payload.get("filename") or "pasted-cv.md", "filename", 120),
+    }
+
+
+def _apply_cv_import(store: Store, request: dict) -> dict:
+    from . import cv
+
+    payload = request["payload"]
+    value = cv.import_cv(store, payload["text"], payload["track"], payload["filename"])
+    return {"import_id": value["id"], "task_id": value["task_id"]}
+
+
+request_type("cv_import")((_validate_cv_import, _apply_cv_import))

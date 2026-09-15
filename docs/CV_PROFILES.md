@@ -49,6 +49,18 @@ Unknown or unmapped levels require clarification. Technical leadership primarily
 
 A market effort ratio, for example 70/30, guides research time. It is not a result quota or a reason to discard a suitable vacancy.
 
+## Fixing a master and tailoring for a vacancy
+
+There are exactly two master CVs, `master-product` and `master-technical-leadership`. A vacancy version is prepared with `prepare VACANCY_ID --track T --based-on master-T:VERSION_ID`; the version records `based_on` and the master package is never written by tailoring.
+
+Edits are proposed by the flagship author as a `cv_edit_proposal` activity result. Every edit quotes the current CV exactly in `before` (only `add_evidence` may insert into a named section), gives `after`, a `reason`, `fact_ids` and, for a vacancy, `requirement_ids`. New evidence requires verified facts; a question for the candidate is marked `needs_candidate_input`. The user accepts, rejects or edits each proposal in the dashboard or with `ajh cv decide`; decisions keep their history. `ajh cv apply-edits PROPOSAL --output PATH` assembles a draft from the latest accepted or edited decisions and reports rejected, undecided and conflicting edits. The draft becomes a version only through `prepare` with flagship authorship, and it becomes usable only after the independent content and visual reviews. User acceptance never replaces those reviews.
+
+For a vacancy version, `--requirement-coverage PATH` stores one row per vacancy requirement: `covered` (with `cv_location` and verified `fact_ids`), `not_evidenced` or `not_applicable`. Reviews attest that file with the rest of the version.
+
+Version states, derived from files and reviews: `invalid` (a file is missing or changed), `draft` (mechanical source, no flagship author), `awaiting_facts` (fact coverage not reconciled), `written` (no reviews yet), `awaiting_content_review`, `awaiting_visual_review` and `ready`. `ajh cv status` shows both masters and vacancy versions.
+
+`ajh cv import FILE --track T` (Markdown, text or PDF) or a pasted CV in the dashboard extracts sections, date ranges and lines with claims to check, keeps the original and the extracted text under `evidence/cv-imports/`, and queues an `extract_cv_facts` task. It never creates facts: facts enter only through a verified `facts import`.
+
 ## Acceptance
 
 Each package preserves source Markdown, PDF, extracted text, optional letter, fact/vacancy context, coverage, version metadata and reviews. Authorship follows [the workflow model policy](WORKFLOW.md#people-models-and-authority).

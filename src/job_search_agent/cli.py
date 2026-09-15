@@ -231,6 +231,24 @@ def parser() -> argparse.ArgumentParser:
     prepare.add_argument("--author-session")
     prepare.add_argument("--contributors", type=Path)
     prepare.add_argument("--letter-record")
+    prepare.add_argument("--based-on", help="PACKAGE_ID:VERSION_ID this version starts from")
+    prepare.add_argument("--requirement-coverage", type=Path)
+    resume = commands.add_parser(
+        "cv", help="CV versions, edit proposals and import"
+    ).add_subparsers(dest="cv_command", required=True)
+    resume.add_parser("status")
+    importing = resume.add_parser("import", help="Extract a CV for fact verification")
+    importing.add_argument("source", type=Path)
+    importing.add_argument("--track", choices=TRACKS, required=True)
+    deciding = resume.add_parser("decide", help="Record a decision on one proposed edit")
+    deciding.add_argument("proposal_id")
+    deciding.add_argument("edit_id")
+    deciding.add_argument("--decision", choices=("accept", "reject", "edit"), required=True)
+    deciding.add_argument("--text")
+    deciding.add_argument("--note")
+    assembling = resume.add_parser("apply-edits", help="Assemble a draft from accepted edits")
+    assembling.add_argument("proposal_id")
+    assembling.add_argument("--output", type=Path, required=True)
     review = commands.add_parser("review")
     review.add_argument("package_id")
     review.add_argument("--report", type=Path, required=True)
@@ -406,6 +424,8 @@ def run(args) -> dict | list:
                 coverage_file=args.coverage,
                 contributors_file=args.contributors,
                 letter_record=args.letter_record,
+                based_on=args.based_on,
+                requirement_coverage_file=args.requirement_coverage,
             )
         if args.command == "review":
             return workflow.record_review(store, args.package_id, args.report)
@@ -489,6 +509,28 @@ def run(args) -> dict | list:
                 store.db.execute("ROLLBACK")
                 raise
             return result
+        if args.command == "cv":
+            from . import cv
+
+            if args.cv_command == "status":
+                return cv.overview(store)
+            if args.cv_command == "import":
+                original = args.source.read_bytes()
+                return cv.import_cv(
+                    store, cv.read_cv_file(args.source), args.track, args.source.name, original
+                )
+            if args.cv_command == "decide":
+                return cv.record_decision(
+                    store,
+                    {
+                        "proposal_id": args.proposal_id,
+                        "edit_id": args.edit_id,
+                        "decision": args.decision,
+                        "text": args.text,
+                        "note": args.note,
+                    },
+                )
+            return cv.apply_edits(store, args.proposal_id, args.output)
         if args.command == "campaigns":
             from . import campaigns
 

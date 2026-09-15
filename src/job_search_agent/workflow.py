@@ -469,6 +469,8 @@ def prepare(
     coverage_file: Path | None = None,
     contributors_file: Path | None = None,
     letter_record: str | None = None,
+    based_on: str | None = None,
+    requirement_coverage_file: Path | None = None,
 ) -> dict:
     if track not in TRACKS:
         raise ValueError("Unknown track")
@@ -491,6 +493,32 @@ def prepare(
     ):
         raise ValueError("Authored document requires actual flagship model and session identity")
     facts = store.facts
+    origin = None
+    if based_on:
+        from .activity import package_version
+
+        base_package_id, _, base_version_id = based_on.partition(":")
+        base_package, base_version = package_version(store, base_package_id, base_version_id)
+        if base_package["track"] != track or base_package["vacancy_id"] not in {
+            "master",
+            vacancy_id,
+        }:
+            raise ValueError("--based-on must be a master or earlier version of the same track")
+        origin = {
+            "package_id": base_package["id"],
+            "version_id": base_version["id"],
+            "cv_source_sha256": base_version["sha256"]["cv_source"],
+            "kind": "master" if base_package["vacancy_id"] == "master" else "previous",
+        }
+    requirement_coverage = None
+    if requirement_coverage_file:
+        from .cv import validate_requirement_coverage
+
+        if master:
+            raise ValueError("Requirement coverage applies to vacancy versions")
+        requirement_coverage = validate_requirement_coverage(
+            read_json(requirement_coverage_file), vacancy, facts
+        )
     mechanical, coverage = markdown_draft(facts, track)
     source = cv.read_text(encoding="utf-8") if cv else mechanical
     if cv:
@@ -617,6 +645,8 @@ def prepare(
             HANDOFF_SCHEMA_VERSION,
             contributors,
             letter_record,
+            origin,
+            requirement_coverage,
         ]
     )
     pid = safe_id(f"{vacancy_id}-{track}")
@@ -644,6 +674,10 @@ def prepare(
             f"{folder}/context.json", encode({"vacancy": vacancy, "facts": facts})
         ),
     }
+    if requirement_coverage is not None:
+        files["requirement_coverage"] = store.artifact(
+            f"{folder}/requirement-coverage.json", encode(requirement_coverage)
+        )
     pdf_path = store.path(f"{folder}/cv.pdf")
     pages = render_pdf(source, pdf_path, store.settings.get("pdf_font"))
     files["cv_pdf"] = store.artifact(f"{folder}/cv.pdf", pdf_path.read_bytes())
@@ -687,6 +721,7 @@ def prepare(
         "author_session": author_session if cv else None,
         "contributors": contributors,
         "letter_record_id": letter_record,
+        "based_on": origin,
         "cv_package_id": bound_letter["cv_package_id"] if bound_letter else pid,
         "cv_version_id": bound_letter["cv_version_id"] if bound_letter else version_id,
         "review_status": "pending",

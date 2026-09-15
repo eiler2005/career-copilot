@@ -74,6 +74,7 @@ All records use `{"type":"TYPE","data":{...}}`. `data.id` is optional; set it ex
 | `interview_practice` | `plan_id`, `exercise`, `evidence_artifact` | Actual answer or exercise output |
 | `interview_feedback` | `practice_id`, `findings`, `feedback_artifact` | Feedback on that practice |
 | `interview_progress` | `practice_id`, `feedback_id`, `decision`, `rationale`, `evidence_artifact`, `reviewer` | Explicit `demonstrated`, `needs_practice` or `blocked` decision; actual reviewer session required |
+| `cv_edit_proposal` | `package_id`, `version_id`, `edits[]` with `id`, `kind` (`wording`, `emphasis`, `reorder`, `add_evidence`, `remove`), `before`, `after`, `reason`, `fact_ids`, `requirement_ids`, `needs_candidate_input`, `question`, `section` | Flagship actor; `before` quotes the exact current CV source; new evidence only from verified facts; stored as `cv_edits` for user decisions |
 | `employer_response` | `submission_id`, `status`, timezone-aware, nonfuture ISO `received_at`, `summary`, `evidence_artifact` | Actual received response; status is `acknowledged`, `interview`, `rejected`, `offer` or `other` |
 | `submission` | `package_id`, `version_id`, `channel`, timezone-aware, nonfuture ISO `sent_at`, `user_confirmed: true`, `evidence_artifact` | Record of an actual externally completed, user-confirmed send |
 

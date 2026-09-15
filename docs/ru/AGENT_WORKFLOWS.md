@@ -75,6 +75,7 @@ Blocked/failed не регистрируют завершённые типизи
 | `interview_feedback` | `practice_id`, `findings`, `feedback_artifact` | Обратная связь по попытке |
 | `interview_progress` | `practice_id`, `feedback_id`, `decision`, `rationale`, `evidence_artifact`, `reviewer` | `demonstrated`, `needs_practice` или `blocked`; фактическая сессия проверяющего обязательна |
 | `submission` | `package_id`, `version_id`, `channel`, ISO `sent_at` с часовым поясом, не в будущем, `user_confirmed: true`, `evidence_artifact` | Подтверждённая реальная отправка |
+| `cv_edit_proposal` | `package_id`, `version_id`, `edits[]` с `id`, `kind` (`wording`, `emphasis`, `reorder`, `add_evidence`, `remove`), `before`, `after`, `reason`, `fact_ids`, `requirement_ids`, `needs_candidate_input`, `question`, `section` | Флагманский исполнитель; `before` дословно цитирует текущий исходник; новое доказательство — только из подтверждённых фактов; сохраняется как `cv_edits` для решений пользователя |
 | `employer_response` | `submission_id`, `status`, ISO `received_at` с часовым поясом, не в будущем, `summary`, `evidence_artifact` | Полученный ответ на зарегистрированную отправку |
 
 Статусы ответа: `acknowledged`, `interview`, `rejected`, `offer`, `other`. CLI проверяет структуру и ссылки, а не истинность прозы. Наличие досье не доказывает чтение источников, а запись submission ничего не отправляет.

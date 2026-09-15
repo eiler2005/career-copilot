@@ -2,6 +2,14 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — CV module
+
+### Added
+- **CV section** in the dashboard: two master CVs with derived state (`invalid`, `draft`, `awaiting_facts`, `written`, `awaiting_content_review`, `awaiting_visual_review`, `ready`), next step, inline PDF preview, source and extracted text, requirement coverage and review findings; vacancy versions with `based_on`; CV import by pasted text.
+- **Edit proposals and decisions.** `cv_edit_proposal` activity results (before → after → reason → facts, quoted from the exact source, new evidence only from verified facts) stored as `cv_edits`; accept, reject or edit per edit through `cv_edit_decision` requests or `ajh cv decide`, with history; `ajh cv apply-edits` assembles a draft from accepted edits.
+- `prepare --based-on` and `--requirement-coverage`; `ajh cv status` and `ajh cv import` (Markdown, text, PDF) that queues fact extraction without creating facts.
+- `GET /api/preview/<path>` for inline PDF preview of package files.
+
 ## 2026-09-15 — Explainable fit
 
 ### Added

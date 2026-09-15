@@ -65,6 +65,16 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 
 A blocked or login-only page is refused with a message to paste the text instead; no access restriction is bypassed. `discover` now also writes a `collection_runs` record, and a misconfigured source (URL outside its host allowlist, proxy without permission) is recorded as `config_error` for that source while the others still run.
 
+## CV versions and edits
+
+| Command | Effect |
+| --- | --- |
+| `prepare ID --track T --based-on PACKAGE:VERSION [--requirement-coverage PATH]` | Records the master (or earlier) version a new version starts from and the per-requirement coverage |
+| `cv status` | Both master CVs and vacancy versions with state and reasons |
+| `cv import FILE --track T` | Extracts sections, dates and claims from Markdown, text or PDF; queues `extract_cv_facts`; creates no facts |
+| `cv decide PROPOSAL EDIT --decision accept\|reject\|edit [--text]` | Adds a decision to the edit's history |
+| `cv apply-edits PROPOSAL --output PATH` | Writes a draft from accepted edits; not a version and not reviewed |
+
 ## Dashboard requests and agent tasks
 
 | Command | Effect |

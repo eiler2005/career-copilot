@@ -65,6 +65,16 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 
 Страница, закрытая блокировкой или входом, не читается: команда предлагает вставить текст; ограничения доступа не обходятся. `discover` теперь пишет запись `collection_runs`, а источник с ошибкой настройки (адрес вне allowlist, прокси без разрешения) получает статус `config_error`, остальные источники продолжают работу.
 
+## Версии и правки резюме
+
+| Команда | Результат |
+| --- | --- |
+| `prepare ID --track T --based-on PACKAGE:VERSION [--requirement-coverage PATH]` | Фиксирует master (или прежнюю) версию, от которой начата новая, и покрытие по требованиям |
+| `cv status` | Оба master-резюме и версии под вакансии с состоянием и причинами |
+| `cv import FILE --track T` | Извлекает разделы, даты и утверждения из Markdown, текста или PDF; ставит `extract_cv_facts`; факты не создаёт |
+| `cv decide PROPOSAL EDIT --decision accept\|reject\|edit [--text]` | Добавляет решение в историю правки |
+| `cv apply-edits PROPOSAL --output PATH` | Пишет черновик из принятых правок; это не версия и не ревью |
+
 ## Заявки из веб-интерфейса и задачи агента
 
 | Команда | Результат |

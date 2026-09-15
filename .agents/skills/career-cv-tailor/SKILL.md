@@ -17,7 +17,7 @@ Inputs are exact facts, track, optional vacancy/evaluation, overlays and source.
 
 ## Queued work from the dashboard
 
-Check `ajh --home PRIVATE_HOME tasks next` for `tailor_cv`, `fix_master_cv` and `extract_cv_facts` tasks. Start the activity from the returned template so `related.task_id` binds the task. A vacancy version never changes the master CV; the user's acceptance of an edit does not replace the content and visual reviews.
+Check `ajh --home PRIVATE_HOME tasks next` for `tailor_cv`, `fix_master_cv` and `extract_cv_facts` tasks. Start the activity from the returned template so `related.task_id` binds the task. A vacancy version never changes the master CV; the user's acceptance of an edit does not replace the content and visual reviews. Propose edits as a `cv_edit_proposal` result that quotes the exact current source; after the user's decisions, run `ajh cv apply-edits`, author the new version with `prepare --based-on` (and `--requirement-coverage` for a vacancy) and request independent reviews.
 
 ## Journal and execution
 

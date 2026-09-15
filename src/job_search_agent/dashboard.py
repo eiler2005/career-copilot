@@ -25,13 +25,16 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, campaigns, descriptions, inbox, matching
+from . import availability, campaigns, cv, descriptions, inbox, matching
 from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
 ALLOWED_KINDS = frozenset(
     {
         "collection_runs",
+        "cv_edit_decisions",
+        "cv_edits",
+        "cv_imports",
         "inbox_requests",
         "tasks",
         "activities",
@@ -64,7 +67,14 @@ ALLOWED_KINDS = frozenset(
 WORKSPACE_GROUPS = {
     "companies": ("companies", "company_dossiers"),
     "vacancies": ("vacancies", "assessments", "current_assessments", "observations"),
-    "documents": ("packages", "cover_letters", "text_revisions"),
+    "documents": (
+        "packages",
+        "cover_letters",
+        "text_revisions",
+        "cv_edits",
+        "cv_edit_decisions",
+        "cv_imports",
+    ),
     "legacy_files": ("legacy_files",),
     "activities": ("activities", "activity_events"),
     "preparations": (
@@ -576,6 +586,7 @@ class Journal:
             if isinstance(item["payload"].get("path"), str)
         }
         registered = {item["path"] for item in artifacts}
+        self._cv_states(grouped["documents"], legacy)
         for record in grouped["vacancies"]:
             if record["kind"] == "vacancies":
                 _availability_display(record, checks.get(record["id"]))
@@ -612,6 +623,53 @@ class Journal:
             for item in inbox.pending_files(self.state_dir)
             if item["id"] not in imported
         ]
+
+    def _verified_json(self, relative: str) -> object | None:
+        found = self.artifact(relative)
+        if not found:
+            return None
+        try:
+            return json.loads(found[0].read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+
+    def _cv_states(self, records: list[dict], legacy: dict) -> None:
+        """State of every package version, from verified files and reviews only."""
+        for record in records:
+            if record["kind"] != "packages":
+                continue
+            states = {}
+            for version in record["payload"].get("versions") or []:
+                if not isinstance(version, dict) or not isinstance(version.get("files"), dict):
+                    continue
+                errors = [
+                    f"missing_or_changed:{label}"
+                    for label, path in version["files"].items()
+                    if not isinstance(path, str) or self.artifact(legacy.get(path, path)) is None
+                ]
+                reviews = [
+                    item
+                    for item in (self._verified_json(path) for path in version.get("reviews") or [])
+                    if isinstance(item, dict)
+                ]
+                coverage_path = version["files"].get("coverage")
+                coverage = self._verified_json(coverage_path) if coverage_path else None
+                requirement_path = version["files"].get("requirement_coverage")
+                states[version.get("id")] = {
+                    **cv.version_state(version, errors, reviews, coverage),
+                    "findings": [
+                        {
+                            "kind": item.get("kind"),
+                            "passed": item.get("passed"),
+                            "findings": item.get("findings"),
+                        }
+                        for item in reviews
+                    ],
+                    "requirement_coverage": self._verified_json(requirement_path)
+                    if requirement_path
+                    else None,
+                }
+            record["display"]["versions"] = redact_local_paths(states)
 
     def settings(self) -> dict:
         try:
@@ -947,6 +1005,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._artifact(path, head_only)
             elif path.startswith("/api/text/"):
                 self._text(path, head_only)
+            elif path.startswith("/api/preview/"):
+                self._preview(path, head_only)
             elif path.startswith("/api/plans/") and path.endswith(".pdf"):
                 self._plan_pdf(path, head_only)
             elif path in {"/", "/index.html"}:
@@ -1031,6 +1091,36 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self._security_headers()
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("Content-Disposition", _content_disposition(target))
+        self.send_header("Content-Length", str(size))
+        self.end_headers()
+        if not head_only:
+            with target.open("rb") as handle:
+                while chunk := handle.read(64 * 1024):
+                    self.wfile.write(chunk)
+
+    def _preview(self, path: str, head_only: bool) -> None:
+        """Show a registered CV or letter PDF inline, framed only by this dashboard."""
+        relative = unquote(path.removeprefix("/api/preview/"))
+        artifact = (
+            self.server.journal.artifact(relative)
+            if relative.startswith("packages/") and relative.casefold().endswith(".pdf")
+            else None
+        )
+        if artifact is None:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        target, size = artifact
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Frame-Options", "SAMEORIGIN")
+        self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+        self.send_header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'self'")
+        self.send_header("Content-Type", "application/pdf")
+        self.send_header(
+            "Content-Disposition", _content_disposition(target).replace("attachment", "inline", 1)
+        )
         self.send_header("Content-Length", str(size))
         self.end_headers()
         if not head_only:
@@ -1172,7 +1262,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.send_header(
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; "
-            "form-action 'none'; connect-src 'self'; img-src 'self' data:; "
+            "form-action 'none'; connect-src 'self'; img-src 'self' data:; frame-src 'self'; "
             "script-src 'self'; style-src 'self'",
         )
 
