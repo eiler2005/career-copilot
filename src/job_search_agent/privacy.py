@@ -32,9 +32,10 @@ SAFE_ROOT_FILES = {
     "SECURITY.md",
     "Dockerfile",
     "compose.yaml",
+    "compose.public.yaml",
     ".dockerignore",
 }
-SAFE_ROOT_DIRS = {"src", "tests", "docs", "examples", "scripts", ".github", ".githooks"}
+SAFE_ROOT_DIRS = {"src", "tests", "docs", "examples", "scripts", "deploy", ".github", ".githooks"}
 SKILL_NAMES = {
     "career-copilot",
     "career-job-search",

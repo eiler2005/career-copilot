@@ -4,7 +4,7 @@
 
 Public code and private candidate work have different contents and histories. Keep real evidence, search targets, assessments and documents in an explicit external workspace. Public familiarity with a person's biography does not authorize using it as a pipeline example.
 
-The [dashboard](DASHBOARD.md) is a private viewing surface. Its Docker image contains public code and browser assets; an external workspace is mounted read-only at runtime. Preserve the host-loopback port binding and access it through SSH. A public domain requires a separately reviewed authentication gateway and TLS. Do not publish the generated private HTML/JSON or copy a workspace into an image layer. Dockerfile, Compose and `.dockerignore` are allowed public configuration files, with the same content and secret checks as source code.
+The [dashboard](DASHBOARD.md) is a private viewing surface. Its Docker image contains public code and browser assets; an external workspace is mounted read-only at runtime. Preserve the host-loopback port binding and access it through SSH. A public domain uses only the reviewed [authenticating HTTPS gateway](DASHBOARD.md#public-https-address-with-authentication); the dashboard itself is never published directly. Do not publish the generated private HTML/JSON or copy a workspace into an image layer. Dockerfile, Compose and `.dockerignore` are allowed public configuration files, with the same content and secret checks as source code.
 
 ## Public contents and history
 

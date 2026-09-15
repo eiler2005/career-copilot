@@ -1,0 +1,67 @@
+# Authenticating HTTPS gateway for the private Career Copilot dashboard.
+#
+# The gateway is the only component that accepts a public hostname. It listens on
+# container port 8445; the host publishes that port on loopback only. An exact-SNI
+# layer4 route on the host's :443 (owned by the host's edge proxy, not by this
+# project) forwards the TLS stream unchanged. Certificates are issued through
+# TLS-ALPN-01 on that same route, so no port 80 listener is required.
+#
+# Required environment: CC_PUBLIC_HOST, CC_BASIC_USER, CC_BASIC_HASH (bcrypt from
+# `caddy hash-password`), ACME_EMAIL. Never commit their values.
+{
+	admin off
+	https_port 8445
+	auto_https disable_redirects
+	email {$ACME_EMAIL}
+	servers {
+		protocols h1 h2
+	}
+	# No site-level `log` directive: request URIs, record identifiers and
+	# credentials never reach access logs.
+}
+
+# Container-only plaintext health endpoint for the Docker health check.
+:8081 {
+	respond /healthz "ok" 200
+	respond 404
+}
+
+{$CC_PUBLIC_HOST} {
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex, nofollow, noarchive"
+		-Server
+	}
+
+	@robots path /robots.txt
+	handle @robots {
+		respond "User-agent: *
+Disallow: /
+" 200
+	}
+
+	# Health is useful for external monitors and reveals nothing private.
+	@health path /healthz
+	handle @health {
+		reverse_proxy dashboard:8100
+	}
+
+	handle {
+		basic_auth {
+			{$CC_BASIC_USER} {$CC_BASIC_HASH}
+		}
+		encode zstd gzip
+		reverse_proxy dashboard:8100 {
+			header_up -Authorization
+		}
+	}
+}

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#101628">
   <title>Career Copilot</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/assets/styles.css">
@@ -13,7 +15,7 @@
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">К содержимому</a>
   <aside class="sidebar">
-    <a class="brand" href="#overview" aria-label="Career Copilot"><span class="brand-mark" aria-hidden="true">c<span>c</span></span><span>Career <br>Copilot<span class="brand-caption">PRIVATE WORKSPACE</span></span></a>
+    <a class="brand" href="#overview" aria-label="Career Copilot"><span class="brand-mark" aria-hidden="true">c<span>c</span></span><span>Career <br>Copilot<span class="brand-caption" data-i18n="privacy">ЛИЧНОЕ ПРОСТРАНСТВО</span></span></a>
     <div class="sidebar-label" data-i18n="workspace">РАБОЧЕЕ ПРОСТРАНСТВО</div>
     <nav id="navigation" aria-label="Разделы"></nav>
     <div class="sidebar-foot"><span class="status-dot"></span><span data-i18n="privateJournal">Личный журнал</span><p data-i18n="sidebarNote">Факты, решения и следующий шаг — в одном месте.</p><span class="mono">CAREER COPILOT / 01</span></div>
@@ -28,7 +30,8 @@
     </main>
     <footer class="page-footer"><span data-i18n="footer">Основано на вашем журнале. Неизвестное остаётся неизвестным.</span><span id="updated-at" class="mono"></span></footer>
   </div>
-  <dialog id="record-dialog" aria-labelledby="detail-title"><div class="dialog-top"><span class="eyebrow" id="detail-kind"></span><button id="close-detail" type="button" class="close-button" aria-label="Закрыть">×</button></div><div id="detail-content"></div></dialog>
+  <dialog id="record-dialog" aria-labelledby="detail-title"><div class="dialog-top"><span class="eyebrow" id="detail-kind"></span><div class="dialog-actions"><button id="copy-link" type="button" class="quiet-button" data-i18n="copyLink">Скопировать ссылку</button><button id="close-detail" type="button" class="close-button" aria-label="Закрыть">×</button></div></div><div id="detail-content"></div></dialog>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
   <noscript><p class="noscript">Для просмотра рабочего пространства включите JavaScript. / Enable JavaScript to view your workspace.</p></noscript>
 </body>
 </html>

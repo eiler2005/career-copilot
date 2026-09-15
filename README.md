@@ -45,7 +45,7 @@ The local export is `report/index.html` inside that workspace. Source, PDF, text
 
 ## Explore your workspace in a browser
 
-The [private dashboard](docs/DASHBOARD.md) reads the existing SQLite journal and brings companies, vacancies, document versions, preparation, sources and history into one searchable interface. Open a record to inspect its evidence and nested fields. Vacancies show country, city and remote scope separately; ambiguous geography remains unknown and the original location stays visible.
+The [private dashboard](docs/DASHBOARD.md) reads the existing SQLite journal and brings companies, vacancies, document versions, preparation, sources and history into one searchable interface. Open a record to inspect its evidence and nested fields. Vacancies show country, city and remote scope separately; ambiguous geography remains unknown and the original location stays visible. Filters and open records live in the address, so a view can be bookmarked or shared. Reach a server copy through an SSH tunnel or the optional [authenticating HTTPS gateway](docs/DASHBOARD.md#public-https-address-with-authentication).
 
 The interface supports Russian and English, desktop and mobile, and needs no frontend build or external CDN. It only reads: changes still go through the CLI and agent workflows. Run it locally or use the included Docker configuration with a private SSH tunnel. Keep candidate data outside the image and public repository.
 
@@ -75,7 +75,7 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [Workflow](docs/WORKFLOW.md) | Inputs, results, ownership, stops and restart for every stage |
 | [Agent workflows](docs/AGENT_WORKFLOWS.md) | Eight independent roles, activity JSON and typed handoffs |
 | [CLI](docs/CLI.md) | Commands, output, identities, contributors and exit behavior |
-| [Dashboard and deployment](docs/DASHBOARD.md) | Browser interface, SQLite reads, Docker, private access and updates |
+| [Dashboard and deployment](docs/DASHBOARD.md) | Browser interface, SQLite reads, Docker, tunnel or authenticated HTTPS access and updates |
 | [Configuration](docs/CONFIGURATION.md) | Environment, source defaults, budgets and policy |
 | [Data model](docs/DATA_MODEL.md) | Facts, records, immutable artifacts and version relationships |
 | [CV profiles](docs/CV_PROFILES.md) | Two tracks, evidence coverage, role levels and acceptance |

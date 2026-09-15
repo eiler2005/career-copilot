@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import mimetypes
+import os
 import re
 import sqlite3
 from collections.abc import Iterator
@@ -39,12 +40,14 @@ ALLOWED_KINDS = frozenset(
         "interview_feedback",
         "interview_plans",
         "interview_practices",
+        "imports",
         "interview_progress",
         "learning",
         "legacy_files",
         "observations",
         "packages",
         "source_health",
+        "source_settings",
         "submissions",
         "text_revisions",
         "vacancies",
@@ -64,8 +67,8 @@ WORKSPACE_GROUPS = {
         "interview_feedback",
         "interview_progress",
     ),
-    "sources": ("source_health",),
-    "history": ("events", "submissions", "employer_responses"),
+    "sources": ("source_health", "source_settings"),
+    "history": ("events", "submissions", "employer_responses", "imports"),
 }
 
 COUNTRY_NAMES = {
@@ -173,6 +176,7 @@ ARTIFACT_SUFFIXES = frozenset(
         ".png",
         ".rtf",
         ".svg",
+        ".tex",
         ".txt",
         ".webp",
         ".xml",
@@ -190,6 +194,7 @@ KNOWN_CITY_LOCATIONS = {
     ("redmond", "wa"): ("United States", "Redmond"),
     ("redmond",): ("United States", "Redmond"),
     ("london", "england"): ("United Kingdom", "London"),
+    ("greater london", "england"): ("United Kingdom", "London"),
     ("london",): ("United Kingdom", "London"),
     ("san francisco", "ca"): ("United States", "San Francisco"),
     ("san francisco",): ("United States", "San Francisco"),
@@ -201,10 +206,34 @@ KNOWN_CITY_LOCATIONS = {
     ("abu dhabi", "abu dhabi emirate"): ("United Arab Emirates", "Abu Dhabi"),
     ("abu dhabi",): ("United Arab Emirates", "Abu Dhabi"),
     ("dubai",): ("United Arab Emirates", "Dubai"),
+    ("dubai", "dubai"): ("United Arab Emirates", "Dubai"),
     ("singapore",): ("Singapore", "Singapore"),
     ("hong kong sar",): ("Hong Kong", "Hong Kong"),
 }
 KNOWN_JURISDICTIONS = frozenset({("hong kong sar",)})
+LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "[::1]"})
+HOSTNAME = re.compile(
+    r"(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*"
+)
+ALLOWED_HOSTS_ENV = "AJH_DASHBOARD_ALLOWED_HOSTS"
+
+
+def allowed_hosts(values: list[str] | tuple[str, ...] = ()) -> frozenset[str]:
+    """Return loopback names plus explicitly configured reverse-proxy hostnames.
+
+    A public hostname is accepted only when an operator names it, so DNS rebinding
+    protection stays on for every other Host header.
+    """
+    names = set(LOOPBACK_HOSTS)
+    for value in values:
+        for item in value.split(","):
+            name = item.strip().rstrip(".").casefold()
+            if not name:
+                continue
+            if not HOSTNAME.fullmatch(name) or name.replace(".", "").isdecimal():
+                raise ValueError("Allowed dashboard hosts must be DNS hostnames without ports")
+            names.add(name)
+    return frozenset(names)
 
 
 def _normalise_location(value: object) -> str | None:
@@ -233,7 +262,7 @@ def _explicit_text(value: object) -> str | None:
 def _location_parts(raw: str) -> list[str]:
     without_modes = WORK_MODE_PARENS.sub("", raw)
     without_modes = REMOTE_WORDS.sub("", without_modes)
-    return [part.strip() for part in without_modes.split(",") if part.strip()]
+    return [part.strip() for part in re.split(r"[,;]", without_modes) if part.strip()]
 
 
 def location_display(value: dict) -> dict[str, str | None]:
@@ -293,13 +322,67 @@ def location_display(value: dict) -> dict[str, str | None]:
     return {"raw": raw, "country": country, "city": city, "remote": mode}
 
 
+LOCAL_PATH = re.compile(
+    r"^(?:~/|/(?:Users|home|private|var/folders|tmp|root|opt|srv|mnt|Volumes)/|[A-Za-z]:\\)"
+)
+SOURCE_SETTING_FIELDS = (
+    "id",
+    "company_id",
+    "company_name",
+    "provider",
+    "board",
+    "market",
+    "enabled",
+    "interval_seconds",
+    "max_pages",
+    "include_title",
+    "source_verified_url",
+)
+
+
+def redact_local_paths(value: object) -> object:
+    """Hide operator filesystem layout; keep the file name so the reference stays useful."""
+    if isinstance(value, str):
+        if LOCAL_PATH.match(value) and "\n" not in value:
+            name = PurePosixPath(value.replace("\\", "/")).name
+            return f"[local]/{name}" if name else "[local]"
+        return value
+    if isinstance(value, list):
+        return [redact_local_paths(item) for item in value]
+    if isinstance(value, dict):
+        return {key: redact_local_paths(item) for key, item in value.items()}
+    return value
+
+
 def _record(kind: str, payload: dict, row_id: str) -> dict:
+    payload = redact_local_paths(payload)
     return {
         "id": payload.get("id", row_id),
         "kind": kind,
         "payload": payload,
         "display": {"location": location_display(payload)},
     }
+
+
+def _mark_superseded_assessments(records: list[dict]) -> None:
+    """Flag older assessments of the same vacancy and track; the newest stays current."""
+    newest: dict[tuple[str, str], dict] = {}
+    for record in records:
+        if record["kind"] != "assessments":
+            continue
+        payload = record["payload"]
+        key = (str(payload.get("vacancy_id")), str(payload.get("track")))
+        stamp = str(payload.get("at") or payload.get("created_at") or "")
+        record["display"]["current"] = True
+        best = newest.get(key)
+        if best is None or stamp > str(
+            best["payload"].get("at") or best["payload"].get("created_at") or ""
+        ):
+            if best is not None:
+                best["display"]["current"] = False
+            newest[key] = record
+        else:
+            record["display"]["current"] = False
 
 
 @dataclass(frozen=True)
@@ -334,8 +417,47 @@ class Journal:
             if "connection" in locals():
                 connection.close()
 
+    def source_settings(self, connection: sqlite3.Connection) -> list[dict]:
+        """Configured sources with their latest health, limited to non-secret fields.
+
+        Never-checked sources stay visible instead of disappearing from the view.
+        """
+        try:
+            settings = json.loads((self.home / "settings.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return []
+        sources = settings.get("sources") if isinstance(settings, dict) else None
+        result = []
+        for source in sources if isinstance(sources, list) else []:
+            if not isinstance(source, dict) or not isinstance(source.get("id"), str):
+                continue
+            try:
+                safe_id(source["id"])
+            except ValueError:
+                continue
+            payload = {key: source[key] for key in SOURCE_SETTING_FIELDS if key in source}
+            health = connection.execute(
+                "SELECT payload FROM records WHERE kind='source_health' AND id=?", (source["id"],)
+            ).fetchone()
+            if health:
+                payload["health"] = json.loads(health[0])
+            result.append(_record("source_settings", payload, source["id"]))
+        return result
+
+    def records(self, connection: sqlite3.Connection, kind: str) -> list[dict]:
+        if kind == "source_settings":
+            return self.source_settings(connection)
+        if kind == "source_health":
+            configured = {item["id"] for item in self.source_settings(connection)}
+            return [
+                record
+                for record in self._stored_records(connection, kind)
+                if record["id"] not in configured
+            ]
+        return self._stored_records(connection, kind)
+
     @staticmethod
-    def records(connection: sqlite3.Connection, kind: str) -> list[dict]:
+    def _stored_records(connection: sqlite3.Connection, kind: str) -> list[dict]:
         return [
             _record(kind, json.loads(row[1]), row[0])
             for row in connection.execute(
@@ -343,8 +465,11 @@ class Journal:
             )
         ]
 
-    @staticmethod
-    def record(connection: sqlite3.Connection, kind: str, key: str) -> dict | None:
+    def record(self, connection: sqlite3.Connection, kind: str, key: str) -> dict | None:
+        if kind == "source_settings":
+            return next(
+                (item for item in self.source_settings(connection) if item["id"] == key), None
+            )
         row = connection.execute(
             "SELECT id, payload FROM records WHERE kind=? AND id=?", (kind, key)
         ).fetchone()
@@ -365,16 +490,30 @@ class Journal:
                 for name, kinds in WORKSPACE_GROUPS.items()
             }
             artifacts = self.artifacts(connection)
+        _mark_superseded_assessments(grouped["vacancies"])
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
                 "title": "Private career workspace",
                 "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+                "journal_updated_at": self.journal_updated_at(),
                 "counts": counts,
             },
             **grouped,
             "artifacts": artifacts,
         }
+
+    def journal_updated_at(self) -> str | None:
+        """Last write to the journal or its WAL, so a remote snapshot shows its age."""
+        times = []
+        for name in ("journal.sqlite", "journal.sqlite-wal"):
+            try:
+                times.append((self.home / name).stat().st_mtime)
+            except OSError:
+                continue
+        if not times:
+            return None
+        return datetime.fromtimestamp(max(times), UTC).isoformat(timespec="seconds")
 
     def healthy(self) -> bool:
         with self.snapshot() as connection:
@@ -497,7 +636,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             host, port = match.group(1), match.group(2) or ""
         elif not separator:
             host, port = value, ""
-        if host not in {"localhost", "127.0.0.1", "[::1]"}:
+        if host.casefold() not in self.server.allowed_hosts:
             return False
         return not port or (port.isdecimal() and 1 <= int(port) <= 65535)
 
@@ -585,6 +724,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("X-Frame-Options", "DENY")
+        self.send_header("X-Robots-Tag", "noindex, nofollow, noarchive")
+        self.send_header(
+            "Permissions-Policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+        )
         self.send_header(
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; "
@@ -597,9 +740,16 @@ class DashboardServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address: tuple[str, int], journal: Journal, assets: Path):
+    def __init__(
+        self,
+        address: tuple[str, int],
+        journal: Journal,
+        assets: Path,
+        hosts: frozenset[str] = LOOPBACK_HOSTS,
+    ):
         self.journal = journal
         self.assets = assets
+        self.allowed_hosts = hosts
         super().__init__(address, DashboardHandler)
 
 
@@ -607,12 +757,17 @@ def assets_path() -> Path:
     return Path(__file__).with_name("web_assets")
 
 
-def serve(home: str | Path, host: str = "127.0.0.1", port: int = 8080) -> None:
+def serve(
+    home: str | Path,
+    host: str = "127.0.0.1",
+    port: int = 8080,
+    hosts: frozenset[str] = LOOPBACK_HOSTS,
+) -> None:
     if host not in {"127.0.0.1", "0.0.0.0"}:
         raise ValueError("Dashboard host must be 127.0.0.1 or the container bind address 0.0.0.0")
     if not 1 <= port <= 65535:
         raise ValueError("Dashboard port must be between 1 and 65535")
-    with DashboardServer((host, port), Journal.open(home), assets_path()) as server:
+    with DashboardServer((host, port), Journal.open(home), assets_path(), hosts) as server:
         server.serve_forever()
 
 
@@ -621,13 +776,20 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--home", required=True, help="Explicit external private workspace")
     result.add_argument("--host", default="127.0.0.1")
     result.add_argument("--port", default=8080, type=int)
+    result.add_argument(
+        "--allowed-host",
+        action="append",
+        default=[],
+        help=f"Hostname served by an authenticating reverse proxy; repeatable (or {ALLOWED_HOSTS_ENV})",
+    )
     return result
 
 
 def main() -> int:
     args = parser().parse_args()
     try:
-        serve(args.home, args.host, args.port)
+        hosts = allowed_hosts([*args.allowed_host, os.environ.get(ALLOWED_HOSTS_ENV, "")])
+        serve(args.home, args.host, args.port, hosts)
     except ValueError as error:
         parser().error(str(error))
     return 0

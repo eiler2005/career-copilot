@@ -21,7 +21,16 @@ def test_bilingual_docs_and_exact_skill_locations():
         assert not privacy.allowed_path(f"{runtime}/skills/career-copilot/private/facts.json")
 
 
-@pytest.mark.parametrize("name", ["Dockerfile", "compose.yaml", ".dockerignore"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Dockerfile",
+        "compose.yaml",
+        "compose.public.yaml",
+        ".dockerignore",
+        "deploy/public-gateway/Caddyfile",
+    ],
+)
 def test_container_configuration_keeps_content_privacy_checks(name):
     assert privacy.scan_blob(name, b"# Generic container configuration", []) == []
     marker = "Synthetic" + "PrivateMarker"
@@ -31,6 +40,8 @@ def test_container_configuration_keeps_content_privacy_checks(name):
     assert not privacy.allowed_path(".env")
     assert not privacy.allowed_path(".env.production")
     assert not privacy.allowed_path("private/compose.yaml")
+    assert not privacy.allowed_path("deploy/.env")
+    assert not privacy.allowed_path("deploy/private/Caddyfile")
 
 
 def test_static_graphics_scoped_and_decoded_for_privacy():

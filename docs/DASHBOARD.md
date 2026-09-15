@@ -16,13 +16,22 @@ Open `http://127.0.0.1:8100`. The default host is loopback; the default port wit
 
 The server only reads. Continue research, record updates, document preparation and review through `ajh` and the [agent workflows](AGENT_WORKFLOWS.md). Refresh the dashboard after local changes. A remote copy must be updated separately; it does not synchronize changes back to the local workspace.
 
+## Using the interface
+
+- **Overview** answers "what needs attention": recent vacancies that are still open, the number of vacancies whose availability needs a source check (one click opens exactly that list), and the next recorded steps from unfinished activities, active vacancies and followed companies.
+- **Lists** combine search with faceted filters. A filter offers only values that still match the other active filters, so a choice never leads to an empty page. The vacancy list separates hiring availability from review status. On a phone the filters fold behind a **Filters** button that shows how many are active. Press `/` to focus search and `Esc` to clear it.
+- **Links are shareable.** The address keeps the section, search, filters, sort, page and an open record (`#vacancies?availability=needs_check&record=vacancies/<id>`). Reload, the browser back button and a copied link reopen the same view; **Copy link** in a record does this for you.
+- **Freshness is explicit.** The footer shows when the journal itself last changed and when the page loaded the data. A remote snapshot therefore shows its age instead of looking current.
+- **Documents** lists packages by the date of their current version and titles them by vacancy and company. **Journal files** at the end of the section lists every downloadable registered file, including files that no record references.
+- **Sources** shows every configured source with its latest health, including disabled and never-checked sources.
+
 ## Records and geography
 
 Open a record to inspect its fields, sources, linked records and retained document versions. Nested objects and arrays remain available; source evidence is not reduced to a summary. Availability, evaluation, document readiness and submission are separate states.
 
 Geography is a display projection. It preserves the raw location and shows country, city and remote scope separately. Explicit structured fields take precedence. A small set of supported city/country and city/state combinations supplies a conservative fallback; an arbitrary token before a country is not assumed to be a city. Narrow market context also supports the known Russian capital when the record explicitly uses the Russian market. Ambiguous city names, multiple countries, broad regions and remote-only descriptions remain unresolved where the source does not establish the answer. Unknown values remain visible; the server does not geocode through an external service or write inferred locations back to SQLite.
 
-The API uses `GET /api/workspace` for the overview and `GET /api/records/<kind>/<id>` for an individual record. Workspace arrays include `companies`, `vacancies`, `documents`, `activities`, `preparations`, `sources` and `history`; `legacy_files` maps retained source references. Records preserve their original `payload` and provide separate `display` fields. The download registry includes eligible registered artifacts with paths, sizes and hashes. `GET /api/artifacts/<path>` checks directory, file type, path and integrity before download. Eligible roots are `activities`, `activity-artifacts`, `evidence`, `learning`, `legacy`, `packages`, `reviews` and `snapshots`. Top-level workspace control/configuration files, raw imports, maintenance, symlinks and unregistered files are refused, including registered paths outside those eligible roots and types. This is a path policy, not a scanner for credentials embedded in document content. HTML and other documents download as attachments instead of executing in the application's origin.
+The API uses `GET /api/workspace` for the overview and `GET /api/records/<kind>/<id>` for an individual record. Workspace arrays include `companies`, `vacancies`, `documents`, `activities`, `preparations`, `sources` and `history`; `legacy_files` maps retained source references. Records preserve their original `payload` and provide separate `display` fields. `meta.journal_updated_at` is the last write time of `journal.sqlite` or its WAL. Older assessments of the same vacancy and track carry `display.current: false`; the newest is current. `history` includes `imports`. `sources` combines `source_settings` from `settings.json` — limited to identifiers, provider, board, market, schedule, title filter and verified URL, never credentials or proxy settings — with the stored `health`; health records without a configured source remain listed separately. String values that are absolute local filesystem paths (for example an agent session file) are shown as `[local]/<file name>` so the operator's directory layout does not leave the machine; relative workspace paths and URLs are unchanged. The download registry includes eligible registered artifacts with paths, sizes and hashes. `GET /api/artifacts/<path>` checks directory, file type, path and integrity before download. Eligible roots are `activities`, `activity-artifacts`, `evidence`, `learning`, `legacy`, `packages`, `reviews` and `snapshots`; LaTeX sources (`.tex`) are downloadable alongside PDF, Markdown and the other document types. Top-level workspace control/configuration files, raw imports, maintenance, symlinks and unregistered files are refused, including registered paths outside those eligible roots and types. This is a path policy, not a scanner for credentials embedded in document content. HTML and other documents download as attachments instead of executing in the application's origin.
 
 ## Docker with private access
 
@@ -44,7 +53,42 @@ There is no built-in public login service. Access a remote deployment through an
 ssh -N -L 18100:127.0.0.1:8100 YOUR_SSH_HOST_ALIAS
 ```
 
-Then open `http://127.0.0.1:18100` on the local computer. `YOUR_SSH_HOST_ALIAS` represents a privately configured SSH destination. No public firewall port is required. A public HTTPS endpoint needs a separately configured authentication gateway and TLS; simply changing the bind address is insufficient.
+Then open `http://127.0.0.1:18100` on the local computer. `YOUR_SSH_HOST_ALIAS` represents a privately configured SSH destination. No public firewall port is required. Simply changing the bind address is never a way to publish the dashboard.
+
+## Public HTTPS address with authentication
+
+Use this when the dashboard should open from a phone or another computer without a tunnel. [compose.public.yaml](../compose.public.yaml) adds an authenticating [Caddy gateway](../deploy/public-gateway/Caddyfile) in front of the unchanged dashboard container:
+
+```mermaid
+flowchart LR
+  browser[Browser] -->|HTTPS 443, exact SNI| edge[Host edge proxy<br/>TLS passthrough]
+  edge -->|127.0.0.1:8445| gateway[career-copilot-gateway<br/>TLS + Basic Auth]
+  gateway -->|internal network| dashboard[career-copilot-dashboard<br/>read-only]
+  dashboard -->|read-only mount| workspace[(Private workspace)]
+```
+
+- The gateway terminates TLS for one hostname and obtains its certificate through TLS-ALPN-01, so no port 80 listener is needed. The host's edge proxy must forward TLS for that exact server name, unchanged, to the gateway's loopback port. That route belongs to whoever owns the host's port 443; this project does not change it.
+- Every path except `GET /healthz` and `/robots.txt` requires HTTP Basic authentication over TLS. The dashboard accepts the public `Host` only because `AJH_DASHBOARD_ALLOWED_HOSTS` names it; every other name is still rejected, preserving DNS-rebinding protection. The `Authorization` header is not forwarded to the dashboard.
+- Responses carry `X-Robots-Tag: noindex` and HSTS; neither Caddy nor the dashboard writes request URIs, record identifiers or credentials to logs. Both containers run with a read-only filesystem, dropped capabilities and memory, CPU and PID limits. The host publishes only loopback ports.
+
+Keep these values in the deployment `.env` next to `AJH_WORKSPACE` (mode `0600`, never in Git):
+
+| Variable | Meaning |
+| --- | --- |
+| `CC_PUBLIC_HOST` | Public hostname, for example `career.example.org` |
+| `CC_BASIC_USER` | Login name |
+| `CC_BASIC_HASH` | bcrypt hash from `docker run --rm caddy:2.11.4-alpine caddy hash-password` |
+| `ACME_EMAIL` | Certificate expiry and incident notices |
+| `CC_GATEWAY_PORT` | Optional loopback port, default `8445` |
+
+```sh
+docker compose -f compose.yaml -f compose.public.yaml config --quiet
+docker compose -f compose.yaml -f compose.public.yaml up -d --build --wait
+curl --fail https://career.example.org/healthz
+curl -s -o /dev/null -w '%{http_code}\n' https://career.example.org/   # 401 without credentials
+```
+
+Keep the password in a password manager. To rotate it, generate a new hash, update `.env` and recreate only the gateway (`up -d --no-deps gateway`). To withdraw public access, remove the edge route and stop the gateway; the SSH tunnel keeps working. Basic authentication is a single shared credential: it has no per-user accounts, second factor or session revocation, so place a stronger identity-aware proxy in front if more people need access.
 
 ## Copy, update and recover
 

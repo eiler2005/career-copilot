@@ -11,12 +11,15 @@ from urllib.request import Request, urlopen
 
 import pytest
 
+from job_search_agent import dashboard
 from job_search_agent.dashboard import (
     DashboardServer,
     Journal,
     _eligible_artifact_path,
     _safe_relative_path,
+    allowed_hosts,
     location_display,
+    redact_local_paths,
 )
 
 
@@ -323,3 +326,179 @@ def test_legacy_file_alias_is_reachable_without_granting_arbitrary_paths(tmp_pat
         detail = json.loads(request(base + "/api/records/legacy_files/ai-job-search%2Fcv.md")[2])
         assert detail["payload"]["path"] == "legacy/ai-job-search/cv.md"
         assert request(base + "/api/artifacts/legacy/ai-job-search/cv.md")[2] == b"legacy CV"
+
+
+def add_record(home: Path, kind: str, payload: dict) -> None:
+    with sqlite3.connect(home / "journal.sqlite") as connection:
+        connection.execute(
+            "INSERT INTO records VALUES (?, ?, ?)", (kind, payload["id"], json.dumps(payload))
+        )
+
+
+@contextmanager
+def configured_server(home: Path, tmp_path: Path, hosts: frozenset[str]):
+    assets = tmp_path / "configured-assets"
+    assets.mkdir()
+    (assets / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    server = DashboardServer(("127.0.0.1", 0), Journal.open(home), assets, hosts)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}"
+    finally:
+        server.shutdown()
+        thread.join(timeout=5)
+        server.server_close()
+
+
+def test_reverse_proxy_hostname_is_accepted_only_when_configured(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    hosts = allowed_hosts(["Career.Example.test.", "other.example.test"])
+    assert {"localhost", "127.0.0.1", "[::1]", "career.example.test"} <= hosts
+    with configured_server(home, tmp_path, hosts) as base:
+        assert request(base + "/api/workspace", host="career.example.test")[0] == 200
+        assert request(base + "/healthz", host="CAREER.EXAMPLE.TEST:443")[0] == 200
+        with pytest.raises(HTTPError) as error:
+            request(base + "/api/workspace", host="career.example.test.attacker.test")
+        assert error.value.code == 400
+    for invalid in ("career.example.test:8443", "10.0.0.1", "exa mple.test", "-bad.test", "a/b"):
+        with pytest.raises(ValueError):
+            allowed_hosts([invalid])
+    assert allowed_hosts(["", " , "]) == allowed_hosts()
+
+
+def test_allowed_hosts_come_from_cli_and_environment(tmp_path: Path, monkeypatch):
+    home = make_workspace(tmp_path)
+    captured = {}
+    monkeypatch.setattr(
+        dashboard,
+        "serve",
+        lambda home_arg, host, port, hosts: captured.update(home=home_arg, hosts=hosts),
+    )
+    monkeypatch.setenv("AJH_DASHBOARD_ALLOWED_HOSTS", "env.example.test")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["ajh-dashboard", "--home", str(home), "--allowed-host", "cli.example.test"],
+    )
+    assert dashboard.main() == 0
+    assert {"env.example.test", "cli.example.test"} <= captured["hosts"]
+
+
+def test_responses_are_not_indexed_and_report_journal_freshness(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    with running_server(home, tmp_path) as base:
+        status, headers, body = request(base + "/api/workspace")
+        _, page_headers, _ = request(base + "/")
+    assert status == 200
+    assert headers["X-Robots-Tag"] == "noindex, nofollow, noarchive"
+    assert page_headers["X-Robots-Tag"] == "noindex, nofollow, noarchive"
+    assert "camera=()" in headers["Permissions-Policy"]
+    meta = json.loads(body)["meta"]
+    assert meta["journal_updated_at"].endswith("+00:00")
+    assert meta["journal_updated_at"] <= meta["generated_at"]
+
+
+def test_import_records_are_listed_in_history_and_openable(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    add_record(home, "imports", {"id": "import-1", "files": 3, "dry_run": False})
+    with running_server(home, tmp_path) as base:
+        history = json.loads(request(base + "/api/workspace")[2])["history"]
+        assert [(item["kind"], item["id"]) for item in history] == [("imports", "import-1")]
+        detail = json.loads(request(base + "/api/records/imports/import-1")[2])
+    assert detail["payload"]["files"] == 3
+
+
+def test_configured_sources_show_health_and_never_checked_sources_without_secrets(
+    tmp_path: Path,
+):
+    home = make_workspace(tmp_path)
+    (home / "settings.json").write_text(
+        json.dumps(
+            {
+                "sources": [
+                    {
+                        "id": "checked-board",
+                        "provider": "greenhouse",
+                        "company_name": "Example Systems",
+                        "enabled": True,
+                        # Built at runtime so the repository privacy scanner sees no credential URL.
+                        "proxy_url": "http://user:" + "secret" + "@proxy.example.invalid",
+                        "token": "secret-token",
+                    },
+                    {"id": "quiet-board", "provider": "corporate", "enabled": False},
+                    {"id": "../bad", "provider": "corporate"},
+                    "not-a-source",
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    add_record(home, "source_health", {"id": "checked-board", "status": "ok", "count": 4})
+    add_record(home, "source_health", {"id": "retired-board", "status": "blocked"})
+    with running_server(home, tmp_path) as base:
+        body = request(base + "/api/workspace")[2]
+        sources = json.loads(body)["sources"]
+        detail = json.loads(request(base + "/api/records/source_settings/checked-board")[2])
+    assert b"secret" not in body
+    assert [(item["kind"], item["id"]) for item in sources] == [
+        ("source_health", "retired-board"),
+        ("source_settings", "checked-board"),
+        ("source_settings", "quiet-board"),
+    ]
+    assert sources[1]["payload"]["health"]["status"] == "ok"
+    assert "health" not in sources[2]["payload"]
+    assert detail["payload"]["company_name"] == "Example Systems"
+    assert set(detail["payload"]) <= {*dashboard.SOURCE_SETTING_FIELDS, "health"}
+
+
+def test_local_filesystem_paths_are_redacted_from_record_payloads(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    user_root = "/Users" + "/example"  # split so the privacy scanner sees no private path
+    add_record(
+        home,
+        "activities",
+        {
+            "id": "act-2",
+            "actor": {"session": user_root + "/.sessions/run.jsonl"},
+            "artifacts": [{"original_path": "~/drafts/cv.md", "path": "packages/cv.md"}],
+            "note": f"Kept {user_root} in prose.\nSecond line",
+            "url": "https://example.test/Users/role",
+        },
+    )
+    with running_server(home, tmp_path) as base:
+        body = request(base + "/api/workspace")[2]
+        detail = json.loads(request(base + "/api/records/activities/act-2")[2])["payload"]
+    assert (user_root + "/.sessions").encode() not in body
+    assert detail["actor"]["session"] == "[local]/run.jsonl"
+    assert detail["artifacts"] == [{"original_path": "[local]/cv.md", "path": "packages/cv.md"}]
+    assert detail["note"].startswith(f"Kept {user_root}")
+    assert detail["url"] == "https://example.test/Users/role"
+    assert redact_local_paths("C:\\Users\\example\\cv.docx") == "[local]/cv.docx"
+    assert redact_local_paths("/opt/career-copilot/workspace/") == "[local]/workspace"
+    assert redact_local_paths("/api/records") == "/api/records"
+
+
+def test_older_assessment_of_the_same_vacancy_and_track_is_marked_superseded(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    for key, at, track in (
+        ("a-old", "2026-01-01T10:03:00Z", "product"),
+        ("a-new", "2026-01-01T10:19:00Z", "product"),
+        ("a-other", "2026-01-01T09:00:00Z", "technical-leadership"),
+    ):
+        add_record(
+            home, "assessments", {"id": key, "vacancy_id": "role-1", "track": track, "at": at}
+        )
+    with running_server(home, tmp_path) as base:
+        vacancies = json.loads(request(base + "/api/workspace")[2])["vacancies"]
+    current = {item["id"]: item["display"].get("current") for item in vacancies}
+    assert current == {"a-new": True, "a-old": False, "a-other": True, "role-1": None}
+
+
+def test_latex_sources_are_downloadable_and_semicolon_locations_resolve(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    add_artifact(home, "packages/example/cv.tex", b"\\documentclass{article}")
+    with running_server(home, tmp_path) as base:
+        assert request(base + "/api/artifacts/packages/example/cv.tex")[2].startswith(b"\\doc")
+    assert location_display({"location": "Москва; Россия"})["country"] == "Russia"
+    assert location_display({"location": "Dubai, Dubai, UAE"})["city"] == "Dubai"
+    assert location_display({"location": "Greater London, England, UK"})["city"] == "London"
