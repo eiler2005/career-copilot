@@ -2,6 +2,17 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## Unreleased — Requests, agent tasks and accurate pipeline stages
+
+### Added
+- **Request queue.** The dashboard stores validated requests (`POST /api/requests`) in its state directory instead of editing the journal. `ajh inbox import|list|apply|reject` brings them into `inbox_requests` and applies them oldest first with a record-version check, so a record changed in between becomes a visible `conflict` rather than a lost update.
+- **Agent tasks.** Requests that need authored or researched work become `tasks`. `ajh tasks next` hands the oldest one to an agent session with an activity template; the task follows the real activity (`running`, `done`, `blocked`, `failed`) and is never shown as done without a finished activity.
+- `Store.version` and `Store.patch` (compare-and-set with a `record_updated` event holding the fields before and after); every dashboard record exposes its `version`.
+- Product research of 2026-09-15 (English and Russian) linked from the README.
+
+### Fixed
+- Pipeline stages: interview practice and feedback no longer count as an employer interview; "applied" requires a user-confirmed submission with `sent_at` and evidence; an employer response with status `interview` or `offer` moves a vacancy to the interview stage; stage dates come from `sent_at` and `received_at`. A package flagged as submitted without a confirmed submission gets a reminder instead of the "applied" stage.
+
 ## 2026-09-15 — Clear vacancy cards and in-browser documents
 
 ### Changed

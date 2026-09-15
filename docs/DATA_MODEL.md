@@ -46,6 +46,14 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | Plan → actual practice → feedback → explicit progress decision |
 | `employer_responses` | Evidence-backed received replies linked to a registered submission |
 | `submissions` | User-confirmed external action tied to exact package/version |
+| `inbox_requests` | A dashboard request (`type`, `base{kind,id,version}`, `payload`) with `status` `pending`, `applied`, `queued_for_agent`, `conflict`, `failed` or `rejected`, its `result` or `error` |
+| `tasks` | Work for an agent session: `type`, `skill`, `status` `queued`, `running`, `blocked`, `failed` or `done`, `related` IDs, `request_id`, `activity_id`, `result_refs` |
+
+### Record versions and requests
+
+A record version is the first 16 hex characters of the SHA-256 of its canonical JSON payload (`Store.version`). `Store.patch(kind, id, changes, expected_version, reason)` changes top-level fields in one `BEGIN IMMEDIATE` transaction: if the stored version differs from `expected_version`, nothing is written (`VersionConflict`); otherwise the record is updated and a `record_updated` event stores the changed fields before and after, both versions and the reason. A field set to `null` is removed; `id` never changes.
+
+The dashboard never writes the journal. It stores requests as `requests/<id>.json` in its state directory. `ajh inbox import` copies them into `inbox_requests`, and `ajh inbox apply` runs each one in its own transaction: a request that changes a record carries the version the user saw, so a record changed in between becomes `conflict` instead of a lost update. Deterministic request types (for example `vacancy_decision`, `clarification_answer`, `coding_requirement`, `evaluate`) are applied by controlled operations. Requests that need authored or researched work create `tasks`; an agent session picks one up with `ajh tasks next`, starts an activity with `related.task_id`, and the task mirrors the real activity outcome (`running` → `done`, `blocked` or `failed`). A task is never marked done without a finished activity.
 
 ## Candidate facts
 

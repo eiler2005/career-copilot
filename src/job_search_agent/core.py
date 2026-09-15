@@ -19,6 +19,10 @@ TRACKS = ("product", "technical-leadership")
 FLAGSHIPS = {"openai": "gpt-6-astra", "claude": "claude-opus-5"}
 
 
+class VersionConflict(ValueError):
+    """A record changed after the caller read it; nothing was written."""
+
+
 def now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 
@@ -185,6 +189,64 @@ class Store:
             "DO UPDATE SET payload=excluded.payload",
             (kind, value["id"], encode(value)),
         )
+
+    def version(self, kind: str, key: str) -> str | None:
+        """Short digest of the stored payload, used for optimistic concurrency."""
+        value = self.get(kind, key)
+        return digest(value)[:16] if value is not None else None
+
+    def patch(
+        self,
+        kind: str,
+        key: str,
+        changes: dict,
+        expected_version: str | None,
+        reason: str,
+    ) -> dict:
+        """Change top-level fields of one record with a version check and an audit event.
+
+        `id` cannot change. A value of None removes the field. When `expected_version` is
+        given and the record changed since, VersionConflict is raised and nothing is written.
+        """
+        if "id" in changes:
+            raise ValueError("Record id cannot be patched")
+        own = not self.db.in_transaction
+        if own:
+            self.db.execute("BEGIN IMMEDIATE")
+        try:
+            before = self.get(kind, key)
+            if before is None:
+                raise ValueError(f"{kind} record not found")
+            if expected_version is not None and digest(before)[:16] != expected_version:
+                raise VersionConflict(f"{kind} {key} changed after it was read")
+            after = {**before}
+            for field, value in changes.items():
+                if value is None:
+                    after.pop(field, None)
+                else:
+                    after[field] = value
+            if after != before:
+                self.put(kind, after)
+                self.event(
+                    "record_updated",
+                    [key],
+                    {
+                        "kind": kind,
+                        "reason": reason,
+                        "fields": sorted(changes),
+                        "before": {field: before.get(field) for field in changes},
+                        "after": {field: after.get(field) for field in changes},
+                        "version_before": digest(before)[:16],
+                        "version_after": digest(after)[:16],
+                    },
+                )
+            if own:
+                self.db.execute("COMMIT")
+        except Exception:
+            if own:
+                self.db.execute("ROLLBACK")
+            raise
+        return after
 
     def event(self, action: str, entities: list[str], details: dict) -> str:
         value = {"type": action, "entity_ids": entities, "details": details}

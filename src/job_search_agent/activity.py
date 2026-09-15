@@ -8,6 +8,7 @@ from math import isfinite
 from pathlib import Path
 from uuid import uuid4
 
+from . import inbox
 from .core import FLAGSHIPS, TRACKS, Store, digest, encode, now, read_json, safe_id
 
 SCHEMA_VERSION = 1
@@ -122,6 +123,11 @@ def start(store: Store, request_path: Path) -> dict:
     for field, kind in (("company_id", "companies"), ("vacancy_id", "vacancies")):
         if related.get(field) and not store.get(kind, related[field]):
             raise ValueError("Related entity not found")
+    task = store.get("tasks", related["task_id"]) if related.get("task_id") else None
+    if related.get("task_id") and (
+        not task or task["status"] not in {"queued", "blocked", "failed"}
+    ):
+        raise ValueError("Related task not found or not waiting for an agent")
     actor = actor_metadata(request.get("actor"))
     required = request.get("required_model")
     if required is not None and (not isinstance(required, str) or not required):
@@ -162,6 +168,8 @@ def start(store: Store, request_path: Path) -> dict:
         else "Perform the operation, then activity finish with the result file",
     }
     store.put("activities", value, immutable=True)
+    if task:
+        inbox.bind_task_to_activity(store, task["id"], key, blocked=blocked)
     previous = store.activity_id
     store.activity_id = key
     try:
@@ -409,6 +417,7 @@ def finish(store: Store, activity_id: str, result_path: Path) -> dict:
             },
         )
         store.put("activities", activity)
+        inbox.close_task_from_activity(store, activity)
         store.event(
             "activity_finished",
             [activity_id],

@@ -25,12 +25,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, descriptions
-from .core import atomic_write, encode, safe_id, validate_home
+from . import availability, descriptions, inbox
+from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
 ALLOWED_KINDS = frozenset(
     {
+        "inbox_requests",
+        "tasks",
         "activities",
         "activity_events",
         "assessments",
@@ -73,6 +75,7 @@ WORKSPACE_GROUPS = {
     ),
     "sources": ("source_health", "source_settings"),
     "history": ("events", "submissions", "employer_responses", "imports"),
+    "work": ("tasks", "inbox_requests"),
 }
 
 COUNTRY_NAMES = {
@@ -359,10 +362,13 @@ def redact_local_paths(value: object) -> object:
 
 
 def _record(kind: str, payload: dict, row_id: str) -> dict:
+    # The version is the journal digest (Store.version) so requests can pin what they change.
+    version = digest(payload)[:16]
     payload = redact_local_paths(payload)
     return {
         "id": payload.get("id", row_id),
         "kind": kind,
+        "version": version,
         "payload": payload,
         "display": {"location": location_display(payload)},
     }
@@ -371,6 +377,7 @@ def _record(kind: str, payload: dict, row_id: str) -> dict:
 PLAN_KINDS = frozenset({"learning", "interview_plans"})
 AVAILABILITY_STATE = "availability-checks.json"
 MAX_CHECK_BATCH = 10
+MAX_PENDING_REQUESTS = 500
 CHECK_COOLDOWN_SECONDS = 600
 
 
@@ -580,8 +587,24 @@ class Journal:
             **grouped,
             "artifacts": artifacts,
             "translations": translations,
-            "capabilities": {"availability_check": self.state_dir is not None},
+            "pending_requests": self.pending_requests(grouped["work"]),
+            "capabilities": {
+                "availability_check": self.state_dir is not None,
+                "requests": self.state_dir is not None,
+            },
         }
+
+    def pending_requests(self, work: list[dict] | None = None) -> list[dict]:
+        """Requests stored by this dashboard that the journal has not imported yet."""
+        if work is None:
+            with self.snapshot() as connection:
+                work = self.records(connection, "inbox_requests")
+        imported = {item["id"] for item in work if item["kind"] == "inbox_requests"}
+        return [
+            redact_local_paths(item)
+            for item in inbox.pending_files(self.state_dir)
+            if item["id"] not in imported
+        ]
 
     def _describe(self, record: dict, legacy: dict, registered: set[str]) -> None:
         found = descriptions.describe(self.home, record["payload"], legacy, registered)
@@ -694,10 +717,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
             if not self._trusted_host():
                 self._error(HTTPStatus.BAD_REQUEST)
                 return
-            if urlsplit(self.path).path != "/api/availability/check":
+            path = urlsplit(self.path).path
+            if path == "/api/availability/check":
+                self._availability_check()
+            elif path == "/api/requests":
+                self._create_request()
+            else:
                 self._error(HTTPStatus.METHOD_NOT_ALLOWED)
-                return
-            self._availability_check()
         except BrokenPipeError:
             return
         except (OSError, ValueError):
@@ -713,24 +739,81 @@ class DashboardHandler(BaseHTTPRequestHandler):
         host = (urlsplit(origin).hostname or "").casefold()
         return host in self.server.allowed_hosts
 
-    def _availability_check(self) -> None:
-        """Run read-only checks for stored posting URLs; results go to the state directory."""
-        journal = self.server.journal
-        if journal.state_dir is None:
+    def _guarded_body(self, purpose: str, limit: int) -> object | None:
+        """Shared guard for state-writing endpoints; sends the error and returns None on failure.
+
+        Requires a state directory, the custom header naming the purpose (not sendable by a
+        cross-site form), a JSON content type, a same-host Origin and a bounded body.
+        """
+        if self.server.journal.state_dir is None:
             self._error(HTTPStatus.NOT_IMPLEMENTED)
-            return
+            return None
         if (
-            self.headers.get("X-Career-Copilot") != "availability-check"
+            self.headers.get("X-Career-Copilot") != purpose
             or not self.headers.get("Content-Type", "").startswith("application/json")
             or not self._same_origin()
         ):
             self._error(HTTPStatus.FORBIDDEN)
+            return None
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if not 0 < length <= limit:
+            self._error(HTTPStatus.BAD_REQUEST)
+            return None
+        try:
+            return json.loads(self.rfile.read(length))
+        except ValueError:
+            self._error(HTTPStatus.BAD_REQUEST)
+            return None
+
+    def _create_request(self) -> None:
+        """Store a validated request for `ajh inbox import`; the journal stays unchanged."""
+        body = self._guarded_body("request", inbox.MAX_REQUEST_BYTES)
+        if body is None:
             return
-        length = int(self.headers.get("Content-Length") or 0)
-        if not 0 < length <= 10_000:
+        journal = self.server.journal
+        if not isinstance(body, dict):
             self._error(HTTPStatus.BAD_REQUEST)
             return
-        body = json.loads(self.rfile.read(length))
+        # The server assigns identity and time; a browser cannot overwrite another request.
+        body = {**body, "id": None, "created_at": None}
+        try:
+            request = inbox.validate_request(body)
+        except ValueError as error:
+            self._json_status(
+                {"error": "invalid_request", "detail": str(error)}, HTTPStatus.UNPROCESSABLE_ENTITY
+            )
+            return
+        base = request.get("base")
+        if base:
+            with journal.snapshot() as connection:
+                current = journal.record(connection, base["kind"], base["id"])
+            if current is None:
+                self._error(HTTPStatus.NOT_FOUND)
+                return
+            if base.get("version") and base["version"] != current["version"]:
+                self._json_status(
+                    {"error": "version_conflict", "current_version": current["version"]},
+                    HTTPStatus.CONFLICT,
+                )
+                return
+        with self.server.request_lock:
+            if len(inbox.pending_files(journal.state_dir)) >= MAX_PENDING_REQUESTS:
+                self._error(HTTPStatus.TOO_MANY_REQUESTS)
+                return
+            stored = inbox.write_request(journal.state_dir, request)
+        self._json_status(
+            {"request": redact_local_paths(stored), "status": "pending"}, HTTPStatus.ACCEPTED
+        )
+
+    def _availability_check(self) -> None:
+        """Run read-only checks for stored posting URLs; results go to the state directory."""
+        journal = self.server.journal
+        body = self._guarded_body("availability-check", 10_000)
+        if body is None:
+            return
         ids = body.get("vacancy_ids") if isinstance(body, dict) else None
         if not isinstance(ids, list) or not 0 < len(ids) <= MAX_CHECK_BATCH:
             self._error(HTTPStatus.BAD_REQUEST)
@@ -776,6 +859,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             if path == "/healthz":
                 self.server.journal.healthy()
                 self._json({"status": "ok"}, head_only)
+            elif path == "/api/requests":
+                self._json({"requests": self.server.journal.pending_requests()}, head_only)
             elif path == "/api/workspace":
                 self._json(self.server.journal.workspace(), head_only)
             elif path.startswith("/api/records/"):
@@ -964,8 +1049,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.wfile.write(data)
 
     def _json(self, value: dict, head_only: bool) -> None:
+        self._json_status(value, HTTPStatus.OK, head_only)
+
+    def _json_status(self, value: dict, status: HTTPStatus, head_only: bool = False) -> None:
         data = json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        self.send_response(HTTPStatus.OK)
+        self.send_response(status)
         self._security_headers()
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
@@ -1018,6 +1106,7 @@ class DashboardServer(ThreadingHTTPServer):
         self.assets = assets
         self.allowed_hosts = hosts
         self.check_lock = threading.Lock()
+        self.request_lock = threading.Lock()
         super().__init__(address, DashboardHandler)
 
 

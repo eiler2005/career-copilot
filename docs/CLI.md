@@ -52,6 +52,19 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 
 `maintenance` commands are dry runs until `--apply`. Take a `backup` first. `dedupe` moves older results into `superseded_records` (with `superseded_by`) and sets `current_assessments`/`current_learning` pointers; old links keep resolving. `rename-artifacts` applies the naming scheme described in the [data model](DATA_MODEL.md#artifact-file-names), moves files, rewrites references in records and `facts.json`, and records a manifest under `maintenance/`. Both are idempotent.
 
+## Dashboard requests and agent tasks
+
+| Command | Effect |
+| --- | --- |
+| `inbox import PATH` | Copies request files (a directory, one file or a JSON array) into `inbox_requests` as `pending`; already imported IDs are skipped, invalid files are counted |
+| `inbox list [--status S]` | Lists imported requests |
+| `inbox apply [--id ID]` | Applies pending requests oldest first, each in its own transaction with a version check; results are `applied`, `queued_for_agent`, `conflict` or `failed` with a reason |
+| `inbox reject ID --reason TEXT` | Rejects a pending request and keeps the reason |
+| `tasks list [--status S]` | Lists agent tasks |
+| `tasks next` | Returns the oldest queued task with an activity request template (`related.task_id` included) |
+
+Applying twice is safe: only `pending` requests are processed. A conflict leaves the record unchanged; create a new request from the current state. A task changes to `running` when `activity start` names it and closes only through `activity finish` of that activity. Request types and their fields are described in the [data model](DATA_MODEL.md#record-versions-and-requests).
+
 ## Preparing authored documents
 
 A mechanical package is useful for inspecting the handoff and remains pending:

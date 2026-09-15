@@ -75,3 +75,14 @@ def test_public_gateway_requires_authentication_and_publishes_only_loopback():
     assert "AJH_DASHBOARD_ALLOWED_HOSTS" in compose
     for secret in ("CC_BASIC_HASH", "CC_BASIC_USER", "ACME_EMAIL", "CC_PUBLIC_HOST"):
         assert f"${{{secret}:?" in compose
+
+
+def test_pipeline_stages_count_only_confirmed_employer_events():
+    script = app_js()
+    body = script.split("function vacancyStage(record) {", 1)[1].split("\n  }\n", 1)[0]
+    assert "interview_practices" not in body and "interview_feedback" not in body
+    assert (
+        "item.payload.user_confirmed === true && item.payload.sent_at && item.payload.evidence"
+        in body
+    )
+    assert '["interview", "offer"].includes(item.payload.status)' in body

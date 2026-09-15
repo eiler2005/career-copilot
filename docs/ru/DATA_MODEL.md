@@ -46,6 +46,14 @@ SQLite хранит актуальные сущности и сохранённ�
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | План → реальная практика → обратная связь → решение о прогрессе |
 | `employer_responses` | Полученные ответы с доказательствами и ссылкой на зарегистрированную отправку |
 | `submissions` | Подтверждённая пользователем отправка с точной версией |
+| `inbox_requests` | Заявка из веб-интерфейса (`type`, `base{kind,id,version}`, `payload`) со статусом `pending`, `applied`, `queued_for_agent`, `conflict`, `failed` или `rejected`, результатом `result` или ошибкой `error` |
+| `tasks` | Работа для агентской сессии: `type`, `skill`, статус `queued`, `running`, `blocked`, `failed` или `done`, связанные ID `related`, `request_id`, `activity_id`, `result_refs` |
+
+### Версии записей и заявки
+
+Версия записи — первые 16 шестнадцатеричных символов SHA-256 от канонического JSON (`Store.version`). `Store.patch(kind, id, changes, expected_version, reason)` меняет поля верхнего уровня в одной транзакции `BEGIN IMMEDIATE`: если сохранённая версия отличается от `expected_version`, ничего не записывается (`VersionConflict`); иначе запись обновляется, а событие `record_updated` хранит изменённые поля до и после, обе версии и причину. Поле со значением `null` удаляется; `id` не меняется.
+
+Веб-интерфейс не пишет в журнал. Он сохраняет заявки как `requests/<id>.json` в каталоге состояния. `ajh inbox import` копирует их в `inbox_requests`, а `ajh inbox apply` применяет каждую в отдельной транзакции: заявка, меняющая запись, несёт версию, которую видел пользователь, поэтому запись, изменённая в промежутке, даёт `conflict`, а не потерянное обновление. Детерминированные типы (например `vacancy_decision`, `clarification_answer`, `coding_requirement`, `evaluate`) применяются контролируемыми операциями. Заявки, требующие авторской или исследовательской работы, создают `tasks`; агентская сессия берёт задачу через `ajh tasks next`, запускает activity с `related.task_id`, и задача повторяет реальный итог activity (`running` → `done`, `blocked` или `failed`). Задача никогда не становится выполненной без завершённой activity.
 
 ## Факты кандидата
 

@@ -698,7 +698,8 @@ def test_availability_check_endpoint_is_guarded_cached_and_overlaid(tmp_path: Pa
             post(base + "/api/availability/check", {"vacancy_ids": ["role-1"]}, header)
         assert error.value.code == 501
         assert json.loads(request(base + "/api/workspace")[2])["capabilities"] == {
-            "availability_check": False
+            "availability_check": False,
+            "requests": False,
         }
     with stateful_server(home, tmp_path) as base:
         for body, headers, code in (
@@ -720,7 +721,7 @@ def test_availability_check_endpoint_is_guarded_cached_and_overlaid(tmp_path: Pa
         assert cached["results"]["role-1"]["cached"] is True and len(calls) == 1
         payload = json.loads(request(base + "/api/workspace")[2])
         vacancy = next(item for item in payload["vacancies"] if item["id"] == "role-1")
-        assert payload["capabilities"] == {"availability_check": True}
+        assert payload["capabilities"] == {"availability_check": True, "requests": True}
         assert vacancy["display"]["availability"] == "closed"
         assert vacancy["display"]["availability_check"]["pending_import"] is True
         detail = json.loads(request(base + "/api/records/vacancies/role-1")[2])
@@ -730,6 +731,46 @@ def test_availability_check_endpoint_is_guarded_cached_and_overlaid(tmp_path: Pa
     assert state["checks"]["role-1"]["reason"] == "closed_marker"
     with pytest.raises(ValueError):
         Journal.open(home, home / "state")
+
+
+def test_request_endpoint_stores_validated_requests_without_touching_the_journal(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    journal_bytes = (home / "journal.sqlite").read_bytes()
+    header = {"X-Career-Copilot": "request"}
+    decision = {"type": "vacancy_decision", "payload": {"status": "interested"}}
+    with running_server(home, tmp_path) as base:
+        with pytest.raises(HTTPError) as error:
+            post(base + "/api/requests", decision, header)
+        assert error.value.code == 501
+    with stateful_server(home, tmp_path) as base:
+        version = json.loads(request(base + "/api/records/vacancies/role-1")[2])["version"]
+        pinned = {**decision, "base": {"kind": "vacancies", "id": "role-1", "version": version}}
+        for body, headers, code in (
+            (pinned, {}, 403),
+            (pinned, {**header, "Origin": "https://attacker.example"}, 403),
+            ({"type": "drop_table"}, header, 422),
+            (decision, header, 422),
+            ({**pinned, "base": {**pinned["base"], "id": "missing"}}, header, 404),
+            ({**pinned, "base": {**pinned["base"], "version": "0" * 16}}, header, 409),
+        ):
+            with pytest.raises(HTTPError) as error:
+                post(base + "/api/requests", body, headers)
+            assert error.value.code == code
+        status, stored = post(
+            base + "/api/requests",
+            {**pinned, "id": "../../escape", "created_at": "1999-01-01T00:00:00+00:00"},
+            {**header, "Origin": "http://127.0.0.1"},
+        )
+        assert status == 202 and stored["status"] == "pending"
+        assert stored["request"]["id"].startswith("req-")
+        assert not stored["request"]["created_at"].startswith("1999")
+        listed = json.loads(request(base + "/api/requests")[2])["requests"]
+        assert [item["id"] for item in listed] == [stored["request"]["id"]]
+        workspace = json.loads(request(base + "/api/workspace")[2])
+        assert workspace["pending_requests"] == listed
+    files = list((tmp_path / "dashboard-state" / "requests").glob("*.json"))
+    assert [path.stem for path in files] == [stored["request"]["id"]]
+    assert (home / "journal.sqlite").read_bytes() == journal_bytes
 
 
 def test_translations_and_superseded_records_reach_the_browser(tmp_path: Path):

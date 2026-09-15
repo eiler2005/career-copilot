@@ -85,6 +85,7 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
 | [Operations](docs/OPERATIONS.md) | Review, diagnostics, migration, backup and restoration |
 | [Privacy](docs/PRIVACY.md) | Worktree, staged/history and release checks |
+| [Product research 2026-09-15](docs/PRODUCT_RESEARCH_2026-09-15.md) | User jobs, gaps, priorities and the collection → matching → CV → preparation roadmap |
 | [Contributing](CONTRIBUTING.md) | Development workflow and documentation parity |
 
 Every guide has a full Russian counterpart in [docs/ru](docs/ru/GETTING_STARTED.md). Shared policy lives in these guides; Claude adapters refer to the canonical skills instead of maintaining another policy copy.

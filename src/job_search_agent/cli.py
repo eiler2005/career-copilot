@@ -259,6 +259,24 @@ def parser() -> argparse.ArgumentParser:
         upkeep.add_parser(name).add_argument(
             "--apply", action="store_true", help="Apply changes; default is a dry run"
         )
+    queue = commands.add_parser("inbox", help="Requests created in the dashboard").add_subparsers(
+        dest="inbox_command", required=True
+    )
+    queue.add_parser("import", help="Copy request files into the journal").add_argument(
+        "source", type=Path
+    )
+    listing = queue.add_parser("list")
+    listing.add_argument("--status", help="pending, applied, queued_for_agent, conflict, ...")
+    applying = queue.add_parser("apply", help="Apply pending requests with version checks")
+    applying.add_argument("--id", dest="request_id")
+    rejecting = queue.add_parser("reject")
+    rejecting.add_argument("request_id")
+    rejecting.add_argument("--reason", required=True)
+    work = commands.add_parser("tasks", help="Work queued for an agent session").add_subparsers(
+        dest="tasks_command", required=True
+    )
+    work.add_parser("list").add_argument("--status")
+    work.add_parser("next", help="Oldest queued task with an activity request template")
     snapshot = commands.add_parser("backup")
     snapshot.add_argument("--destination", type=Path, required=True)
     restore = commands.add_parser("restore")
@@ -395,6 +413,30 @@ def run(args) -> dict | list:
             if args.maintenance_command == "dedupe":
                 return maintenance.dedupe(store, apply=args.apply)
             return maintenance.rename_artifacts(store, apply=args.apply)
+        if args.command == "inbox":
+            from . import inbox
+
+            if args.inbox_command == "import":
+                return inbox.import_requests(store, args.source)
+            if args.inbox_command == "apply":
+                return inbox.apply_requests(store, args.request_id)
+            if args.inbox_command == "reject":
+                return inbox.reject_request(store, args.request_id, args.reason)
+            return [
+                item
+                for item in store.all("inbox_requests")
+                if not args.status or item["status"] == args.status
+            ]
+        if args.command == "tasks":
+            from . import inbox
+
+            if args.tasks_command == "next":
+                return inbox.next_task(store) or {"task": None}
+            return [
+                item
+                for item in store.all("tasks")
+                if not args.status or item["status"] == args.status
+            ]
         if args.command == "backup":
             return backup.backup(store, args.destination)
     raise ValueError("Unsupported command")
