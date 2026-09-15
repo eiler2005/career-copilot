@@ -71,16 +71,19 @@
 
 | Поле | Обязательность / default | Поведение |
 | --- | --- | --- |
-| `id`, `provider`, `company_id` | Обязательны | Идентичность источника/компании и парсер; LinkedIn Salaries определяет работодателя по карточке |
-| `board` | Greenhouse, Lever, Ashby | Токен публичной доски |
+| `id`, `provider`, `company_id` | Обязательны (`company_id` не нужен агрегаторам) | Идентичность источника/компании и парсер; агрегаторы и LinkedIn Salaries определяют работодателя по карточке |
+| `board` | Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee | Токен публичной доски или поддомен компании |
 | `employer_id` | HH | Фильтр работодателя |
+| `query` | Поиск HH по тексту, Remotive, Jobicy, Get on Board, «Работа России» | Текст или тег поиска; для HH включает поиск вакансий без фильтра работодателя |
+| `area`, `period`, `professional_role`, `experience`, `schedule` | Поиск HH, необязательно | Передаются в поиск HH |
+| `category`, `tag`, `geo`, `limit`, `region` | Remotive/Jobicy/Remote OK/«Работа России», необязательно | Фильтры провайдера (см. [источники](SOURCES.md#поддержанные-маршруты)) |
 | `url` | Corporate/manual или LinkedIn Salaries | URL страницы/endpoint; для LinkedIn Salaries — `https://linkedinsalaries.com/jobs.json` |
 | `enabled` | True, если не задано | Участие в поиске |
 | `company_name`, `market` | Необязательны; рынок `unknown` | Исходное имя компании и рынок |
 | `include_title` | Необязательное regex | Фильтр названия без учёта регистра после сохранения снимка |
-| `max_pages` | 3; диапазон 1–20 | Ограничение страниц Lever/HH |
+| `max_pages` | 3; диапазон 1–20 | Ограничение страниц для провайдеров с пагинацией |
 | `request_gap_seconds` | 4; диапазон 4–30 | Пауза между запросами к хосту |
-| `interval_seconds` | 3600; минимум 4 | Время следующей допустимой попытки |
+| `interval_seconds` | 3600; минимум 4 (Remotive 21600) | Время следующей допустимой попытки; действуют минимумы провайдеров |
 | `allowed_hosts` | Необязательный список | Разрешённые хосты; хост endpoint добавляется |
 | `user_agent` | Идентификатор read-only клиента | HTTP User-Agent |
 | `proxy_allowed` | False | Явное разрешение прокси для источника |

@@ -32,7 +32,8 @@ src/job_search_agent/
   core.py           Store (records, artifacts, versions, patch with CAS), observations, workspace init
   activity.py       agent activity start/finish, typed result validation, task binding
   inbox.py          request validation, import/apply with version checks, tasks
-  sources.py        six read-only adapters, collection runs, duplicate detection
+  sources.py        collection loop, core adapters, HH search, collection runs, duplicates
+  source_adapters.py ATS boards, remote-job boards, regional boards and Russian open data
   intake.py         add one vacancy from a public link or pasted text
   vacancy_fields.py salary, format, employment, language, geography and dates with origin
   campaigns.py      search campaigns and per-criterion preference matching

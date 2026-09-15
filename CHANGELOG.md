@@ -2,6 +2,16 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — More job sources
+
+### Added
+- Nine read-only adapters in `source_adapters.py`: employer ATS boards SmartRecruiters, Workable and Recruitee; remote-job boards Remotive, Remote OK and Jobicy; Arbeitnow (Europe) and Get on Board (Latin America); Работа России open data (Trudvsem). HH gains text search (`query`, `area`, …) alongside employer lists. Each card keeps the original link, provider, salary with currency and period, format, employment, allowed geography, level and publication date where the provider states them; Trudvsem employer contacts are not copied.
+- Aggregated sources reuse a company already in the journal with the same name or alias, so one employer found through several sources stays one company; collection runs report cross-source duplicates.
+- Provider minimum intervals (Remotive: six hours), generic bounded pagination and provider labels in the interface; the example configuration includes disabled samples.
+
+### Notes
+- Verified live on 15 September 2026: Trudvsem, Workable, Recruitee; intermittent: Jobicy, Remote OK, Get on Board. Remotive, Arbeitnow and SmartRecruiters returned bot challenges and HH refused requests from that network; those adapters follow documented formats, and blocked routes are recorded as `blocked`, never bypassed. Paid aggregator APIs are not integrated.
+
 ## 2026-09-15 — Unified preparation overview
 
 ### Added

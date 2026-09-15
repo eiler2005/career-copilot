@@ -2,7 +2,7 @@
 
 [English](SOURCES.md) · [Русский](ru/SOURCES.md) · [Documentation](../README.md#documentation)
 
-Career Copilot collects published vacancies through six adapters and can replay compatible saved responses offline. Official employer boards support verification of hiring details; aggregator cards add leads and salary context. Neither route guarantees complete market coverage or that a previously observed vacancy is still open.
+Career Copilot collects published vacancies through fifteen adapters — employer ATS boards, remote-job boards, regional job boards, Russian open data and HH text search — and can replay compatible saved responses offline. Official employer boards support verification of hiring details; aggregator cards add leads and salary context. Neither route guarantees complete market coverage or that a previously observed vacancy is still open.
 
 ![Source collection and fallback routes](assets/sources.en.svg)
 
@@ -16,6 +16,18 @@ Career Copilot collects published vacancies through six adapters and can replay 
 | `hh` | `employer_id` | Employer vacancies, `per_page=100`, bounded pages | [HH API documentation](https://api.hh.ru/openapi/redoc) |
 | `corporate` | `url` | Static HTML containing JSON-LD `JobPosting` objects | [Schema.org JobPosting](https://schema.org/JobPosting) |
 | `linkedinsalaries` | `url: https://linkedinsalaries.com/jobs.json` | Public salary-index JSON dataset; one response | [Dataset](https://linkedinsalaries.com/jobs.json) · [Publisher](https://linkedinsalaries.com/) |
+| `hh` (text search) | `query`; optional `area`, `period`, `professional_role`, `experience`, `schedule` | Vacancy search, `per_page=100`, bounded pages; employers come from each item | [HH API documentation](https://api.hh.ru/openapi/redoc) |
+| `smartrecruiters` | `board` (company identifier) | Public postings list, `limit=100`, bounded `offset` pagination; card without description | [SmartRecruiters Posting API](https://developers.smartrecruiters.com/docs/posting-api) |
+| `workable` | `board` (account subdomain) | Public careers widget list; card without description | [Workable careers widget](https://help.workable.com/hc/en-us/articles/115012771647) |
+| `recruitee` | `board` (company subdomain) | Public offers list with description, requirements and salary | [Recruitee Careers Site API](https://docs.recruitee.com/reference/intro-to-careers-site-api) |
+| `remotive` | optional `category`, `query`, `limit` | Remote jobs list; at least six hours between runs | [Remotive API](https://github.com/remotive-com/remote-jobs-api) |
+| `remoteok` | optional `tag` | Remote jobs feed; the first element is the provider's legal notice | [Remote OK API](https://remoteok.com/api) |
+| `jobicy` | optional `query` (tag), `geo`, `category`, `limit` | Remote jobs with geography, level and annual salary | [Jobicy API](https://jobicy.com/jobs-rss-feed) |
+| `arbeitnow` | none | Job board fed by employers' ATS (mostly Europe), bounded pages | [Arbeitnow API](https://www.arbeitnow.com/blog/job-board-api) |
+| `getonbrd` | `query` | Public job search (mostly Latin America), bounded pages, company expanded | [Get on Board API](https://www.getonbrd.com/api-doc.html) |
+| `trudvsem` | `query`; optional `region` code | Open data of the Russian federal job portal, `limit=100`, bounded pages; employer contacts are not copied | [Работа России open data](https://trudvsem.ru/opendata/api) |
+
+Boards and aggregators added on 15 September 2026 are in [source_adapters.py](../src/job_search_agent/source_adapters.py). Aggregators (`remotive`, `remoteok`, `jobicy`, `arbeitnow`, `getonbrd`, `trudvsem`, HH text search) take the employer from each item; a company already in the journal with the same name or alias is reused, so the same employer found through several sources stays one company, and possible duplicates between sources are reported in the collection run. Providers' terms apply: link to the original posting and credit the source; Remotive asks for a few requests per day, so its minimum interval is six hours. A challenge page or HTTP 403 is recorded as `blocked` and never bypassed. From the network used on 15 September 2026, Trudvsem, Workable and Recruitee answered and were verified live; Jobicy, Remote OK and Get on Board answered intermittently; Remotive, Arbeitnow and SmartRecruiters returned bot challenges and HH refused requests, so those adapters follow the providers' documented formats and need a network the provider accepts. Paid aggregator APIs (for example LoopCV) are not integrated.
 
 The adapter implementation is [sources.py](../src/job_search_agent/sources.py). Provider APIs offer more operations than this client implements. It performs read-only collection; application submission endpoints are not used. Current API behavior should be checked against the linked provider documentation when adding or changing a source.
 

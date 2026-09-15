@@ -17,7 +17,7 @@ from urllib.parse import quote, urlsplit
 
 import httpx
 
-from . import vacancy_fields
+from . import source_adapters, vacancy_fields
 from .core import Store, canonical_url, digest, now, safe_id
 
 
@@ -135,6 +135,10 @@ def linkedinsalaries_jobs(data: dict, source: dict) -> list[dict]:
 
 def parse_jobs(provider: str, body: str, source: dict) -> list[dict]:
     data = None if provider == "corporate" else json.loads(body)
+    if provider in source_adapters.ADAPTERS:
+        return source_adapters.ADAPTERS[provider].parse(data, source)
+    if provider == "hh" and source.get("query") and not source.get("employer_id"):
+        return hh_search_jobs(data, source)
     if provider == "greenhouse":
         items = data["jobs"]
     elif provider == "lever":
@@ -253,9 +257,57 @@ def parse_jobs(provider: str, body: str, source: dict) -> list[dict]:
     return result
 
 
+def hh_search_jobs(data: dict, source: dict) -> list[dict]:
+    """HH text search: employers come from each item, not from the source."""
+    items = data.get("items") if isinstance(data, dict) else None
+    if not isinstance(items, list):
+        raise TypeError("Unexpected response schema")
+    result = []
+    for item in items:
+        employer = item.get("employer") or {}
+        name = str(employer.get("name") or "").strip()
+        if not name:
+            raise ValueError("HH search item is missing the employer")
+        company = (
+            safe_id(f"hh-employer-{employer['id']}")
+            if employer.get("id")
+            else source_adapters.company_id("hh", name)
+        )
+        [value] = parse_jobs(
+            "hh", json.dumps(item), {**source, "company_id": company, "employer_id": "item"}
+        )
+        value["id"] = f"hh-{safe_id(str(item.get('id')))}"
+        value["company_name"] = name
+        result.append(value)
+    return result
+
+
+def page_size(provider: str) -> int | None:
+    if provider in source_adapters.ADAPTERS:
+        return source_adapters.ADAPTERS[provider].page_size
+    return 100 if provider in {"lever", "hh"} else None
+
+
 def endpoint(source: dict, page: int = 0) -> str:
     board = quote(source.get("board", ""), safe="")
     provider = source["provider"]
+    if provider in source_adapters.ADAPTERS:
+        return source_adapters.ADAPTERS[provider].endpoint(source, page)
+    if provider == "hh" and not source.get("employer_id"):
+        if not source.get("query"):
+            raise ValueError("HH source needs employer_id or query")
+        params = {
+            "text": source["query"],
+            "per_page": 100,
+            "page": page,
+            "order_by": "publication_time",
+        }
+        for key in ("area", "period", "professional_role", "experience", "schedule"):
+            if source.get(key):
+                params[key] = source[key]
+        return "https://api.hh.ru/vacancies?" + "&".join(
+            f"{key}={quote(str(value), safe='')}" for key, value in params.items()
+        )
     if provider == "greenhouse":
         return f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true"
     if provider == "lever":
@@ -324,8 +376,20 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                 {"id": sid, "status": "cooldown", "next_attempt": old_health["next_attempt"]}
             )
             continue
-        company = store.get("companies", source["company_id"])
-        if not company and source["provider"] != "linkedinsalaries":
+        aggregate = (
+            source["provider"] == "linkedinsalaries"
+            or (
+                source["provider"] in source_adapters.ADAPTERS
+                and source_adapters.ADAPTERS[source["provider"]].aggregate
+            )
+            or (
+                source["provider"] == "hh"
+                and bool(source.get("query"))
+                and not source.get("employer_id")
+            )
+        )
+        company = store.get("companies", source.get("company_id", ""))
+        if not company and not aggregate:
             store.put(
                 "companies",
                 {
@@ -457,6 +521,15 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                     or re.search(source["include_title"], job["title"], re.IGNORECASE)
                 ]
                 for value in selected_jobs:
+                    known = (
+                        _company_by_name(store, value["company_name"])
+                        if value.get("company_name")
+                        and not store.get("companies", value["company_id"])
+                        else None
+                    )
+                    if known:
+                        # The same employer found by another source keeps one company record.
+                        value["company_id"] = known["id"]
                     if value.get("company_name") and not store.get(
                         "companies", value["company_id"]
                     ):
@@ -495,7 +568,8 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
             except (ValueError, KeyError, TypeError, AttributeError):
                 status = "parse_changed"
                 break
-            if replay or source["provider"] not in {"lever", "hh"} or len(jobs) < 100:
+            size = page_size(source["provider"])
+            if replay or size is None or len(jobs) < size:
                 break
             # Avoid rapid pagination. A paginated board can be manually continued after cooldown.
             if page == pages - 1:
@@ -518,7 +592,12 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
         if status.startswith("success"):
             health.update(last_success=now(), rate_limit_attempts=0)
         if status != "rate_limited" and health.get("failure_status") != "rate_limited":
-            interval = max(4, int(source.get("interval_seconds", 3600)))
+            minimum = (
+                source_adapters.ADAPTERS[source["provider"]].min_interval_seconds
+                if source["provider"] in source_adapters.ADAPTERS
+                else 4
+            )
+            interval = max(minimum, int(source.get("interval_seconds", 3600)))
             health["next_attempt"] = (datetime.now(UTC) + timedelta(seconds=interval)).isoformat(
                 timespec="seconds"
             )
@@ -537,6 +616,20 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
     if not replay and sources:
         record_run(store, run, started, [safe_id(source["id"]) for source in sources])
     return results
+
+
+def _company_by_name(store: Store, name: str) -> dict | None:
+    wanted = _identity(name)
+    if not wanted:
+        return None
+    for company in store.all("companies"):
+        if any(
+            _identity(item) == wanted
+            for item in [company.get("name"), *(company.get("aliases") or [])]
+            if item
+        ):
+            return company
+    return None
 
 
 def _identity(text: object) -> str:

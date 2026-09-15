@@ -71,16 +71,19 @@ The disabled [example configuration](../examples/source-config.json) can be adap
 
 | Field | Required/default | Effect |
 | --- | --- | --- |
-| `id`, `provider`, `company_id` | Required | Stable source/company identity and parser; LinkedIn Salaries assigns employers per listing |
-| `board` | Greenhouse, Lever, Ashby | Public board token |
+| `id`, `provider`, `company_id` | Required (`company_id` not needed for aggregators) | Stable source/company identity and parser; aggregators and LinkedIn Salaries assign employers per listing |
+| `board` | Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee | Public board token or company subdomain |
 | `employer_id` | HH | Employer filter |
+| `query` | HH text search, Remotive, Jobicy, Get on Board, Trudvsem | Search text or tag; for HH it switches to vacancy search without an employer filter |
+| `area`, `period`, `professional_role`, `experience`, `schedule` | HH text search, optional | Passed to the HH search |
+| `category`, `tag`, `geo`, `limit`, `region` | Remotive/Jobicy/Remote OK/Trudvsem, optional | Provider filters (see [sources](SOURCES.md#provider-reference)) |
 | `url` | Corporate/manual or LinkedIn Salaries | Source endpoint/page; LinkedIn Salaries uses `https://linkedinsalaries.com/jobs.json` |
 | `enabled` | True when omitted | Participates in discovery |
 | `company_name`, `market` | Optional; market defaults `unknown` | Initial company label and vacancy market |
 | `include_title` | Optional regex | Case-insensitive title filter after snapshot preservation |
-| `max_pages` | 3; clamped 1–20 | Bounded Lever/HH pagination |
+| `max_pages` | 3; clamped 1–20 | Bounded pagination for paginated providers |
 | `request_gap_seconds` | 4; clamped 4–30 | Host/request spacing |
-| `interval_seconds` | 3600; minimum 4 | Persisted next permitted attempt |
+| `interval_seconds` | 3600; minimum 4 (Remotive 21600) | Persisted next permitted attempt; provider minimums apply |
 | `allowed_hosts` | Optional list | Explicit host allowance; endpoint host is included |
 | `user_agent` | Read-only client identity | HTTP User-Agent |
 | `proxy_allowed` | False | Explicit source permission for proxy use |

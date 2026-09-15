@@ -27,6 +27,53 @@
       "request_gap_seconds": 4,
       "max_pages": 1,
       "proxy_allowed": false
+    },
+    {
+      "id": "synthetic-recruitee",
+      "provider": "recruitee",
+      "board": "REPLACE_WITH_COMPANY_SUBDOMAIN",
+      "company_id": "example-systems",
+      "enabled": false,
+      "market": "intl",
+      "interval_seconds": 21600,
+      "max_pages": 1
+    },
+    {
+      "id": "remote-product-jobicy",
+      "provider": "jobicy",
+      "query": "product",
+      "geo": "",
+      "enabled": false,
+      "market": "intl",
+      "include_title": "(?i)product|director|head|vp|principal",
+      "interval_seconds": 21600
+    },
+    {
+      "id": "remote-product-remotive",
+      "provider": "remotive",
+      "category": "product",
+      "enabled": false,
+      "market": "intl",
+      "interval_seconds": 21600
+    },
+    {
+      "id": "ru-open-data",
+      "provider": "trudvsem",
+      "query": "директор по продукту",
+      "enabled": false,
+      "market": "ru",
+      "max_pages": 2,
+      "interval_seconds": 43200
+    },
+    {
+      "id": "hh-text-search",
+      "provider": "hh",
+      "query": "product director",
+      "area": "1",
+      "enabled": false,
+      "market": "ru",
+      "max_pages": 2,
+      "interval_seconds": 43200
     }
   ],
   "policy": {
