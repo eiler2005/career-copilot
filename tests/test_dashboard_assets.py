@@ -51,6 +51,7 @@ def test_script_is_syntactically_valid_javascript():
 def test_styles_keep_mobile_filters_collapsible_and_respect_reduced_motion():
     styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
     assert ".toolbar.filters-open .filter-row{display:flex}" in styles
+    assert ".toolbar .filter-row{display:none}" in styles
     assert "prefers-reduced-motion:reduce" in styles
 
 

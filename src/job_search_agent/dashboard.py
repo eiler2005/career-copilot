@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability
+from . import availability, descriptions
 from .core import atomic_write, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
@@ -559,9 +559,16 @@ class Journal:
         _mark_superseded(grouped["vacancies"], "assessments")
         _mark_superseded(grouped["preparations"], "learning")
         checks = self.availability_checks()
+        legacy = {
+            item["id"]: item["payload"].get("path")
+            for item in grouped["legacy_files"]
+            if isinstance(item["payload"].get("path"), str)
+        }
+        registered = {item["path"] for item in artifacts}
         for record in grouped["vacancies"]:
             if record["kind"] == "vacancies":
                 _availability_display(record, checks.get(record["id"]))
+                self._describe(record, legacy, registered)
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -575,6 +582,12 @@ class Journal:
             "translations": translations,
             "capabilities": {"availability_check": self.state_dir is not None},
         }
+
+    def _describe(self, record: dict, legacy: dict, registered: set[str]) -> None:
+        found = descriptions.describe(self.home, record["payload"], legacy, registered)
+        if found:
+            found["excerpt"] = redact_local_text(found["excerpt"])
+        record["display"]["description"] = found
 
     def availability_checks(self) -> dict:
         if self.state_dir is None:
@@ -824,7 +837,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._error(HTTPStatus.NOT_FOUND)
             return
         if kind == "vacancies":
-            _availability_display(record, self.server.journal.availability_checks().get(key))
+            journal = self.server.journal
+            _availability_display(record, journal.availability_checks().get(key))
+            with journal.snapshot() as connection:
+                legacy = {
+                    item["id"]: item["payload"].get("path")
+                    for item in journal.records(connection, "legacy_files")
+                    if isinstance(item["payload"].get("path"), str)
+                }
+                registered = {item["path"] for item in journal.artifacts(connection)}
+            journal._describe(record, legacy, registered)
         self._json(record, head_only)
 
     def _artifact(self, path: str, head_only: bool) -> None:

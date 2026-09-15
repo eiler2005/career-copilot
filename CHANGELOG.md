@@ -2,6 +2,15 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Clear vacancy cards and in-browser documents
+
+### Changed
+- Vacancy cards and details show the company with country and city, a short verbatim description, open/closed status with check age, the posting link, the full description and the learning plan; everything technical moved into a collapsed block. Filters are collapsed by default.
+
+### Added
+- Short descriptions quoted from retained postings or from the research section naming the vacancy (`display.description`).
+- In-browser reader for Markdown and text files with a download button; long single-line postings are split into sections and short paragraphs; shared research files highlight the selected vacancy's row.
+
 ## 2026-09-15 — Availability checks, pipeline and a cleaner journal
 
 ### Added

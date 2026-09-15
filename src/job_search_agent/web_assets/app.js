@@ -35,6 +35,8 @@
     todo: ["К выполнению", "To do"], timeout: ["Превышено время", "Timed out"], expired_copy: ["Копия устарела", "Expired copy"], follow_up: ["Вернуться позже", "Follow up"], unassigned: ["Не распределена", "Unassigned"], monitor: ["Наблюдать", "Monitor"], not_priority: ["Не в приоритете", "Not a priority"], ranked: ["Ранжирована", "Ranked"], researched: ["Изучена", "Researched"], rejected: ["Отклонена", "Rejected"], lead: ["Наводка", "Lead"], legacy_unverified: ["Не проверено (старый журнал)", "Legacy, unverified"], passed: ["Пройдена", "Passed"], vacancy: ["Вакансия", "Vacancy"], evidence: ["Доказательства", "Evidence"], interview: ["Интервью", "Interview"], practice: ["Практика", "Practice"], structural: ["Структурный", "Structural"], intl: ["Международный", "International"], ru: ["Россия", "Russia"], not_disclosed: ["Не раскрыто", "Not disclosed"], not_disclosed_on_checked_page: ["Не раскрыто на проверенной странице", "Not disclosed on checked page"], reported: ["Сообщается", "Reported"], company_and_application: ["Компания и отклик", "Company and application"], target_screen: ["Целевой отбор", "Target screen"], vacancies_only: ["Только вакансии", "Vacancies only"], flag: ["Флаг", "Flag"], master: ["Мастер-резюме", "Master CV"], interview_plans: ["Планы интервью", "Interview plans"], interview_plan: ["План интервью", "Interview plan"], corporate: ["Корпоративный сайт", "Corporate site"], greenhouse: ["Greenhouse", "Greenhouse"], global: ["Глобально", "Global"], enabled: ["Включён", "Enabled"], disabled: ["Выключен", "Disabled"], never_checked: ["Ещё не проверялся", "Never checked"], unverified: ["Не проверена", "Unverified"], needs_check: ["Требует проверки", "Needs a check"], current: ["Актуальная", "Current"], superseded: ["Устарела", "Superseded"], expired: ["Истекла", "Expired"],
     activity_finished: ["Активность завершена", "Activity finished"], activity_output_registered: ["Результат активности зарегистрирован", "Activity output registered"], activity_started: ["Активность начата", "Activity started"], annotation_sources_preserved: ["Источники аннотаций сохранены", "Annotation sources preserved"], annotation_sources_verified: ["Источники аннотаций проверены", "Annotation sources verified"], backup_created: ["Создана резервная копия", "Backup created"], career_copilot_implemented: ["Career Copilot внедрён", "Career Copilot implemented"], company_policy_reconciled: ["Правила по компаниям сверены", "Company policy reconciled"], company_profile_reviewed: ["Профиль компании проверен", "Company profile reviewed"], dashboard_deployed: ["Дашборд развёрнут", "Dashboard deployed"], document_prepared: ["Документ подготовлен", "Document prepared"], document_reviewed: ["Документ проверен", "Document reviewed"], drafts_recorded: ["Черновики записаны", "Drafts recorded"], facts_imported: ["Факты импортированы", "Facts imported"], history_imported: ["История импортирована", "History imported"], learning_planned: ["План подготовки составлен", "Learning planned"], legacy_imported: ["Старый журнал импортирован", "Legacy imported"], packages_recorded: ["Пакеты документов записаны", "Packages recorded"], pipeline_repository_renamed: ["Репозиторий переименован", "Pipeline repository renamed"], public_project_pushed: ["Публичный проект опубликован", "Public project pushed"], requirements_annotated: ["Требования размечены", "Requirements annotated"], research_recorded: ["Исследование записано", "Research recorded"], rules_updated: ["Правила обновлены", "Rules updated"], search_policy_reconciled: ["Правила поиска сверены", "Search policy reconciled"], source_checked: ["Источник проверен", "Source checked"], vacancy_evaluated: ["Вакансия оценена", "Vacancy evaluated"], workflow_configured: ["Процесс настроен", "Workflow configured"], workflow_delivered: ["Процесс передан", "Workflow delivered"], workspace_consolidated: ["Рабочее пространство объединено", "Workspace consolidated"], dashboard_snapshot_artifact_aliased: ["Файл снимка дашборда связан с журналом", "Dashboard snapshot file linked"], greenhouse: ["Greenhouse", "Greenhouse"], linkedinsalaries: ["LinkedIn Salaries", "LinkedIn Salaries"], lever: ["Lever", "Lever"]
   });
+  Object.assign(extraCopy.ru, {fullDescription: "Полное описание", showFullDescription: "Показать полное описание", noDescription: "Описание не сохранено — откройте вакансию по ссылке.", learningPlanLink: "План подготовки", descriptionTitle: "О вакансии", technicalDetails: "Технические детали: оценки, проверки, поля и связи", preparationTitle: "Подготовка к этой вакансии", download: "Скачать"});
+  Object.assign(extraCopy.en, {fullDescription: "Full description", showFullDescription: "Show the full description", noDescription: "No description saved; open the posting link.", learningPlanLink: "Learning plan", descriptionTitle: "About the role", technicalDetails: "Technical details: assessments, checks, fields and links", preparationTitle: "Preparation for this role", download: "Download"});
   Object.assign(extraCopy.ru, {pipeline: "Воронка", pipelineDesc: "Где находится каждая активная вакансия: от находки до интервью, сколько дней на этапе и что пора сделать.", contentTranslated: "Тексты: перевод", contentOriginal: "Тексты: оригинал", contentToggleHint: "Показывать сохранённые переводы записей или исходный текст", freshnessFilter: "Проверка доступности", freshness_fresh: "Проверена за 7 дней", freshness_aging: "Проверена 8–14 дней назад", freshness_stale: "Давно не проверялась (15+ дней)", freshness_never: "Не проверялась", neverChecked: "Доступность не проверялась", checkedAgo: "Проверена", undetermined: "результат не определён", checkNow: "Проверить", checkAll: "Проверить доступность", checkingProgress: "Проверяем доступность", checkDone: "Проверка завершена", checkBusy: "Проверка уже идёт — дождитесь её окончания.", checkFailed: "Не удалось выполнить проверку. Попробуйте позже.", checkUnavailable: "Проверка из интерфейса не настроена: запустите ajh availability check или dashboard с --state-dir.", availabilityTitle: "Доступность вакансии", checkResult: "Результат", checkReason: "Основание", checkConfidence: "Уверенность", checkEvidence: "Признак", checkTime: "Проверено", checkUrl: "Проверенная страница", pendingImport: "Результат сохранён на сервере и будет перенесён в локальный журнал при следующей синхронизации.", noCheckYet: "Автоматическая проверка ещё не проводилась.", reason_http_gone: "Страница вакансии удалена (HTTP 404/410)", reason_redirected_away: "Ссылка перенаправляет на общий список или страницу закрытия", reason_closed_marker: "На странице сказано, что вакансия закрыта или в архиве", reason_structured_expired: "Истёк срок в структурированной разметке вакансии", reason_apply_control: "На странице есть кнопка отклика", reason_structured_posting: "Страница публикует структурированную вакансию", reason_access_blocked: "Сайт ограничил автоматический доступ; обход не выполняется", reason_http_error: "Сайт вернул ошибку", reason_no_signal: "На странице нет надёжного признака", reason_network_error: "Сетевая ошибка", reason_not_public_url: "Адрес недоступен для проверки", reason_no_url: "У вакансии нет ссылки на объявление", reason_too_many_redirects: "Слишком много перенаправлений", confidence_high: "высокая", confidence_medium: "средняя", confidence_low: "низкая", remindersTitle: "Напоминания", reminderCheckGroup: "Доступность не проверялась или устарела (15+ дней)", remindersDesc: "Что пора сделать по активным вакансиям. Правила: интервью в ближайшие 7 дней, проверенные документы без отклика дольше 3 дней, документы без ревью дольше 5 дней, нет ответа дольше 14 дней, давно не проверенная доступность.", noReminders: "Сейчас напоминаний нет", noRemindersDesc: "Активные вакансии в порядке.", reminderInterview: "Интервью через", reminderSubmit: "Документы проверены, отклик не отправлен", reminderReview: "Документы ждут ревью", reminderResponse: "Нет ответа после отправки", reminderCheck: "Доступность проверялась", reminderNeverChecked: "Доступность ни разу не проверялась", funnelTitle: "Этапы", funnelDesc: "Вакансия стоит на самом дальнем достигнутом этапе. Дата этапа — из журнала.", inStage: "На этапе", closedLane: "Закрытые и отклонённые", stage_found: "Найдена", stage_found_hint: "Сохранена в журнале", stage_assessed: "Оценена", stage_assessed_hint: "Есть оценка соответствия", stage_documents: "Документы", stage_documents_hint: "Подготовлен пакет", stage_reviewed: "Проверены", stage_reviewed_hint: "Независимое ревью пройдено", stage_submitted: "Отклик отправлен", stage_submitted_hint: "Зафиксирована отправка", stage_response: "Ответ", stage_response_hint: "Есть ответ работодателя", stage_interview: "Интервью", stage_interview_hint: "Назначено или пройдено"});
   Object.assign(extraCopy.en, {pipeline: "Pipeline", pipelineDesc: "Where each active vacancy stands, from discovery to interview, how long it has been in a stage and what is due.", contentTranslated: "Texts: translated", contentOriginal: "Texts: original", contentToggleHint: "Show stored record translations or the original text", freshnessFilter: "Availability check", freshness_fresh: "Checked within 7 days", freshness_aging: "Checked 8–14 days ago", freshness_stale: "Not checked for 15+ days", freshness_never: "Never checked", neverChecked: "Availability never checked", checkedAgo: "Checked", undetermined: "no clear result", checkNow: "Check", checkAll: "Check availability", checkingProgress: "Checking availability", checkDone: "Check finished", checkBusy: "A check is already running; wait for it to finish.", checkFailed: "The check could not run. Try again later.", checkUnavailable: "Checks from the interface are not configured: run ajh availability check or start the dashboard with --state-dir.", availabilityTitle: "Vacancy availability", checkResult: "Result", checkReason: "Reason", checkConfidence: "Confidence", checkEvidence: "Signal", checkTime: "Checked", checkUrl: "Checked page", pendingImport: "Stored on the server; it is imported into the local journal at the next sync.", noCheckYet: "No automated check yet.", reason_http_gone: "The posting was removed (HTTP 404/410)", reason_redirected_away: "The link redirects to a listing or closed page", reason_closed_marker: "The page says the vacancy is closed or archived", reason_structured_expired: "The structured posting has expired", reason_apply_control: "The page shows an apply control", reason_structured_posting: "The page publishes a structured job posting", reason_access_blocked: "The site restricted automated access; no bypass is attempted", reason_http_error: "The site returned an error", reason_no_signal: "No reliable signal on the page", reason_network_error: "Network error", reason_not_public_url: "The address cannot be checked", reason_no_url: "The vacancy has no posting link", reason_too_many_redirects: "Too many redirects", confidence_high: "high", confidence_medium: "medium", confidence_low: "low", remindersTitle: "Reminders", reminderCheckGroup: "Availability never checked or stale (15+ days)", remindersDesc: "What is due for active vacancies. Rules: interview within 7 days, reviewed documents not sent for over 3 days, documents awaiting review for over 5 days, no response for over 14 days, stale availability.", noReminders: "No reminders right now", noRemindersDesc: "Active vacancies are up to date.", reminderInterview: "Interview in", reminderSubmit: "Documents reviewed, not sent", reminderReview: "Documents awaiting review", reminderResponse: "No response after sending", reminderCheck: "Availability last checked", reminderNeverChecked: "Availability never checked", funnelTitle: "Stages", funnelDesc: "A vacancy sits in the furthest stage it has reached. Stage dates come from the journal.", inStage: "In stage", closedLane: "Closed and rejected", stage_found: "Found", stage_found_hint: "Saved to the journal", stage_assessed: "Assessed", stage_assessed_hint: "Fit assessment exists", stage_documents: "Documents", stage_documents_hint: "Package prepared", stage_reviewed: "Reviewed", stage_reviewed_hint: "Independent review passed", stage_submitted: "Applied", stage_submitted_hint: "Submission recorded", stage_response: "Response", stage_response_hint: "Employer responded", stage_interview: "Interview", stage_interview_hint: "Scheduled or held"});
   Object.assign(extraCopy.ru, {openPosting: "Открыть вакансию", postingShort: "вакансия", hoursShort: "ч", foundOn: "найдена", downloadPdf: "Скачать PDF", downloadMarkdown: "Скачать Markdown", openRecord: "Карточка записи", showPlan: "План целиком", createdOn: "Создан", weeksShort: "нед.", notScheduled: "не назначена", weeksTitle: "Недельный план", focusColumn: "Фокус", gapsTitle: "Пробелы и что закрыть", mandatoryShort: "обязательных", detailedPlan: "Подробный план", planLoading: "Загружаем подробный план…", planUnavailable: "Подробный план недоступен или не прошёл проверку целостности.", sharedPlanNote: "Этот подробный план общий для направлений", showSuperseded: "Показать предыдущие версии планов", hideSuperseded: "Скрыть предыдущие версии планов", configuredSources: "Настроенные источники", configuredSourcesDesc: "Автоматические проверки вакансий: расписание, последняя проверка и результат.", dataSources: "Все источники данных", dataSourcesDesc: "Сайты, на которые ссылаются вакансии, компании, документы и история. Раскройте число ссылок, чтобы перейти к каждой.", sourceHost: "Сайт", sourceUse: "Где используется", sourceRecords: "Записей", sourceLinks: "Ссылки", schedule: "Расписание", daily: "раз в сутки", every: "каждые", lastCheck: "Последняя проверка", nextCheck: "Следующая проверка", foundCount: "Найдено вакансий", titleFilter: "Фильтр названий", never: "ещё не проводилась", noSourceLink: "Ссылка на источник не сохранена в настройках.", noTime: "время не указано", more: "ещё", recordChanged: "запись обновлена", eventType: "Тип события", foundLabel: "Найдена", versionFrom: "Версия от"});
@@ -107,7 +109,7 @@
   const badge = (value) => { const tone = /^(active|open|completed|healthy|ok|approved|ready|verified|success|pass|passed|enabled|current)$/.test(value) ? "good" : /^(blocked|failed|needs_clarification|pending_review|partial|cooldown|fail|rejected|timeout|needs_check|never_checked|conflicting|expired_copy|unverified)$/.test(value) ? "attention" : /^(priority|running|in_progress|product|technical-leadership|follow_up|todo)$/.test(value) ? "blue" : ""; return el("span", `badge ${tone}`, translated(value)); };
   function safeUrl(value) { try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.href : null; } catch (_) { return null; } }
   function externalLink(value, text) { const url = safeUrl(value); if (!url) return null; const link = el("a", "", text || value); link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; return link; }
-  function artifactLink(value) { const clean = String(value).replace(/^\.\//, ""); const target = state.artifacts?.has(clean) ? clean : state.artifactAliases?.get(clean); if (!target || !state.artifacts?.has(target)) return null; const link = el("a", "", value); link.href = "/api/artifacts/" + target.split("/").map(encodeURIComponent).join("/"); return link; }
+  function artifactLink(value) { const clean = String(value).replace(/^\.\//, ""); const target = state.artifacts?.has(clean) ? clean : state.artifactAliases?.get(clean); if (!target || !state.artifacts?.has(target)) return null; const link = el("a", "", value); link.href = "/api/artifacts/" + target.split("/").map(encodeURIComponent).join("/"); if (/\.(md|txt)$/i.test(target)) link.addEventListener("click", (event) => { event.preventDefault(); openDocument(target); }); return link; }
   function linksFrom(value, output = new Set(), depth = 0) { if (depth > 9 || output.size >= 30) return output; if (typeof value === "string") { if (safeUrl(value)) output.add(value); } else if (Array.isArray(value)) value.forEach((v) => linksFrom(v, output, depth + 1)); else if (value && typeof value === "object") Object.values(value).forEach((v) => linksFrom(v, output, depth + 1)); return output; }
   const filtersActive = () => Boolean(state.query.trim()) || [...new Set([...Object.keys(state.filters), ...Object.keys(defaultFilters(state.section))])].some((key) => (state.filters[key] || "") !== (defaultFilters(state.section)[key] || ""));
   const activeFilterCount = () => Object.entries(state.filters).filter(([key, value]) => (value || "") !== (defaultFilters(state.section)[key] || "")).length;
@@ -134,7 +136,7 @@
     $("breadcrumb").textContent = t(state.section);
     $("language").textContent = state.lang === "ru" ? "EN" : "RU";
     $("language").setAttribute("aria-label", state.lang === "ru" ? "Switch to English" : "Переключить на русский");
-    $("close-detail").setAttribute("aria-label", t("close"));
+    $("close-detail").setAttribute("aria-label", t("close")); $("close-document").setAttribute("aria-label", t("close"));
     $("connection").textContent = state.data ? t("connected") : "";
     $("navigation").replaceChildren(...sections.map((section, index) => { const link = el("a", `nav-link${section === state.section ? " active" : ""}`); link.href = `#${section}`; link.append(el("span", "nav-icon", icons[index]), el("span", "", t(section))); if (section !== "overview" && state.data) link.append(el("span", "nav-count", String(primaryRecords(section).length).padStart(2, "0"))); if (section === state.section) link.setAttribute("aria-current", "page"); return link; }));
     const title = el("div"); title.append(el("div", "eyebrow", `${t("privacy")} / ${t(state.section)}`), el("h1", "", state.section === "overview" ? t("overviewTitle") : t(state.section)), el("p", "", t(`${state.section}Desc`)));
@@ -159,13 +161,12 @@
     const recent = primaryRecords("vacancies").filter((record) => !INACTIVE.has(record.payload.availability) && record.payload.review_status !== "rejected").sort((a, b) => seen(b).localeCompare(seen(a)) || b.id.localeCompare(a.id)).slice(0, 8);
     if (!recent.length) latest.append(emptyState("noRecords", "noRecordsDesc", true));
     recent.forEach((record) => {
-      const row = el("article", "opportunity"), head = el("div", "opportunity-head"), geo = geography(record);
-      head.append(el("p", "company-label", companyName(record) || t("unknown")), badge(status(record)));
+      const row = el("article", "opportunity"), head = el("div", "opportunity-head");
+      head.append(employerLine(record), badge(status(record)));
       row.append(head, button(recordTitle(record), "record-title", () => openRecord(record)));
-      const bottom = el("div", "opportunity-bottom"), place = ["country", "city", "remote"].filter((key) => geo[key] !== "unknown").map((key) => geographyValue(geo[key], key)).join(" · ");
-      bottom.append(el("span", "location-line", [seenDate(record) ? `${t("foundLabel")} ${formatDate(seenDate(record))}` : "", place].filter(Boolean).join(" · ") || t("unknown")));
-      const link = postingLink(record); if (link) bottom.append(link);
-      row.append(bottom); const age = el("div", "card-age"); age.append(ageBadge(record)); row.append(age); latest.append(row);
+      const text = record.display?.description?.excerpt; if (text) row.append(el("p", "record-summary vacancy-description short", text));
+      const bottom = el("div", "opportunity-bottom"); bottom.append(ageBadge(record), vacancyActions(record, {details: false}));
+      row.append(bottom); latest.append(row);
     });
     const rail = el("div", "overview-rail"), focus = el("section", "focus-panel"); const unknown = primaryRecords("vacancies").filter(needsCheck).length;
     focus.append(el("div", "eyebrow", t("focus")), el("h2", "", t("focusTitle")), el("p", "", t("focusDesc")), el("div", "focus-divider"), el("span", "focus-number", String(unknown).padStart(2, "0")), el("p", "", state.lang === "ru" ? `${plural(unknown, ["вакансия требует", "вакансии требуют", "вакансий требуют", "", ""])} проверки доступности` : t("unknownAvailability")));
@@ -229,11 +230,12 @@
     const groups = new Map(); [...state.artifacts].sort((a, b) => a.localeCompare(b)).forEach((path) => { const root = path.split("/")[0]; if (!groups.has(root)) groups.set(root, []); groups.get(root).push(path); });
     const summary = el("summary"); summary.append(el("span", "", t("files")), el("span", "mono", String(state.artifacts.size)));
     const body = el("div", "files-body"); body.append(el("p", "muted", t("filesDesc")));
-    groups.forEach((paths, root) => { const group = el("section", "files-group"), list = el("ul", "files-list"); group.append(el("h3", "eyebrow", `${root} · ${paths.length}`)); paths.forEach((path) => { const item = el("li"), link = el("a", "", path.slice(root.length + 1)); link.href = "/api/artifacts/" + path.split("/").map(encodeURIComponent).join("/"); item.append(link); list.append(item); }); group.append(list); body.append(group); });
+    groups.forEach((paths, root) => { const group = el("section", "files-group"), list = el("ul", "files-list"); group.append(el("h3", "eyebrow", `${root} · ${paths.length}`)); paths.forEach((path) => { const item = el("li"), link = el("a", "", path.slice(root.length + 1)); link.href = "/api/artifacts/" + path.split("/").map(encodeURIComponent).join("/"); if (/\.(md|txt)$/i.test(path)) link.addEventListener("click", (event) => { event.preventDefault(); openDocument(path); }); item.append(link); list.append(item); }); group.append(list); body.append(group); });
     const open = panel.open; panel.replaceChildren(summary, body); panel.open = open; panel.hidden = false;
   }
   function geographyBlock(record) { const block = el("div", "geography"), geo = geography(record); ["country", "city", "remote"].forEach((key) => { const item = el("div", `geo-item${geo[key] === "unknown" ? " is-unknown" : ""}`); item.append(el("span", "", t(key)), el("strong", "", geographyValue(geo[key], key))); block.append(item); }); return block; }
   function recordCard(record) {
+    if (record.kind === "vacancies") return vacancyCard(record);
     const p = record.payload, card = el("article", "record-card"), top = el("div", "card-top"), titleArea = el("div");
     const subtitle = state.section === "vacancies" ? companyName(record) : record.kind === (defaultFilters(state.section).kind || kinds[state.section]) ? "" : label(record.kind);
     if (subtitle) titleArea.append(el("p", "company-label", subtitle));
@@ -340,7 +342,7 @@
     return list;
   }
   function planShell(record, open) {
-    const article = el("article", `plan${record.display?.current === false ? " is-superseded" : ""}`), header = el("header", "plan-header"), heading = el("div", "plan-heading");
+    const article = el("article", `plan${record.display?.current === false ? " is-superseded" : ""}`); article.dataset.recordId = record.id; const header = el("header", "plan-header"), heading = el("div", "plan-heading");
     heading.append(el("p", "eyebrow", kindName(record.kind)), el("h2", "plan-title", recordTitle(record)));
     const meta = el("div", "card-meta"); tracks(record).forEach((track) => meta.append(badge(track))); if (record.display?.current === false) meta.append(badge("superseded")); else if (record.kind === "learning") meta.append(badge("current"));
     if (meta.childElementCount) heading.append(meta);
@@ -631,11 +633,11 @@
       const column = el("section", "pipeline-column"), items = byStage.get(name).sort((a, b) => (a.info.since || "").localeCompare(b.info.since || ""));
       const header = el("header", "pipeline-head"); header.append(el("span", "", t(`stage_${name}`)), el("strong", "mono", String(items.length))); column.append(header, el("p", "pipeline-hint", t(`stage_${name}_hint`)));
       items.forEach(({record, info}) => {
-        const card = el("article", "pipeline-card"); card.append(el("p", "company-label", companyName(record) || t("unknown")), button(recordTitle(record), "record-title", () => openRecord(record)));
+        const card = el("article", "pipeline-card"); card.append(employerLine(record), button(recordTitle(record), "record-title", () => openRecord(record)));
         const meta = el("div", "card-meta"); meta.append(badge(status(record)), ageBadge(record)); card.append(meta);
         const since = daysSince(info.since); if (since !== null) card.append(el("p", "pipeline-since", `${t("inStage")} ${since} ${plural(since, ["день", "дня", "дней", "day", "days"])} · ${formatDate(info.since)}`));
-        if (known(record.payload.next_action)) card.append(el("p", "record-summary", scalar(record.payload.next_action)));
-        const link = postingLink(record); if (link) card.append(link);
+        if (record.display?.description?.excerpt) card.append(el("p", "record-summary vacancy-description short", record.display.description.excerpt));
+        card.append(vacancyActions(record, {details: false}));
         column.append(card);
       });
       board.append(column);
@@ -645,6 +647,114 @@
     const closed = el("details", "files-panel"); const summary = el("summary"); summary.append(el("span", "", t("closedLane")), el("span", "mono", String(inactive.length))); closed.append(summary);
     const closedBody = el("div", "files-body stacked-refs"); inactive.forEach((record) => closedBody.append(vacancyReference(record, {compact: true}))); closed.append(closedBody);
     container.append(remindersPanel, funnel, closed); return container;
+  }
+  // ---------------------------------------------------------------------------
+  // Vacancy essentials: employer and place, description, status, posting, full text, plan.
+  // Everything else lives in the collapsed technical details.
+  // ---------------------------------------------------------------------------
+  const flag = (country) => { const code = countryCodes[country]; return code ? String.fromCodePoint(...[...code].map((char) => 127397 + char.charCodeAt(0))) : ""; };
+  function placeChip(record) {
+    const geo = geography(record), parts = [geo.country !== "unknown" ? `${flag(geo.country)} ${countryName(geo.country)}`.trim() : "", geo.city !== "unknown" ? geo.city : "", geo.remote !== "unknown" ? translated(geo.remote) : ""].filter(Boolean);
+    return parts.length ? el("span", "place-chip", parts.join(" · ")) : null;
+  }
+  function employerLine(record) { const line = el("div", "employer-line"); line.append(el("span", "company-name", companyName(record) || t("unknown"))); const place = placeChip(record); if (place) line.append(place); return line; }
+  const learningFor = (record) => records("preparations").filter((item) => item.kind === "learning" && item.display?.current !== false && (item.payload.vacancy_id === record.id || (Array.isArray(item.payload.gaps) && item.payload.gaps.some((gap) => Array.isArray(gap.vacancy_ids) && gap.vacancy_ids.includes(record.id)))));
+  function openPlan(plan) {
+    if ($("record-dialog").open) $("record-dialog").close();
+    navigate("preparations");
+    requestAnimationFrame(() => { const article = [...document.querySelectorAll(".plan")].find((node) => node.dataset.recordId === plan.id); if (!article) return; const body = article.querySelector("details"); if (body) body.open = true; article.classList.add("is-highlighted"); article.scrollIntoView({block: "start"}); });
+  }
+  function vacancyActions(record, {details = true, extras = true} = {}) {
+    const row = el("div", "vacancy-actions"), link = postingLink(record); if (link) row.append(link);
+    if (!extras) return row;
+    const doc = record.display?.description; if (doc?.path) row.append(button(t("fullDescription"), "text-button", () => openDocument(doc.path, doc.kind === "research" ? {heading: doc.heading, title: recordTitle(record), record} : {title: recordTitle(record)})));
+    learningFor(record).slice(0, 1).forEach((plan) => row.append(button(t("learningPlanLink"), "text-button", () => openPlan(plan))));
+    if (details) row.append(button(`${t("open")} →`, "text-button", () => openRecord(record)));
+    return row;
+  }
+  function vacancyCard(record) {
+    const card = el("article", "record-card vacancy-card"), top = el("div", "card-top");
+    top.append(employerLine(record), badge(status(record))); card.append(top, button(recordTitle(record), "record-title", () => openRecord(record)));
+    const text = record.display?.description?.excerpt; card.append(el("p", `record-summary vacancy-description${text ? "" : " muted"}`, text || t("noDescription")));
+    const age = el("div", "card-age"); age.append(ageBadge(record)); card.append(age, vacancyActions(record)); return card;
+  }
+  function technicalSections(record, notice) {
+    const p = record.payload, fragment = document.createDocumentFragment();
+    if (notice && notice !== "detailLoading") fragment.append(el("p", "detail-warning", t(notice)));
+    if (["companies", "vacancies"].includes(record.kind)) { const geo = el("div", "detail-geography"); geo.append(geographyBlock(record)); const raw = geography(record).raw; if (raw) { const rawText = el("div", "location-line"); rawText.textContent = `${t("originalLocation")}: ${raw}`; geo.append(rawText); } fragment.append(geo); }
+    if (record.kind === "vacancies" && !record.missing) fragment.append(availabilityPanel(record));
+    const links = [...linksFrom(p.urls || p.url || p.profile_sources || p.source_url || [])]; if (links.length) { const group = el("div", "detail-links"); links.forEach((url, index) => group.append(externalLink(url, record.kind === "vacancies" && index === 0 ? `${t("openPosting")} ↗` : `${t("source")} ${index + 1} ↗`))); fragment.append(group); }
+    const groups = {recordFields: {}, evidenceFields: {}, versionFields: {}, sourceFields: {}};
+    Object.entries(p).forEach(([key, value]) => { if (key === "id") return; const group = /^(versions|files|artifacts|reviews|current_version|review_status|application_status)$/.test(key) ? "versionFields" : /(requirement|evidence|assessment|gate|decision|seniority|gap)/.test(key) ? "evidenceFields" : /(source|url|snapshot|dossier|provenance)/.test(key) ? "sourceFields" : "recordFields"; groups[group][key] = value; });
+    Object.entries(groups).forEach(([name, fields]) => { if (!Object.keys(fields).length) return; const section = el("section", "detail-section"); section.append(el("h3", "", t(name)), renderValue(fields)); fragment.append(section); });
+    const mentions = (candidate) => { const c = candidate.payload; return (Array.isArray(c.entity_ids) && c.entity_ids.includes(record.id)) || (Array.isArray(c.vacancy_ids) && c.vacancy_ids.includes(record.id)) || (Array.isArray(c.gaps) && c.gaps.some((gap) => Array.isArray(gap.vacancy_ids) && gap.vacancy_ids.includes(record.id))); };
+    const related = allRecords().filter((candidate) => candidate !== record && !(candidate.id === record.id && candidate.kind === record.kind) && ((record.kind === "companies" && candidate.payload.company_id === record.id) || (record.kind === "vacancies" && candidate.payload.vacancy_id === record.id) || (record.kind === "packages" && candidate.payload.package_id === record.id) || (record.kind === "activities" && (candidate.payload.activity_id === record.id || candidate.payload.parent_activity_id === record.id)) || (!["activity_events", "legacy_files"].includes(candidate.kind) && mentions(candidate)))).sort((a, b) => (a.display?.current === false) - (b.display?.current === false) || dateValue(b).localeCompare(dateValue(a)));
+    if (related.length) { const section = el("section", "detail-section"), items = el("div", "related-records"); related.slice(0, 40).forEach((candidate) => { const row = el("div", "related-row"); row.append(recordReference(candidate)); if (candidate.kind !== "vacancies" && formatDate(dateValue(candidate))) row.append(el("span", "muted related-date", formatDate(dateValue(candidate)))); if (candidate.display?.current === false) row.append(badge("superseded")); items.append(row); }); section.append(el("h3", "", t("related")), items); fragment.append(section); }
+    const raw = el("details", "raw-details"); raw.append(el("summary", "", t("technical")), el("pre", "", JSON.stringify(p, null, 2))); fragment.append(el("div", "detail-id", record.id), raw);
+    return fragment;
+  }
+  function renderVacancyDetail(record, notice) {
+    const fragment = document.createDocumentFragment(); $("detail-kind").textContent = kindName("vacancies");
+    const title = el("h2", "detail-heading", recordTitle(record)); title.id = "detail-title";
+    const statusRow = el("div", "status-line"); statusRow.append(badge(status(record)), ageBadge(record)); if (canCheck() && !record.missing && !inactiveVacancy(record)) statusRow.append(checkButton([record.id]));
+    fragment.append(employerLine(record), title, statusRow);
+    if (notice === "detailLoading") { const message = el("p", "muted", t(notice)); message.setAttribute("role", "status"); fragment.append(message); }
+    const doc = record.display?.description, about = el("section", "vacancy-about");
+    about.append(el("h3", "", t("descriptionTitle")), el("p", "vacancy-description-full", doc?.excerpt || t("noDescription")));
+    if (doc?.path) {
+      const full = el("details", "full-description"), holder = el("div", "markdown-holder"); full.append(el("summary", "", t("showFullDescription")), holder);
+      full.addEventListener("toggle", () => { if (!full.open || holder.dataset.loaded) return; holder.dataset.loaded = "1"; holder.replaceChildren(el("p", "muted", t("planLoading"))); artifactText(doc.path).then((text) => { holder.replaceChildren(documentBody(doc.path, text)); if (doc.kind === "research") highlightHeading(holder, doc.heading, record); }).catch(() => { delete holder.dataset.loaded; holder.replaceChildren(el("p", "detail-warning", t("planUnavailable"))); }); });
+      about.append(full);
+    }
+    fragment.append(about, vacancyActions(record, {details: false, extras: false}));
+    const plans = learningFor(record);
+    if (plans.length) { const section = el("section", "vacancy-plans"); section.append(el("h3", "", t("preparationTitle"))); plans.forEach((plan) => { const row = el("div", "vacancy-actions"); row.append(button(recordTitle(plan), "record-reference", () => openPlan(plan))); const pdf = el("a", "text-button", t("downloadPdf")); pdf.href = `/api/plans/learning/${encodeURIComponent(plan.id)}.pdf${state.lang === "en" ? "?lang=en" : ""}`; pdf.setAttribute("download", ""); row.append(pdf); section.append(row); }); fragment.append(section); }
+    const tech = el("details", "technical-details"); tech.append(el("summary", "", t("technicalDetails")), technicalSections(record, notice)); fragment.append(tech);
+    $("detail-content").replaceChildren(fragment);
+  }
+
+  // ---------------------------------------------------------------------------
+  // In-browser reader for Markdown and text files (download stays available).
+  // ---------------------------------------------------------------------------
+  const SECTION_WORDS = "Чем предстоит заниматься|Что предстоит делать|Что нужно делать|Обязанности|Задачи|Требования|Мы ожидаем|Что мы ожидаем|Наши пожелания к соискателю|Будет плюсом|Мы предлагаем|Что мы предлагаем|Условия|О компании|О команде|Наша миссия|Responsibilities|What you(?:'|’)ll do|Minimum qualifications|Preferred qualifications|Basic qualifications|Qualifications|Requirements|About the job|About the role|About us|What we offer|Benefits";
+  // Case-sensitive on purpose: "Условия работы:" starts a section, "условия" inside a sentence does not.
+  const SECTION_ALTERNATIVES = SECTION_WORDS.split("|").flatMap((word) => [word, word.toUpperCase()]).join("|");
+  const SECTION_START = new RegExp(`\\s(?=(?:${SECTION_ALTERNATIVES})(?:\\s*:|\\s+[A-ZА-ЯЁ]))`, "gu");
+  const SECTION_HEAD = new RegExp(`^(${SECTION_WORDS})\\s*:?\\s*`, "iu");
+  function documentBody(path, text) {
+    if (!/\.txt$/i.test(path)) return renderMarkdown(text);
+    const root = el("div", "markdown posting-text"), lines = String(text).replace(/\r\n/g, "\n").split("\n"), meta = [];
+    let start = 0;
+    for (let index = 0; index < Math.min(lines.length, 15); index++) {
+      const match = lines[index].trim().match(/^(Title|Company|Location|URL|Source|Salary|Posted|Date):\s*(.*)$/i);
+      if (match) { const value = match[2].trim().replace(/[ ,]+$/, ""); if (value && !/^(title|company)$/i.test(match[1])) meta.push([match[1].toLowerCase(), value]); start = index + 1; }
+      else if (lines[index].trim()) break;
+    }
+    if (meta.length) root.append(factList(meta.map(([key, value]) => [key === "location" ? t("city") : key === "url" ? t("openPosting") : key === "salary" ? label("salary") : label(key), /^https?:/i.test(value) ? externalLink(value, value.replace(/^https?:\/\/(www\.)?/, "")) || value : value])));
+    lines.slice(start).join("\n").replace(SECTION_START, "\n\n").split(/\n{2,}/).map((part) => part.trim()).filter(Boolean).forEach((part) => {
+      const head = part.match(SECTION_HEAD); let body = part;
+      if (head) { root.append(el("h4", "", head[1])); body = part.slice(head[0].length); }
+      // Long single-line postings read better as short paragraphs of a few sentences.
+      const sentences = body.split(/(?<=[.!?;])\s+(?=[A-ZА-ЯЁ«"(])/u);
+      for (let index = 0; index < sentences.length; index += 3) { const chunk = sentences.slice(index, index + 3).join(" ").trim(); if (chunk) root.append(el("p", "", chunk)); }
+    });
+    return root;
+  }
+  // Scroll to the exact row/paragraph naming this vacancy in a shared research file, else to its section.
+  function highlightHeading(container, heading, record) {
+    const needles = record ? [...String(record.id).matchAll(/\d{4,}/g)].map((match) => match[0]).concat(recordTitle(record).slice(0, 40)) : [];
+    const exact = needles.length ? [...container.querySelectorAll("tr,li,p")].find((node) => needles.some((needle) => needle && node.textContent.includes(needle))) : null;
+    const target = exact || (heading ? [...container.querySelectorAll("h3,h4,h5,h6")].find((node) => node.textContent.trim().includes(heading.slice(0, 40))) : null);
+    if (target) { target.classList.add("is-highlighted"); requestAnimationFrame(() => target.scrollIntoView({block: "start"})); }
+  }
+  async function openDocument(path, {heading, title, record} = {}) {
+    const dialog = $("document-dialog"), name = path.split("/").pop();
+    $("document-kind").textContent = name; $("document-download").href = "/api/artifacts/" + path.split("/").map(encodeURIComponent).join("/");
+    const header = el("h2", "detail-heading", title || name); header.id = "document-title";
+    $("document-content").replaceChildren(header, el("p", "muted", t("planLoading")));
+    if (!dialog.open) dialog.showModal(); dialog.scrollTop = 0;
+    try { const text = await artifactText(path); const body = documentBody(path, text); $("document-content").replaceChildren(header, body); highlightHeading(body, heading, record); }
+    catch (_) { $("document-content").replaceChildren(header, el("p", "detail-warning", t("planUnavailable"))); }
   }
   function relation(value, key) {
     const preferred = {company_id: "companies", vacancy_id: "vacancies", vacancy_ids: "vacancies", related_vacancy_ids: "vacancies", package_id: "packages", activity_id: "activities", parent_activity_id: "activities", event_id: "events", assessment_id: "assessments", plan_id: "interview_plans"}[key];
@@ -665,6 +775,7 @@
     catch (_) { if (token === state.detailToken) renderDetail(record, record.missing ? "recordMissing" : "detailError"); }
   }
   function renderDetail(record, notice) {
+    if (record.kind === "vacancies") { renderVacancyDetail(record, notice); return; }
     const p = record.payload; $("detail-kind").textContent = label(record.kind);
     const fragment = document.createDocumentFragment(), title = el("h2", "detail-heading", recordTitle(record)); title.id = "detail-title"; fragment.append(title, el("div", "detail-id", record.id));
     const meta = el("div", "card-meta"); if (status(record) !== "unknown" || record.kind === "vacancies") meta.append(badge(status(record))); tracks(record).forEach((track) => meta.append(badge(track))); fragment.append(meta);
@@ -703,6 +814,8 @@
   $("content-language").addEventListener("click", () => { state.contentMode = state.contentMode === "original" ? "translated" : "original"; try { localStorage.setItem("career-copilot-content", state.contentMode); } catch (_) { /* Storage is optional. */ } render(); if ($("record-dialog").open && state.opened) renderDetail(state.opened); });
   $("language").addEventListener("click", () => { state.lang = state.lang === "ru" ? "en" : "ru"; try { localStorage.setItem("career-copilot-language", state.lang); } catch (_) { /* Storage is optional. */ } render(); if ($("record-dialog").open && state.opened) renderDetail(state.opened); });
   $("close-detail").addEventListener("click", () => $("record-dialog").close());
+  $("close-document").addEventListener("click", () => $("document-dialog").close());
+  $("document-dialog").addEventListener("click", (event) => { if (event.target === $("document-dialog")) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
   $("record-dialog").addEventListener("close", () => { state.detailToken++; state.opened = null; syncHash(); });
   $("record-dialog").addEventListener("click", (event) => { if (event.target === $("record-dialog")) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
   function onLocationChange() { if (location.hash === hashFor(state.section)) return; const reference = applyHash(); render(); if (reference) openLinkedRecord(reference); else if ($("record-dialog").open) $("record-dialog").close(); }

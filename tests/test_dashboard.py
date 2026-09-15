@@ -768,3 +768,63 @@ def test_translations_and_superseded_records_reach_the_browser(tmp_path: Path):
     assert archived["payload"]["vacancy_id"] == "role-1"
     assert archived["display"]["current"] is False
     assert archived["display"]["superseded_by"] == "assessment-new"
+
+
+def test_vacancy_descriptions_quote_the_posting_or_research_section(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    posting = (
+        "Title: Example role\nCompany: Example Systems\nLocation: Moscow\nURL: https://example.test/role\n\n"
+        "We build a platform for payments. The team owns APIs and partner integrations. "
+        "Responsibilities: lead the roadmap."
+    )
+    add_artifact(home, "legacy/postings/example-role.txt", posting.encode())
+    add_record(
+        home,
+        "legacy_files",
+        {"id": "postings/example-role.txt", "path": "legacy/postings/example-role.txt"},
+    )
+    research = "# Big Tech\n\n| Role | Place | Status | Theme |\n|---|---|---|---|\n| Staff PM 998877 | London | open | Local payment methods growth |\n"
+    add_artifact(home, "legacy/research/search.md", research.encode())
+    add_record(
+        home,
+        "vacancies",
+        {"id": "role-2", "title": "Example role", "posting": "postings/example-role.txt"},
+    )
+    add_record(
+        home,
+        "vacancies",
+        {
+            "id": "stripe-998877",
+            "title": "Staff PM",
+            "evidence": ["legacy/research/search.md"],
+            "urls": [],
+        },
+    )
+    with running_server(home, tmp_path) as base:
+        vacancies = {
+            item["id"]: item
+            for item in json.loads(request(base + "/api/workspace")[2])["vacancies"]
+        }
+        detail = json.loads(request(base + "/api/records/vacancies/role-2")[2])
+    described = vacancies["role-2"]["display"]["description"]
+    assert (
+        described["kind"] == "posting" and described["path"] == "legacy/postings/example-role.txt"
+    )
+    assert described["excerpt"].startswith("We build a platform for payments.")
+    assert "Company:" not in described["excerpt"] and described["meta"]["location"] == "Moscow"
+    assert detail["display"]["description"] == described
+    research_description = vacancies["stripe-998877"]["display"]["description"]
+    assert research_description["kind"] == "research"
+    assert research_description["excerpt"] == "Local payment methods growth"
+    assert vacancies["role-1"]["display"]["description"] is None
+
+
+def test_description_excerpts_are_short_and_end_cleanly():
+    from job_search_agent.descriptions import excerpt, parse_posting, plain
+
+    text = "First sentence is here. " * 30
+    short = excerpt(text)
+    assert len(short) <= 360 and short.endswith(".")
+    assert plain("**Bold** [link](https://x.test) `code` - item") == "Bold link code - item"
+    meta, body = parse_posting("Title: A\nSalary: \n\nBody text")
+    assert meta == {"title": "A", "salary": ""} and body == "Body text"
