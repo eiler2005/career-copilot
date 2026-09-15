@@ -126,3 +126,18 @@ button:disabled{cursor:not-allowed;opacity:.5}
   .tab{padding:10px 11px;font-size:12px}
   .criterion-name{min-width:0}
 }
+
+/* Fit: outcome, requirement matrix with routes, constraints and completeness */
+.fit-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.fit-reason{font-size:14px;line-height:1.55;margin:10px 0 4px}
+.assessment-block h4{font-size:14px;margin:18px 0 8px}
+.fit-matrix{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.fit-row{background:var(--surface);border:1px solid var(--line);border-left:3px solid #9aa1b3;padding:11px 13px}
+.fit-row.is-match{border-left-color:#3f7a62}
+.fit-row.is-gap{border-left-color:var(--orange)}
+.fit-row.is-unknown{border-left-color:#b89a2c}
+.fit-row-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:flex-start}
+.fit-row-head strong{font-size:13px;line-height:1.45;min-width:0;overflow-wrap:anywhere}
+.fit-row-head .card-meta{margin:0}
+.fit-row .plan-facts{margin:8px 0 0}
+.fit-action{margin-top:8px}

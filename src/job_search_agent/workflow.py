@@ -102,7 +102,7 @@ def seniority(vacancy: dict, company: dict, policy: dict) -> dict:
 
 
 # Fields that identify when or from which snapshot a result was produced, not what it says.
-PROVENANCE_FIELDS = frozenset({"id", "at", "created_at", "input_sha256"})
+PROVENANCE_FIELDS = frozenset({"id", "at", "created_at", "input_sha256", "inputs"})
 
 
 def _substance(value: dict | None) -> dict | None:
@@ -142,45 +142,47 @@ def current_result(
     return candidates[-1] if candidates else None
 
 
-def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product") -> list[dict]:
+def evaluate(
+    store: Store, vacancy_id: str | None = None, track: str = "product", *, stale_only: bool = False
+) -> list[dict]:
+    """Explainable fit per vacancy and track (see matching.py); never a score."""
+    from . import campaigns, matching
+
     if track not in TRACKS:
         raise ValueError("Unknown career track")
     vacancies = [v for v in store.all("vacancies") if not vacancy_id or v["id"] == vacancy_id]
     if vacancy_id and not vacancies:
         raise ValueError("Vacancy not found")
     facts = store.facts
+    settings = store.settings
+    candidate = settings.get("candidate") or {}
     results = []
     for vacancy in vacancies:
         company = store.get("companies", vacancy["company_id"]) or {"id": vacancy["company_id"]}
-        gate = seniority(vacancy, company, store.settings["policy"])
+        inputs = matching.input_hashes(vacancy, company, facts, settings)
+        pointer_id = vacancy["id"] + ":" + track
+        pointer = store.get("current_assessments", pointer_id)
+        if stale_only and pointer:
+            recorded = pointer.get("checked_inputs") or (
+                store.get("assessments", pointer["assessment_id"]) or {}
+            ).get("inputs")
+            if matching.stale_parts(recorded, inputs) == []:
+                continue
+        gate = seniority(vacancy, company, settings["policy"])
         requirements = vacancy.get("requirements", [])
-        matrix = []
-        by_id = {f["id"]: f for f in facts["facts"]}
-        for req in requirements:
-            evidence = [
-                key
-                for key in req.get("evidence_fact_ids", [])
-                if key in by_id
-                and by_id[key].get("verification") == "verified"
-                and by_id[key].get("claim_type") != "target"
-            ]
-            suggestions = [f["id"] for f in facts["facts"] if req.get("tag") in f.get("tags", [])]
-            covered = bool(evidence and req.get("evidence_reviewed"))
-            kind = req.get("gap_type", "knowledge")
-            if req.get("minimum_years") or req.get("authorization") or req.get("license"):
-                kind = "structural"
-            matrix.append(
+        answers = [item for item in vacancy.get("clarifications") or [] if isinstance(item, dict)]
+        matrix = [
+            matching.requirement_row(
                 {
-                    "requirement_id": req["id"],
-                    "text": req["text"],
-                    "source": req.get("source"),
-                    "mandatory": req.get("mandatory", False),
-                    "evidence": evidence,
-                    "suggested_facts": suggestions,
-                    "covered": covered,
-                    "gap_type": kind,
-                }
+                    **req,
+                    "clarifications": [a for a in answers if a.get("requirement_id") == req["id"]],
+                },
+                facts["facts"],
+                candidate,
+                track,
             )
+            for req in requirements
+        ]
         declared_tracks = vacancy.get("target_tracks") or (
             [vacancy["target_track"]] if vacancy.get("target_track") else []
         )
@@ -211,20 +213,29 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
                 if all(g == "pass" for g in gates) and track_verdict == "pass"
                 else "needs_clarification"
             )
+        limits = matching.constraints(vacancy, gate, track_verdict, candidate)
+        data = matching.completeness(vacancy, requirements, facts["facts"], track)
+        result_outcome, reason, reason_ref = matching.outcome(matrix, limits, data)
         result = {
             "vacancy_id": vacancy["id"],
             "track": track,
             "track_verdict": track_verdict,
             "seniority": gate,
+            "outcome": result_outcome,
+            "reason": reason,
+            "reason_ref": reason_ref,
             "decision": decision,
             "requirements": matrix,
-            "method": "evidence-rules-v1",
+            "constraints": limits,
+            "preferences": campaigns.matches(settings, vacancy, company),
+            "completeness": data,
+            "method": matching.METHOD,
             "model": None,
-            "input_sha256": digest([vacancy, company, facts, store.settings["policy"]]),
+            "inputs": inputs,
+            "input_sha256": digest([vacancy, company, facts, settings["policy"]]),
             "unknowns": ([] if requirements else ["Requirements need source-linked annotation"])
             + (["Target career track needs annotation"] if track_verdict == "flag" else []),
         }
-        pointer_id = vacancy["id"] + ":" + track
         previous = current_result(
             store,
             "assessments",
@@ -241,14 +252,19 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
             store.put("assessments", {"id": key, "at": now(), **result}, immutable=True)
         if previous and previous["id"] != key:
             supersede(store, "assessments", previous, key, "re-evaluated vacancy and track")
-        store.event("vacancy_evaluated", [vacancy["id"]], {"assessment_id": key})
+        store.event(
+            "vacancy_evaluated", [vacancy["id"]], {"assessment_id": key, "outcome": result_outcome}
+        )
         store.put(
             "current_assessments",
             {
-                "id": vacancy["id"] + ":" + track,
+                "id": pointer_id,
                 "vacancy_id": vacancy["id"],
                 "track": track,
                 "assessment_id": key,
+                # The inputs actually checked, even when an unchanged conclusion kept an older record.
+                "checked_inputs": inputs,
+                "checked_at": now(),
             },
         )
         results.append(store.get("assessments", key))

@@ -106,7 +106,7 @@
   const geographyValue = (value, key) => value === "unknown" ? t("unknown") : key === "country" ? countryName(value) : translated(value);
   const recordsWord = (count) => { const form = new Intl.PluralRules(state.lang).select(count); return state.lang === "ru" ? ({one: "запись", few: "записи"}[form] || "записей") : (form === "one" ? "record" : "records"); };
   const isToken = (value) => typeof value === "string" && /^[\w-]{1,40}$/.test(value.trim());
-  const badge = (value) => { const tone = /^(active|open|completed|healthy|ok|approved|ready|verified|success|pass|passed|enabled|current|done|applied|match)$/.test(value) ? "good" : /^(blocked|failed|needs_clarification|pending_review|partial|cooldown|fail|rejected|timeout|needs_check|never_checked|conflicting|expired_copy|unverified|conflict|mismatch|config_error|not_interested)$/.test(value) ? "attention" : /^(priority|running|in_progress|product|technical-leadership|follow_up|todo|queued|queued_for_agent|pending)$/.test(value) ? "blue" : ""; return el("span", `badge ${tone}`, translated(value)); };
+  const badge = (value) => { const tone = /^(active|open|completed|healthy|ok|approved|ready|verified|success|pass|passed|enabled|current|done|applied|match|fits_verified)$/.test(value) ? "good" : /^(blocked|failed|needs_clarification|pending_review|partial|cooldown|fail|rejected|timeout|needs_check|never_checked|conflicting|expired_copy|unverified|conflict|mismatch|config_error|not_interested|has_questions|not_fit_mandatory|gap|insufficient_data)$/.test(value) ? "attention" : /^(priority|running|in_progress|product|technical-leadership|follow_up|todo|queued|queued_for_agent|pending)$/.test(value) ? "blue" : ""; return el("span", `badge ${tone}`, translated(value)); };
   function safeUrl(value) { try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.href : null; } catch (_) { return null; } }
   function externalLink(value, text) { const url = safeUrl(value); if (!url) return null; const link = el("a", "", text || value); link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; return link; }
   function artifactLink(value) { const clean = String(value).replace(/^\.\//, ""); const target = state.artifacts?.has(clean) ? clean : state.artifactAliases?.get(clean); if (!target || !state.artifacts?.has(target)) return null; const link = el("a", "", value); link.href = "/api/artifacts/" + target.split("/").map(encodeURIComponent).join("/"); if (/\.(md|txt)$/i.test(target)) link.addEventListener("click", (event) => { event.preventDefault(); openDocument(target); }); return link; }
@@ -729,6 +729,8 @@
     lastRun: "Последний сбор", noRuns: "Сбор через адаптеры ещё не запускался.", runTime: "Время", runNew: "Новые", runChanged: "Изменились", runUnchanged: "Без изменений", runDuplicates: "Возможные дубли", runErrors: "Ошибки источников", changedFields: "поля", duplicateOf: "похожа на",
     addVacancy: "Добавить вакансию по ссылке или тексту", vacancyLink: "Ссылка на вакансию", vacancyText: "Или текст вакансии", vacancyTitleField: "Название (если в тексте нет строки Title:)", companyField: "Компания", locationField: "Место работы", trackField: "Направление", anyOption: "не выбрано", addVacancySubmit: "Сохранить заявку", linkOrText: "Укажите ссылку или вставьте текст — что-то одно.",
     campaignsDesc: "Что вы ищете: рынок, роли, уровень, страны, формат, язык, занятость, зарплата и исключения. Одна вакансия может подходить нескольким кампаниям.", newCampaign: "Новая кампания", editCampaign: "Изменить", campaignName: "Название", roleTitles: "Роли (через запятую)", levelsField: "Уровни (через запятую)", countriesField: "Страны работы (через запятую)", languagesField: "Языки, коды ISO (через запятую)", exclusionsField: "Исключения (через запятую)", salaryMin: "Минимум", currencyField: "Валюта (ISO)", periodField: "Период", taxField: "Налоги", activeField: "Активна", saveCampaign: "Сохранить кампанию", campaignNameRequired: "Укажите название и направление.", matchedVacancies: "подходят",
+    reasonAllMandatory: "Все обязательные требования подтверждены проверенными фактами", basis_reviewed_evidence: "Проверенные факты сопоставлены и просмотрены", basis_unreviewed_evidence: "Факты привязаны, но не просмотрены против этого требования", basis_structural_unknown: "Нужны датированные доказательства или подтверждение; курс это не закрывает", basis_probable_experience: "Опыт, вероятно, есть в подтверждённых фактах — подтвердите и опишите в резюме", basis_checked_no_evidence: "После сравнения подтверждений нет — развивать и показать результат", basis_not_linked: "Факты ещё не сопоставлены с требованием — нужна разметка", basis_confirmed_unmet: "Подтверждённое несоответствие", basis_authorization_no: "В настройках кандидата нет разрешения на работу", basis_authorization_yes: "В настройках кандидата есть разрешение на работу", basis_track_annotated: "Направление вакансии размечено", basis_track_missing: "Направление вакансии не размечено", basis_gate_recorded: "Условие зафиксировано", basis_gate_not_recorded: "Не зафиксировано", basis_geography_not_stated: "Где можно работать, не указано", basis_geography_listed: "Разрешённые страны указаны в вакансии", basis_languages_covered: "Языки кандидата покрывают требование", basis_languages_missing: "Требуемого языка нет в языках кандидата", basis_no_requirements: "Требования не размечены по полному описанию", basis_no_verified_facts: "Нет подтверждённых фактов кандидата по этому треку", basis_level_mapping_needed: "Соответствие уровню компании нужно подтвердить", basis_level_meets_band: "Уровень входит в целевой диапазон работодателя", basis_level_below_band: "Уровень ниже целевого диапазона работодателя", basis_level_unmapped: "Уровень работодателя не сопоставлен", basis_level_director_threshold: "Порог уровня директора для российского рынка", basis_level_confirm_scope: "Подтвердите масштаб и уровень; числового пересчёта между компаниями нет",
+    staleShort: "требует обновления", staleNotice: "Оценка требует обновления: изменились", input_vacancy: "вакансия", input_company: "компания", input_facts: "факты кандидата", input_policy: "политика уровней", input_candidate: "ограничения кандидата", legacyAssessment: "Оценка по старым правилам — запросите новую, чтобы увидеть объяснение.", matrixTitle: "Требования", constraintsTitle: "Обязательные ограничения", completenessTitle: "Полнота данных", requirementsCount: "Требований", verifiedFacts: "Подтверждённых фактов по треку", suggestedFacts: "похожие подтверждённые факты", basisLabel: "Основание", clarificationLabel: "Ответ на уточнение", action_cv_edit: "Правка резюме", action_preparation: "В подготовку", action_clarify: "Уточнить", action_decision_basis: "Основание для решения", goToResume: "К резюме", goToPrep: "К подготовке", clarificationAnswer: "Ответ или уточнение", saveAnswer: "Сохранить ответ", decisionBasisHelp: "Подтверждённое несоответствие; пересмотрите, если изменятся факты или условия.", requestAnnotation: "Поставить задачу: разметить требования", fitRules: "Без процента и вероятности найма. Отсутствие слова в резюме не означает отсутствие опыта; предпочтения кампаний не меняют результат.", constraint_track: "Направление", constraint_seniority: "Уровень", constraint_language: "Язык", constraint_eligibility: "Допуск к работе", constraint_geography: "География", constraint_required_languages: "Требуемые языки",
     sourceProblem: "Проблема", campaignsInvalid: "Кампании в settings.json не применяются из-за ошибки", lastSuccess: "Последний успех", marketAll: "Все", marketRu: "РФ", marketIntl: "Международные", marketUnknown: "Рынок не определён"
   });
   Object.assign(copy.en, {
@@ -763,10 +765,13 @@
     lastRun: "Last collection", noRuns: "Adapter collection has not run yet.", runTime: "Time", runNew: "New", runChanged: "Changed", runUnchanged: "Unchanged", runDuplicates: "Possible duplicates", runErrors: "Source errors", changedFields: "fields", duplicateOf: "looks like",
     addVacancy: "Add a vacancy by link or text", vacancyLink: "Vacancy link", vacancyText: "Or the vacancy text", vacancyTitleField: "Title (if the text has no Title: line)", companyField: "Company", locationField: "Location", trackField: "Track", anyOption: "not selected", addVacancySubmit: "Save request", linkOrText: "Give a link or paste the text, not both.",
     campaignsDesc: "What you are looking for: market, roles, level, countries, format, language, employment, salary and exclusions. One vacancy can fit several campaigns.", newCampaign: "New campaign", editCampaign: "Edit", campaignName: "Name", roleTitles: "Roles (comma-separated)", levelsField: "Levels (comma-separated)", countriesField: "Work countries (comma-separated)", languagesField: "Languages, ISO codes (comma-separated)", exclusionsField: "Exclusions (comma-separated)", salaryMin: "Minimum", currencyField: "Currency (ISO)", periodField: "Period", taxField: "Tax basis", activeField: "Active", saveCampaign: "Save campaign", campaignNameRequired: "Give a name and a track.", matchedVacancies: "fit",
+    reasonAllMandatory: "All mandatory requirements are backed by reviewed verified facts", basis_reviewed_evidence: "Verified facts compared and reviewed", basis_unreviewed_evidence: "Facts are linked but not reviewed against this requirement", basis_structural_unknown: "Needs dated evidence or confirmation; a course cannot close it", basis_probable_experience: "Experience probably exists in verified facts; confirm it and describe it in the CV", basis_checked_no_evidence: "No evidence after comparison; build and demonstrate it", basis_not_linked: "Facts are not compared with this requirement yet; annotation needed", basis_confirmed_unmet: "Confirmed mismatch", basis_authorization_no: "Candidate settings: no work authorization", basis_authorization_yes: "Candidate settings: work authorization confirmed", basis_track_annotated: "Vacancy track is annotated", basis_track_missing: "Vacancy track is not annotated", basis_gate_recorded: "Condition recorded", basis_gate_not_recorded: "Not recorded", basis_geography_not_stated: "Where the work may be done is not stated", basis_geography_listed: "Allowed countries are listed in the vacancy", basis_languages_covered: "Candidate languages cover the requirement", basis_languages_missing: "A required language is not among the candidate's languages", basis_no_requirements: "Requirements are not annotated from a full description", basis_no_verified_facts: "No verified candidate facts for this track", basis_level_mapping_needed: "The employer level equivalence needs evidence", basis_level_meets_band: "Within the employer's documented target band", basis_level_below_band: "Below the employer's target band", basis_level_unmapped: "Unmapped employer level", basis_level_director_threshold: "Director threshold for the Russian market", basis_level_confirm_scope: "Confirm scope and seniority; no cross-company numeric conversion",
+    staleShort: "needs update", staleNotice: "The assessment needs an update; changed", input_vacancy: "vacancy", input_company: "company", input_facts: "candidate facts", input_policy: "level policy", input_candidate: "candidate constraints", legacyAssessment: "Assessed with the previous rules; request a new assessment to see the explanation.", matrixTitle: "Requirements", constraintsTitle: "Mandatory constraints", completenessTitle: "Data completeness", requirementsCount: "Requirements", verifiedFacts: "Verified facts for the track", suggestedFacts: "similar verified facts", basisLabel: "Basis", clarificationLabel: "Clarification answer", action_cv_edit: "CV edit", action_preparation: "To preparation", action_clarify: "Clarify", action_decision_basis: "Decision basis", goToResume: "To CV", goToPrep: "To preparation", clarificationAnswer: "Answer or clarification", saveAnswer: "Save answer", decisionBasisHelp: "A confirmed mismatch; revisit it if facts or conditions change.", requestAnnotation: "Queue task: annotate requirements", fitRules: "No percentage or hiring probability. A missing word in the CV is not missing experience; campaign preferences never change the result.", constraint_track: "Track", constraint_seniority: "Level", constraint_language: "Language", constraint_eligibility: "Eligibility", constraint_geography: "Geography", constraint_required_languages: "Required languages",
     sourceProblem: "Problem", campaignsInvalid: "Campaigns in settings.json are ignored because of an error", lastSuccess: "Last success", marketAll: "All", marketRu: "Russia", marketIntl: "International", marketUnknown: "Market unknown"
   });
   Object.assign(enums, {
     remote: ["Удалённо", "Remote"], hybrid: ["Гибрид", "Hybrid"], office: ["Офис", "Office"], full_time: ["Полная занятость", "Full-time"], part_time: ["Частичная занятость", "Part-time"], contract: ["Контракт", "Contract"], internship: ["Стажировка", "Internship"], temporary: ["Временная работа", "Temporary"],
+    fits_verified: ["Подходит по проверенным требованиям", "Fits verified requirements"], has_questions: ["Есть вопросы", "Has questions"], not_fit_mandatory: ["Не подходит по обязательному условию", "Does not meet a mandatory condition"], insufficient_data: ["Недостаточно данных", "Insufficient data"], gap: ["Пробел", "Gap"], pass: ["Выполнено", "Pass"], fail: ["Не выполнено", "Fail"], qualification: ["Квалификация", "Qualification"], constraint: ["Ограничение", "Constraint"],
     match: ["Подходит", "Match"], mismatch: ["Не подходит", "Does not fit"], not_assessed: ["Не оценено", "Not assessed"], queued: ["В очереди", "Queued"], running: ["Выполняется", "Running"], done: ["Готово", "Done"], applied: ["Применено", "Applied"], queued_for_agent: ["Передано агенту", "Handed to an agent"], conflict: ["Конфликт версий", "Version conflict"], failed: ["Ошибка", "Failed"], config_error: ["Ошибка настройки", "Configuration error"],
     ru: ["РФ", "Russia"], intl: ["Международный", "International"], any: ["Любой", "Any"], not_interested: ["Не интересно", "Not interested"], interested: ["Интересно", "Interested"], greenhouse: ["Greenhouse", "Greenhouse"], intake: ["Добавлена вручную", "Added manually"]
   });
@@ -807,11 +812,21 @@
     return mode === "remote" || place.remote === "remote" ? t("remoteNeedsCountries") : t("toClarify");
   }
   const currentAssessments = (record) => allRecords().filter((item) => item.kind === "assessments" && item.payload.vacancy_id === record.id && item.display?.current !== false);
+  const basisText = (code, fallback) => code && t(`basis_${code}`) !== `basis_${code}` ? t(`basis_${code}`) : tx(scalar(fallback));
+  function reasonText(payload) {
+    const ref = payload.reason_ref;
+    if (!ref || typeof ref !== "object") return scalar(payload.reason);
+    if (ref.type === "all_mandatory") return `${t("reasonAllMandatory")}: ${ref.count}`;
+    if (ref.type === "data") return basisText(ref.code, payload.reason);
+    if (ref.type === "requirement") { const row = (payload.requirements || []).find((item) => item.requirement_id === ref.id); return row ? `${tx(scalar(row.text))} — ${basisText(ref.code, row.basis)}` : scalar(payload.reason); }
+    if (ref.type === "constraint") { const item = (payload.constraints || []).find((entry) => entry.name === ref.name); return `${t(`constraint_${ref.name}`)} — ${basisText(ref.code, item?.basis || payload.reason)}`; }
+    return scalar(payload.reason);
+  }
   function fitSummary(record) {
     const items = currentAssessments(record).sort((a, b) => scalar(b.payload.at).localeCompare(scalar(a.payload.at)));
-    if (!items.length) return {status: "not_assessed", reason: t("fitNotAssessedReason")};
-    const p = items[0].payload;
-    return {status: p.outcome || (isToken(p.decision) ? p.decision : "unknown"), reason: scalar(p.reason || p.summary || ""), assessment: items[0], all: items};
+    if (!items.length) return {status: "not_assessed", reason: t("fitNotAssessedReason"), all: []};
+    const p = items[0].payload, legacy = !p.outcome;
+    return {status: p.outcome || (isToken(p.decision) ? p.decision : "unknown"), reason: legacy ? scalar(p.reason || p.summary || t("legacyAssessment")) : reasonText(p), assessment: items[0], all: items, stale: items.some((item) => Array.isArray(item.display?.stale) && item.display.stale.length), legacy};
   }
   function campaignSummary(record) {
     const list = record.display?.campaigns || [], count = (value) => list.filter((item) => item.status === value).length;
@@ -839,7 +854,8 @@
   function fitLine(record) {
     const fit = fitSummary(record), line = el("div", "vc-fit");
     line.append(el("span", "vc-fit-label", `${t("fitLabel")}:`), badge(fit.status));
-    if (fit.reason) line.append(el("span", "vc-fit-reason", tx(fit.reason)));
+    if (fit.stale) line.append(el("span", "badge attention", t("staleShort")));
+    if (fit.reason) line.append(el("span", "vc-fit-reason", fit.legacy ? tx(fit.reason) : fit.reason));
     const summary = campaignSummary(record); if (summary) line.append(el("span", "vc-fit-campaigns", `${t("campaignsLabel")}: ${summary}`));
     return line;
   }
@@ -1013,22 +1029,58 @@
   }
   function fitTab(record) {
     const fragment = document.createDocumentFragment(), fit = fitSummary(record), section = el("section", "detail-section first");
-    const line = el("div", "vc-fit"); line.append(badge(fit.status)); if (fit.reason) line.append(el("span", "vc-fit-reason", tx(fit.reason)));
-    section.append(el("h3", "", t("fitTitle")), line);
+    section.append(el("h3", "", t("fitTitle")));
     if (!fit.assessment) section.append(el("p", "muted", t("fitNotAssessedHelp")));
-    (fit.all || []).forEach((assessment) => {
-      const p = assessment.payload, rows = [[t("requirementColumn"), t("mandatoryColumn"), t("evidenceColumn"), t("resultColumn")]];
-      (Array.isArray(p.matrix) ? p.matrix : []).forEach((row) => rows.push([tx(scalar(row.text || row.requirement_id)), row.mandatory === true ? label("mandatory") : "—", scalar(row.evidence) || "—", translated(row.status || (row.covered ? "match" : row.gap_type || "unknown"))]));
-      const box = el("div", "assessment-block"); box.append(el("p", "eyebrow", `${translated(p.track)} · ${formatDateTime(p.at)}`));
-      if (rows.length > 1) box.append(tableFrom(rows));
-      section.append(box);
-    });
+    fit.all.forEach((assessment) => section.append(assessmentView(record, assessment)));
     const form = el("div", "inline-form"), track = trackSelect(tracks(record)[0]);
-    form.append(track, requestButton(t("requestEvaluation"), "quiet-button", () => ({type: "evaluate", payload: {vacancy_id: record.id, track: track.value}})));
-    section.append(form);
-    const work = workList(relatedWork(record.id, ["evaluate", "annotate_requirements"])); if (work) section.append(work);
+    form.append(track, requestButton(t("requestEvaluation"), "quiet-button", () => ({type: "evaluate", payload: {vacancy_id: record.id, track: track.value}})), requestButton(t("requestAnnotation"), "quiet-button", () => ({type: "task", payload: {task_type: "annotate_requirements", related: {vacancy_id: record.id, track: track.value}}}), t("taskQueued")));
+    section.append(form, el("p", "muted small-note", t("fitRules")));
+    const work = workList(relatedWork(record.id, ["evaluate", "annotate_requirements", "clarification_answer"])); if (work) section.append(work);
     fragment.append(section, campaignsPanel(record));
     return fragment;
+  }
+  function assessmentView(record, assessment) {
+    const p = assessment.payload, box = el("div", "assessment-block"), head = el("div", "fit-head"), stale = assessment.display?.stale;
+    head.append(el("span", "eyebrow", `${translated(p.track)} · ${formatDateTime(p.at)}`), badge(p.outcome || (isToken(p.decision) ? p.decision : "unknown")));
+    box.append(head);
+    if (p.reason) box.append(el("p", "fit-reason", p.outcome ? reasonText(p) : tx(p.reason)));
+    if (Array.isArray(stale) && stale.length) box.append(el("p", "detail-warning", `${t("staleNotice")}: ${stale.map((part) => t(`input_${part}`)).join(", ")}`));
+    else if (!p.outcome || stale === null) box.append(el("p", "muted small-note", t("legacyAssessment")));
+    const rows = Array.isArray(p.requirements) ? p.requirements : [];
+    if (rows.length) {
+      const list = el("ol", "fit-matrix");
+      rows.forEach((row) => list.append(requirementRow(record, row)));
+      box.append(el("h4", "", t("matrixTitle")), list);
+    }
+    const limits = Array.isArray(p.constraints) ? p.constraints : [];
+    if (limits.length) {
+      const list = el("ul", "criteria-list");
+      limits.forEach((item) => { const li = el("li"); li.append(el("span", "criterion-name", t(`constraint_${item.name}`)), badge(item.status), el("span", "muted", basisText(item.basis_code, item.basis))); list.append(li); });
+      box.append(el("h4", "", t("constraintsTitle")), list);
+    }
+    const data = p.completeness;
+    if (data && typeof data === "object") box.append(el("h4", "", t("completenessTitle")), factList([[t("completeness"), t(`scope_${data.description}`) === `scope_${data.description}` ? scalar(data.description) : t(`scope_${data.description}`)], [t("requirementsCount"), `${data.requirements} · ${t("mandatoryShort")}: ${data.mandatory_requirements}`], [t("verifiedFacts"), String(data.verified_facts_for_track)]]));
+    return box;
+  }
+  function requirementRow(record, row) {
+    const item = el("li", `fit-row is-${row.status || (row.covered ? "match" : "unknown")}`), head = el("div", "fit-row-head");
+    head.append(el("strong", "", tx(scalar(row.text || row.requirement_id))));
+    const tags = el("span", "card-meta"); if (row.mandatory) tags.append(el("span", "badge attention", label("mandatory"))); tags.append(badge(row.category || row.gap_type || "qualification"), badge(row.status || (row.covered ? "match" : "unknown"))); head.append(tags); item.append(head);
+    const evidence = Array.isArray(row.evidence) ? row.evidence.map((entry) => typeof entry === "object" ? [entry.fact_id, entry.source].filter(Boolean).join(" — ") : String(entry)).join("; ") : "";
+    item.append(factList([[t("evidenceColumn"), evidence || (row.suggested_facts?.length ? `${t("suggestedFacts")}: ${row.suggested_facts.join(", ")}` : "—")], [t("basisLabel"), row.basis ? basisText(row.basis_code, row.basis) : ""], [t("clarificationLabel"), row.clarification ? `${row.clarification.answer} (${formatDateTime(row.clarification.at)})` : ""]]));
+    const action = row.action?.type;
+    if (action && action !== "none") {
+      const bar = el("div", "inline-form fit-action"); bar.append(el("span", "badge blue", t(`action_${action}`)));
+      if (action === "cv_edit") bar.append(button(`${t("goToResume")} →`, "text-button", () => { state.detailTab = "resume"; syncHash(); renderVacancyDetail(state.opened || record); }));
+      if (action === "preparation") bar.append(button(`${t("goToPrep")} →`, "text-button", () => { state.detailTab = "prep"; syncHash(); renderVacancyDetail(state.opened || record); }));
+      if (action === "clarify") {
+        const answer = formInput("text", {maxlength: "4000", placeholder: t("clarificationAnswer"), "aria-label": t("clarificationAnswer")});
+        bar.append(answer, requestButton(t("saveAnswer"), "quiet-button", () => { if (!answer.value.trim()) { answer.focus(); return null; } return {type: "clarification_answer", base: {kind: "vacancies", id: record.id, version: record.version}, payload: {question: scalar(row.text), answer: answer.value.trim(), requirement_id: row.requirement_id}}; }));
+      }
+      if (action === "decision_basis") bar.append(el("span", "muted", t("decisionBasisHelp")));
+      item.append(bar);
+    }
+    return item;
   }
   function companyTab(record) {
     const company = companyFor(record), section = el("section", "detail-section first");

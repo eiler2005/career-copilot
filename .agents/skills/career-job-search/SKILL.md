@@ -17,7 +17,7 @@ Inputs are private sources/budgets, track, candidate facts and level policy. Use
 
 ## Queued work from the dashboard
 
-Check `ajh --home PRIVATE_HOME tasks next` for `collect` and `annotate_requirements` tasks. Start the activity from the returned template so `related.task_id` binds the task; the task closes only through `activity finish`. After collection, read `ajh collection runs` and report new, changed, duplicate and failed sources. Use `ajh vacancy add` for a link or text the user supplied; never widen access for a blocked page.
+Check `ajh --home PRIVATE_HOME tasks next` for `collect` and `annotate_requirements` tasks. Start the activity from the returned template so `related.task_id` binds the task; the task closes only through `activity finish`. After collection, read `ajh collection runs` and report new, changed, duplicate and failed sources. Use `ajh vacancy add` for a link or text the user supplied; never widen access for a blocked page. Annotate requirements through `ajh vacancy requirements`: link verified facts, set `evidence_reviewed` only after reading them against the requirement and `evidence_checked` only after a real comparison found nothing. Then `ajh evaluate --stale`.
 
 ## Journal and execution
 

@@ -121,6 +121,33 @@ Requirements use stable `id`, `text`, `source`, `mandatory`, optional `tag`, `ev
 
 ## Assessments and document versions
 
+### Explainable fit (`evidence-rules-v2`)
+
+An assessment has an `outcome` without any score or hiring probability:
+
+| Outcome | When |
+| --- | --- |
+| `insufficient_data` | No annotated requirements, or no verified facts for the track |
+| `not_fit_mandatory` | A mandatory requirement with a confirmed mismatch (`confirmed_unmet`, work authorization `no` in `settings.candidate`) or a failed mandatory constraint |
+| `has_questions` | A mandatory requirement is not a confirmed match, or a constraint is unknown |
+| `fits_verified` | Every mandatory requirement is backed by reviewed verified facts and every constraint passes |
+
+`not_assessed` is shown when no assessment exists. `reason` names the first blocking item; `reason_ref` points to it (`requirement`, `constraint`, `data`, `all_mandatory`) with a `code`. Each row of `requirements` has `category` (`qualification`, `constraint`), `mandatory`, `evidence` (`fact_id`, `verification`, `source`), `suggested_facts`, `status` (`match`, `gap`, `unknown`), `basis` with a stable `basis_code` and `action.type`:
+
+| Situation | Status → action |
+| --- | --- |
+| Linked verified facts, reviewed (`evidence_reviewed`) | `match` → `none` |
+| Linked verified facts, not reviewed | `unknown` → `cv_edit` |
+| Structural requirement (years, authorization, license) without evidence | `unknown` → `clarify` |
+| Verified facts share the requirement tag, or `experience_framing` | `unknown` → `cv_edit` — a missing word in the CV is not missing experience |
+| Annotator compared and found no evidence (`evidence_checked: true`) | `gap` → `preparation` |
+| Not compared yet (a tag alone never proves absence) | `unknown` → `clarify` |
+| Confirmed mismatch | `gap` → `decision_basis` |
+
+`constraints` lists `track`, `seniority`, `language`, `eligibility` and, when `settings.candidate` defines them, `geography` (allowed countries against `work_countries`) and `required_languages`, each `pass`, `fail` or `unknown` with a basis. `preferences` holds the search campaign matches, which never change the outcome. `completeness` records the description scope, requirement counts and verified facts for the track. The legacy `decision` field is still written for older readers.
+
+`inputs` stores per-part digests (`vacancy` without availability, check and personal-decision fields, `company`, `facts`, `policy`, `candidate`). The `current_assessments` pointer stores `checked_inputs` and `checked_at` from the latest run, even when an unchanged conclusion kept an older record; the dashboard compares them with the current journal and marks the assessment as needing an update with the changed parts. `ajh evaluate --stale` re-runs only those. Requirements are replaced through `ajh vacancy requirements ID PATH`, which validates IDs, text, `mandatory`, `gap_type` (`knowledge`, `practice`, `experience_framing`, `structural`), `category`, fact IDs and flags. Clarification answers (`clarification_answer` requests) are stored on the vacancy with the requirement ID, appear in the matrix and make the assessment stale until it is re-run.
+
 An assessment's input hash covers the vacancy, company, candidate facts and policy. Re-running `evaluate` or `learn` for the same vacancy and track does not accumulate duplicates: an unchanged conclusion keeps the current record even when inputs were refreshed, and a changed conclusion becomes current while the previous one moves to `superseded_records`.
 
 A vacancy's `availability_check` holds the latest automated check (`status`, `reason`, `confidence`, `evidence`, `http_status`, `final_url`, `checked_at`, `method`) and `availability_history` keeps the last 20. A determined result also sets `availability` and `status_checked_on`; see [CLI](CLI.md#availability-translations-and-maintenance) for the rules. Rule decisions are `priority`, `needs_clarification`, `not_suitable` or `watch`. A tag match is only a suggestion; coverage requires reviewed links to verified nontarget facts. These conservative rules are not a semantic ranking model.

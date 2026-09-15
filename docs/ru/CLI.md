@@ -23,7 +23,8 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 | `record vacancies PATH` | Полная карточка вакансии | Замена целиком и событие до/после |
 | `discover` | Необязательный `--source ID` | Снимки, наблюдения, статусы источников |
 | `discover --source ID --replay PATH` | Совместимый снимок относительно пространства | Историческое наблюдение без сети и обновления live-статуса |
-| `evaluate [ID] --track TRACK` | Вакансия необязательна; default product | Оценки правил по доказательствам |
+| `evaluate [ID] --track TRACK [--stale]` | Вакансия необязательна; default product; `--stale` пересчитывает только оценки с изменившимися входами | Объяснимые оценки: результат, матрица, ограничения и маршруты |
+| `vacancy requirements ID PATH` | Проверенный список требований | Заменяет требования вакансии с событием `record_updated` |
 | `prepare ID --track TRACK` | Вакансия или `master`; трек обязателен | Версионный пакет и задание агенту |
 | `review PACKAGE_ID --report PATH` | JSON проверки точной версии | Ревью и пересчёт готовности |
 | `learn [ID] --track TRACK` | Вакансия необязательна; default product | Базовый план или план по требованиям |

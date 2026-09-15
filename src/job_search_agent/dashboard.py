@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, campaigns, descriptions, inbox
+from . import availability, campaigns, descriptions, inbox, matching
 from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
@@ -566,6 +566,7 @@ class Journal:
                     }
         settings = self.settings()
         companies = {item["id"]: item["payload"] for item in grouped["companies"]}
+        self._staleness(grouped["vacancies"], settings)
         _mark_superseded(grouped["vacancies"], "assessments")
         _mark_superseded(grouped["preparations"], "learning")
         checks = self.availability_checks()
@@ -618,6 +619,40 @@ class Journal:
         except (OSError, ValueError):
             return {}
         return value if isinstance(value, dict) else {}
+
+    def _staleness(self, records: list[dict], settings: dict) -> None:
+        """Mark each assessment with the input parts that changed since it was checked."""
+        try:
+            facts = json.loads((self.home / "facts.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            facts = None
+        pointers = {
+            item["payload"].get("assessment_id"): item["payload"]
+            for item in records
+            if item["kind"] == "current_assessments"
+        }
+        with self.snapshot() as connection:
+            raw = {
+                (kind, key): json.loads(payload)
+                for kind, key, payload in connection.execute(
+                    "SELECT kind, id, payload FROM records WHERE kind IN ('vacancies', 'companies')"
+                )
+            }
+        for record in records:
+            if record["kind"] != "assessments":
+                continue
+            payload = record["payload"]
+            vacancy = raw.get(("vacancies", str(payload.get("vacancy_id"))))
+            if facts is None or vacancy is None:
+                record["display"]["stale"] = None
+                continue
+            company = raw.get(("companies", str(vacancy.get("company_id")))) or {
+                "id": vacancy.get("company_id")
+            }
+            pointer = pointers.get(record["id"]) or {}
+            recorded = pointer.get("checked_inputs") or payload.get("inputs")
+            current = matching.input_hashes(vacancy, company, facts, settings)
+            record["display"]["stale"] = matching.stale_parts(recorded, current)
 
     @staticmethod
     def campaigns(settings: dict) -> list[dict]:

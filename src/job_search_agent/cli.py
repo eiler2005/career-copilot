@@ -218,6 +218,10 @@ def parser() -> argparse.ArgumentParser:
         cmd = commands.add_parser(name)
         cmd.add_argument("vacancy_id", nargs="?")
         cmd.add_argument("--track", choices=TRACKS, default="product")
+        if name == "evaluate":
+            cmd.add_argument(
+                "--stale", action="store_true", help="Only assessments whose inputs changed"
+            )
     prepare = commands.add_parser("prepare")
     prepare.add_argument("vacancy_id", help="Vacancy ID or 'master'")
     prepare.add_argument("--track", choices=TRACKS, required=True)
@@ -271,6 +275,9 @@ def parser() -> argparse.ArgumentParser:
     adding.add_argument("--posting-url", help="Original link for pasted text")
     adding.add_argument("--market", choices=("ru", "intl", "unknown"))
     adding.add_argument("--track", choices=TRACKS)
+    annotate = vacancy.add_parser("requirements", help="Replace validated requirements")
+    annotate.add_argument("vacancy_id")
+    annotate.add_argument("source", type=Path)
     search = commands.add_parser(
         "campaigns", help="Search campaigns in settings.json"
     ).add_subparsers(dest="campaigns_command", required=True)
@@ -384,7 +391,7 @@ def run(args) -> dict | list:
                 raise ValueError("Replay requires an explicit source")
             return sources.discover(store, source_id=args.source, replay=args.replay)
         if args.command == "evaluate":
-            return workflow.evaluate(store, args.vacancy_id, args.track)
+            return workflow.evaluate(store, args.vacancy_id, args.track, stale_only=args.stale)
         if args.command == "learn":
             return workflow.learning_plan(store, args.vacancy_id, args.track)
         if args.command == "prepare":
@@ -442,6 +449,19 @@ def run(args) -> dict | list:
         if args.command == "vacancy":
             from . import intake
 
+            if args.vacancy_command == "requirements":
+                from . import matching
+
+                known = {fact["id"] for fact in store.facts["facts"]}
+                values = matching.validate_requirements(read_json(args.source), known)
+                store.patch(
+                    "vacancies",
+                    args.vacancy_id,
+                    {"requirements": values},
+                    None,
+                    "requirements annotated",
+                )
+                return {"vacancy_id": args.vacancy_id, "requirements": len(values)}
             store.db.execute("BEGIN IMMEDIATE")
             try:
                 if args.url:

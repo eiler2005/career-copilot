@@ -2,6 +2,17 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Explainable fit
+
+### Added
+- `evaluate` uses `evidence-rules-v2`: outcomes `insufficient_data`, `not_fit_mandatory`, `has_questions`, `fits_verified` (and `not_assessed` in the interface) with the first blocking reason; a requirement matrix with category, evidence, status, basis code and a route (`cv_edit`, `preparation`, `clarify`, `decision_basis`); mandatory constraints (track, level, language, eligibility, geography and languages against `settings.candidate`); campaign preferences and data completeness. No score or hiring probability.
+- Staleness: per-part input digests and `checked_inputs` on the current pointer; the dashboard names what changed and `ajh evaluate --stale` re-runs only those assessments.
+- `ajh vacancy requirements ID PATH` validates and replaces requirement annotations.
+- Fit tab: outcome, matrix with routes to the CV and preparation tabs, inline clarification answers, constraints and completeness, localised bases.
+
+### Changed
+- A requirement is a `gap` only after an annotator compared it with the facts (`evidence_checked`); an uncompared requirement or a mere tag mismatch stays `unknown`. The current pointer records the inputs actually checked even when the conclusion is unchanged.
+
 ## 2026-09-15 — Collection, clear conditions and vacancy tabs
 
 ### Added
