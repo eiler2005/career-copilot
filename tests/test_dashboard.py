@@ -502,3 +502,143 @@ def test_latex_sources_are_downloadable_and_semicolon_locations_resolve(tmp_path
     assert location_display({"location": "Москва; Россия"})["country"] == "Russia"
     assert location_display({"location": "Dubai, Dubai, UAE"})["city"] == "Dubai"
     assert location_display({"location": "Greater London, England, UK"})["city"] == "London"
+
+
+def add_plans(home: Path) -> None:
+    plan_text = (
+        "# Shared plan\n\nSession `/root/private-session` and **bold `todo`** text.\n\n"
+        "| Week | Work |\n| --- | --- |\n| 1 | Case and metrics |\n\n- first\n- second\n"
+    )
+    add_artifact(home, "activity-artifacts/plan.md", plan_text.encode())
+    add_artifact(home, "packages/example/cv.pdf", b"%PDF-1.4 not text")
+    add_record(home, "companies", {"id": "example-co", "name": "Example Systems"})
+    add_record(
+        home,
+        "vacancies",
+        {"id": "role-2", "title": "Platform Lead", "company_id": "example-co", "urls": []},
+    )
+    for key, created in (
+        ("learning-old", "2026-01-01T10:03:00Z"),
+        ("learning-new", "2026-01-01T10:19:00Z"),
+    ):
+        add_record(
+            home,
+            "learning",
+            {
+                "id": key,
+                "track": "product",
+                "vacancy_id": "role-2",
+                "created_at": created,
+                "hours_per_week": 6,
+                "interview_date": None,
+                "warning": "Baseline only.",
+                "weeks": [{"week": 1, "focus": "Метрики", "deliverable": "Кейс", "status": "todo"}],
+                "gaps": [
+                    {
+                        "text": "Platform experience",
+                        "gap_type": "evidence",
+                        "mandatory": True,
+                        "status": "todo",
+                        "next_action": "Prepare a case",
+                        "done_requires": "Reviewed answer",
+                        "resources": [],
+                        "vacancy_ids": ["role-2"],
+                    }
+                ],
+                "shared": ["STAR bank"],
+            },
+        )
+    add_record(
+        home,
+        "interview_plans",
+        {
+            "id": "interview-plan-product",
+            "track": "product",
+            "created_at": "2026-01-02T09:00:00Z",
+            "objectives": ["Explain the case"],
+            "plan": {"path": "activity-artifacts/plan.md"},
+        },
+    )
+
+
+def pdf_text(data: bytes) -> str:
+    from io import BytesIO
+
+    from pypdf import PdfReader
+
+    return "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(data)).pages)
+
+
+def test_markdown_artifacts_are_readable_inline_with_local_paths_redacted(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    add_plans(home)
+    with running_server(home, tmp_path) as base:
+        status, headers, body = request(base + "/api/text/activity-artifacts/plan.md")
+        for path in (
+            "/api/text/packages/example/cv.pdf",
+            "/api/text/activity-artifacts/missing.md",
+        ):
+            with pytest.raises(HTTPError) as error:
+                request(base + path)
+            assert error.value.code == 404
+    assert status == 200
+    assert headers["Content-Type"] == "text/plain; charset=utf-8"
+    assert headers["X-Content-Type-Options"] == "nosniff"
+    text = body.decode()
+    assert "`[local]/private-session`" in text
+    assert "/root/private-session" not in text
+
+
+def test_learning_and_interview_plans_download_as_pdf(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    add_plans(home)
+    with running_server(home, tmp_path) as base:
+        status, headers, body = request(base + "/api/plans/learning/learning-new.pdf")
+        _, _, english = request(base + "/api/plans/learning/learning-new.pdf?lang=en")
+        _, interview_headers, interview = request(
+            base + "/api/plans/interview_plans/interview-plan-product.pdf"
+        )
+        for path in (
+            "/api/plans/vacancies/role-2.pdf",
+            "/api/plans/learning/missing.pdf",
+            "/api/plans/learning/..%2Fsettings.pdf",
+        ):
+            with pytest.raises(HTTPError) as error:
+                request(base + path)
+            assert error.value.code == 404
+        preparations = json.loads(request(base + "/api/workspace")[2])["preparations"]
+    assert status == 200 and headers["Content-Type"] == "application/pdf"
+    assert headers["Content-Disposition"] == (
+        'attachment; filename="career-copilot-learning-product-2026-01-01.pdf"'
+    )
+    learning = pdf_text(body)
+    assert "План подготовки · Продуктовое" in learning
+    assert "Platform Lead · Example Systems" in learning
+    assert "Метрики" in learning and "Prepare a case" in learning
+    assert "Learning plan · Product" in pdf_text(english)
+    assert interview_headers["Content-Disposition"].startswith(
+        'attachment; filename="career-copilot-interview-plans-product-2026-01-02.pdf"'
+    )
+    detailed = pdf_text(interview)
+    assert "Shared plan" in detailed and "Case and metrics" in detailed
+    assert "private-session" in detailed and "/root/" not in detailed
+    current = {item["id"]: item["display"].get("current") for item in preparations}
+    assert current["learning-new"] is True and current["learning-old"] is False
+
+
+def test_markdown_blocks_parse_the_plan_subset():
+    from job_search_agent.dashboard_pdf import markdown_blocks, redact_local_text
+
+    blocks = markdown_blocks(
+        "# Title\nline one\nline two\n\n| A | B |\n|---|:---:|\n| 1 | 2 |\n\n1. one\n2. two\n- x\n"
+    )
+    assert blocks == [
+        ("h", 1, "Title"),
+        ("p", "line one line two"),
+        ("table", [["A", "B"], ["1", "2"]]),
+        ("ol", ["one", "two"]),
+        ("ul", ["x"]),
+    ]
+    assert redact_local_text("see ~/notes/plan.md, then /api/text") == (
+        "see [local]/plan.md, then /api/text"
+    )

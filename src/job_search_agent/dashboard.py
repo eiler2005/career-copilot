@@ -25,6 +25,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
 from .core import safe_id, validate_home
+from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
 ALLOWED_KINDS = frozenset(
     {
@@ -364,11 +365,14 @@ def _record(kind: str, payload: dict, row_id: str) -> dict:
     }
 
 
-def _mark_superseded_assessments(records: list[dict]) -> None:
-    """Flag older assessments of the same vacancy and track; the newest stays current."""
+PLAN_KINDS = frozenset({"learning", "interview_plans"})
+
+
+def _mark_superseded(records: list[dict], kind: str = "assessments") -> None:
+    """Flag older records of the same vacancy and track; the newest stays current."""
     newest: dict[tuple[str, str], dict] = {}
     for record in records:
-        if record["kind"] != "assessments":
+        if record["kind"] != kind:
             continue
         payload = record["payload"]
         key = (str(payload.get("vacancy_id")), str(payload.get("track")))
@@ -490,7 +494,8 @@ class Journal:
                 for name, kinds in WORKSPACE_GROUPS.items()
             }
             artifacts = self.artifacts(connection)
-        _mark_superseded_assessments(grouped["vacancies"])
+        _mark_superseded(grouped["vacancies"], "assessments")
+        _mark_superseded(grouped["preparations"], "learning")
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -611,6 +616,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._record(path, head_only)
             elif path.startswith("/api/artifacts/"):
                 self._artifact(path, head_only)
+            elif path.startswith("/api/text/"):
+                self._text(path, head_only)
+            elif path.startswith("/api/plans/") and path.endswith(".pdf"):
+                self._plan_pdf(path, head_only)
             elif path in {"/", "/index.html"}:
                 self._static("index.html", head_only)
             elif path in {"/assets/styles.css", "/assets/app.js"}:
@@ -680,6 +689,76 @@ class DashboardHandler(BaseHTTPRequestHandler):
             with target.open("rb") as handle:
                 while chunk := handle.read(64 * 1024):
                     self.wfile.write(chunk)
+
+    def _text(self, path: str, head_only: bool) -> None:
+        """Serve a registered Markdown or text artifact for in-page reading."""
+        relative = unquote(path.removeprefix("/api/text/"))
+        artifact = self.server.journal.artifact(relative)
+        if artifact is None or artifact[0].suffix.casefold() not in TEXT_SUFFIXES:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        target, size = artifact
+        if size > MAX_TEXT_BYTES:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        text = redact_local_text(target.read_text(encoding="utf-8", errors="replace"))
+        self._bytes(text.encode("utf-8"), "text/plain; charset=utf-8", head_only)
+
+    def _plan_pdf(self, path: str, head_only: bool) -> None:
+        parts = path.removesuffix(".pdf").split("/")
+        if len(parts) != 5:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        kind, key = unquote(parts[3]), unquote(parts[4])
+        try:
+            safe_id(key)
+        except ValueError:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        if kind not in PLAN_KINDS:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        journal = self.server.journal
+        with journal.snapshot() as connection:
+            record = journal.record(connection, kind, key)
+            vacancy = company = None
+            if record and isinstance(record["payload"].get("vacancy_id"), str):
+                vacancy = journal.record(connection, "vacancies", record["payload"]["vacancy_id"])
+            if vacancy and isinstance(vacancy["payload"].get("company_id"), str):
+                company = journal.record(connection, "companies", vacancy["payload"]["company_id"])
+        if record is None:
+            self._error(HTTPStatus.NOT_FOUND)
+            return
+        plan_text = None
+        plan = record["payload"].get("plan")
+        if (
+            kind == "interview_plans"
+            and isinstance(plan, dict)
+            and isinstance(plan.get("path"), str)
+        ):
+            artifact = journal.artifact(plan["path"])
+            if artifact and artifact[0].suffix.casefold() in TEXT_SUFFIXES:
+                plan_text = artifact[0].read_text(encoding="utf-8", errors="replace")
+        query = urlsplit(self.path).query
+        lang = "en" if "lang=en" in query.split("&") else "ru"
+        data = plan_pdf(record, lang, vacancy, company, plan_text)
+        track = re.sub(r"[^A-Za-z0-9-]+", "-", str(record["payload"].get("track") or "plan"))
+        stamp = str(record["payload"].get("created_at") or "")[:10]
+        name = f"career-copilot-{kind.replace('_', '-')}-{track}{'-' + stamp if stamp else ''}.pdf"
+        self._bytes(data, "application/pdf", head_only, f'attachment; filename="{name}"')
+
+    def _bytes(
+        self, data: bytes, content_type: str, head_only: bool, disposition: str | None = None
+    ) -> None:
+        self.send_response(HTTPStatus.OK)
+        self._security_headers()
+        self.send_header("Content-Type", content_type)
+        if disposition:
+            self.send_header("Content-Disposition", disposition)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        if not head_only:
+            self.wfile.write(data)
 
     def _static(self, name: str, head_only: bool) -> None:
         target = self.server.assets / name
