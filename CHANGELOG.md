@@ -13,6 +13,7 @@ Notable changes to Career Copilot. Dates are release dates; there are no publish
 
 ### Fixed
 - Learning plans no longer repeat a vacancy in a gap's `vacancy_ids`.
+- The HTTPS gateway sets `X-Frame-Options: DENY` only as a default, so same-origin PDF previews work behind it; previews also resolve CV files retained from the legacy workspace.
 
 ## 2026-09-15 — CV module
 

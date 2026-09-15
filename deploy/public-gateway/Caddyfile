@@ -36,7 +36,8 @@
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
+		# A default only: the dashboard allows same-origin framing for PDF previews.
+		?X-Frame-Options "DENY"
 		Referrer-Policy "no-referrer"
 		X-Robots-Tag "noindex, nofollow, noarchive"
 		-Server

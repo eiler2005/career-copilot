@@ -1155,7 +1155,7 @@
   function lazyPdf(path, label) {
     const details = el("details", "pdf-preview"), summary = el("summary", "", label || t("previewPdf"));
     details.append(summary);
-    details.addEventListener("toggle", () => { if (!details.open || details.querySelector("iframe")) return; const frame = el("iframe"); frame.src = "/api/preview/" + path.split("/").map(encodeURIComponent).join("/"); frame.title = label || t("previewPdf"); frame.loading = "lazy"; details.append(frame); });
+    details.addEventListener("toggle", () => { if (!details.open || details.querySelector("iframe")) return; const frame = el("iframe"); frame.src = "/api/preview/" + (state.artifactAliases?.get(path) || path).split("/").map(encodeURIComponent).join("/"); frame.title = label || t("previewPdf"); frame.loading = "lazy"; details.append(frame); });
     return details;
   }
   function packageBlock(pkg) {
@@ -1167,9 +1167,10 @@
     const origin = version.based_on && typeof version.based_on === "object" ? `${version.based_on.package_id} · ${version.based_on.version_id}` : "";
     box.append(factList([[t("currentVersion"), [scalar(version.id), version.date ? formatDate(version.date) : ""].filter(Boolean).join(" · ")], [t("versionsCount"), String((pkg.payload.versions || []).length)], [t("basedOn"), origin], [label("author_model"), scalar(version.author_model)]]));
     const links = el("div", "vacancy-actions");
-    if (files.cv_source) links.append(button(t("sourceText"), "text-button", () => openDocument(files.cv_source, {title: recordTitle(pkg)})));
-    if (files.cv_text) links.append(button(t("extractedText"), "text-button", () => openDocument(files.cv_text, {title: recordTitle(pkg)})));
-    if (files.cv_pdf) { const pdf = el("a", "text-button", t("downloadPdf")); pdf.href = "/api/artifacts/" + files.cv_pdf.split("/").map(encodeURIComponent).join("/"); links.append(pdf); }
+    if (files.cv_source) links.append(button(t("sourceText"), "text-button", () => openDocument(resolved(files.cv_source), {title: recordTitle(pkg)})));
+    if (files.cv_text) links.append(button(t("extractedText"), "text-button", () => openDocument(resolved(files.cv_text), {title: recordTitle(pkg)})));
+    const resolved = (value) => state.artifactAliases?.get(value) || value;
+    if (files.cv_pdf) { const pdf = el("a", "text-button", t("downloadPdf")); pdf.href = "/api/artifacts/" + resolved(files.cv_pdf).split("/").map(encodeURIComponent).join("/"); links.append(pdf); }
     links.append(button(`${t("openPackage")} →`, "text-button", () => openRecord(pkg)));
     box.append(links);
     if (files.cv_pdf) box.append(lazyPdf(files.cv_pdf));

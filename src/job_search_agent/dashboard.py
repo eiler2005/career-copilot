@@ -1138,9 +1138,17 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _preview(self, path: str, head_only: bool) -> None:
         """Show a registered CV or letter PDF inline, framed only by this dashboard."""
         relative = unquote(path.removeprefix("/api/preview/"))
+        journal = self.server.journal
+        if not relative.startswith(("packages/", "legacy/")):
+            # A version file may be a legacy reference that maps to a retained file.
+            with journal.snapshot() as connection:
+                mapped = journal.record(connection, "legacy_files", relative)
+            mapped_path = (mapped or {}).get("payload", {}).get("path")
+            relative = mapped_path if isinstance(mapped_path, str) else relative
         artifact = (
-            self.server.journal.artifact(relative)
-            if relative.startswith("packages/") and relative.casefold().endswith(".pdf")
+            journal.artifact(relative)
+            if relative.startswith(("packages/", "legacy/"))
+            and relative.casefold().endswith(".pdf")
             else None
         )
         if artifact is None:

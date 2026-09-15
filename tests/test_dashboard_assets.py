@@ -60,6 +60,7 @@ def test_public_gateway_requires_authentication_and_publishes_only_loopback():
     compose = (ROOT / "compose.public.yaml").read_text(encoding="utf-8")
     base = (ROOT / "compose.yaml").read_text(encoding="utf-8")
     assert "admin off" in caddyfile
+    assert '?X-Frame-Options "DENY"' in caddyfile
     assert "disable_http_challenge" in caddyfile
     assert "{$CC_BASIC_USER} {$CC_BASIC_HASH}" in caddyfile
     # Only the health probe and robots.txt are reachable before basic authentication.

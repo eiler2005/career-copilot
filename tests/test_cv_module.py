@@ -359,6 +359,11 @@ def test_dashboard_previews_package_pdfs_inline_and_reports_version_states(store
         with pytest.raises(HTTPError) as error:
             urlopen(f"{base}/api/preview/{version['files']['cv_source']}", timeout=5)
         assert error.value.code == 404
+        pdf_bytes = store.path(version["files"]["cv_pdf"]).read_bytes()
+        retained = store.artifact("legacy/old-cv.pdf", pdf_bytes)
+        store.put("legacy_files", {"id": "old-workspace/cv.pdf", "path": retained})
+        with urlopen(f"{base}/api/preview/old-workspace/cv.pdf", timeout=5) as response:
+            assert response.read(4) == b"%PDF"
         with urlopen(f"{base}/api/workspace", timeout=5) as response:
             data = json.loads(response.read())
         with urlopen(f"{base}/", timeout=5) as response:
