@@ -2,6 +2,11 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-16 — Bento interface redesign
+
+### Changed
+- The dashboard uses a bento layout in the style of the book's Practicum site while keeping the Career Copilot palette: a navy masthead with sections instead of the sidebar, a blue ground with a hairline frame, a heading tile with a grid texture and a large section number, and tiles that share hairline borders for statistics, panels, vacancy cards, plans and the pipeline. Headings use light display type with an orange rule, labels and navigation use mono capitals, primary actions are orange with an arrow, and dialogs have a navy header. No font files or external requests were added.
+
 ## 2026-09-16 — Source reserve channel and architecture guide
 
 ### Added

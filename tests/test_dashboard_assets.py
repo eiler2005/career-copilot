@@ -141,3 +141,17 @@ def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice
     assert (
         "currentOverview()" in script.split("function renderPreparationModule(list) {", 1)[1][:600]
     )
+
+
+def test_bento_shell_keeps_navigation_in_the_masthead_without_external_fonts():
+    page = (ASSETS / "index.html").read_text(encoding="utf-8")
+    styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
+    assert '<header class="masthead">' in page and 'id="navigation" class="masthead-nav"' in page
+    assert "sidebar" not in page
+    # Tiles share hairline borders instead of floating cards with gaps.
+    assert (
+        ".records-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)"
+        in styles
+    )
+    for external in ("@import", "@font-face", "fonts.googleapis", "url(http"):
+        assert external not in styles
