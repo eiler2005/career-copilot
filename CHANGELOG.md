@@ -2,6 +2,11 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Documentation alignment
+
+### Changed
+- Workflow, architecture, operations, configuration and dashboard guides (English and Russian) describe the request queue as the explicit write contract, the path from a found vacancy to preparation, candidate constraints, troubleshooting for conflicts, failed requests, stuck tasks and stale assessments, request sync during publishing and recreating the gateway after a Caddyfile change.
+
 ## 2026-09-15 — Preparation module
 
 ### Added

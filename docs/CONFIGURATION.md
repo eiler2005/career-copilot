@@ -122,6 +122,18 @@ Use the actual saved snapshot path for `SNAPSHOT.txt`. Replay reads the original
 
 An optional `include_title` expression filters locally after snapshot retention. It does not alter the dataset request, map a career track or establish seniority. Compensation retains the source's `salaryCite` text and `salaryUsdMo` figure with `aggregated` reliability; unavailable numeric data stays null. New listings remain `availability: unknown` until a separate official employer/ATS check. See [source scope and field meanings](SOURCES.md#linkedin-salaries-salary-context-for-new-leads).
 
+## Candidate constraints
+
+`candidate` is an optional private object used by matching as mandatory constraints. Missing values stay unknown; nothing is inferred.
+
+| Field | Effect |
+| --- | --- |
+| `work_authorization` | Map of country or region → `yes` / `no` / `unknown`; a requirement with `authorization` becomes a match or a confirmed mismatch only from `yes` or `no` |
+| `work_countries` | Where the candidate can work; compared with a vacancy's explicitly listed allowed countries |
+| `languages` | ISO language codes the candidate works in; a required language outside the list is a question, not a rejection |
+
+Changing `candidate` marks affected assessments as needing an update.
+
 ## Search campaigns
 
 `campaigns` is an optional list in `settings.json`. Fields and matching rules are in the [data model](DATA_MODEL.md#search-campaigns). Edit it with `ajh campaigns set PATH` or through a `campaign_upsert` request from the dashboard; both validate the whole list. Example with fictional values:

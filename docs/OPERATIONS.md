@@ -83,6 +83,13 @@ Pause writers while backing up artifacts. A consistent database snapshot alone d
 | Unknown or conflicting vacancy identity | Company/provider ID, canonical URLs and aliases | Reconcile evidence before merging |
 | Interrupted activity | `activity show ID`, recorded artifacts and last event | Finish failed/blocked with a next action or start a linked continuation |
 | Integrity failure | Missing/changed artifact and database integrity | Preserve diagnostics and restore from a verified copy |
+| Request `conflict` | `inbox list --status conflict`, the record's current state | Repeat the action from the current state; the old request stays for audit |
+| Request `failed` | The request `error` (for example an unreadable page for `vacancy_add`) | Fix the input (paste the text instead of a blocked link) and create a new request |
+| Task stuck in `running` or `blocked` | `tasks list`, the linked `activity show ID` | Finish the activity as blocked/failed with a next action, or start a new linked activity for the task |
+| Assessment "needs update" | Changed input parts shown in the Fit tab | `evaluate --stale` after reviewing the change |
+| Campaigns ignored | `campaigns_error` in the dashboard or `campaigns list` | Fix the list; an invalid list is ignored as a whole |
+
+Data migrations for the September 2026 releases are dry runs by default and idempotent: `maintenance reextract-conditions [--apply]` derives vacancy conditions from retained texts, and `evaluate --stale` re-runs assessments whose inputs changed. Take `backup` first and run `verify` afterwards.
 
 Before schema changes, back up and rehearse restoration. Migrations should accept an explicit source schema, preserve originals, operate transactionally and support dry-run and repeated execution. Unknown schema versions require a stop; arbitrary future migrations are not promised.
 

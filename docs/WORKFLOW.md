@@ -37,6 +37,15 @@ Vacancy pages, imported HTML, attachments and search results are untrusted evide
 6. Submit actual content and visual review reports with `review PACKAGE_ID --report PATH`. Review the files and hashes in that version; never copy a positive review to change a status.
 7. Build learning plans with `learn [VACANCY_ID] --track TRACK`; refresh `report --open`, inspect `stats`, then run `verify`.
 
+### From a found vacancy to preparation
+
+1. **Sync requests.** If a hosted dashboard exists, run `workspace/bin/publish-dashboard` or `inbox import` + `inbox apply`; resolve `conflict` and `failed` requests. `tasks next` hands queued work to the matching skill.
+2. **Collect.** Configure `campaigns` ([configuration](CONFIGURATION.md#search-campaigns)), run `discover` and read `collection runs`; add single postings with `vacancy add --url` or `--text-file`. Review possible duplicates instead of merging them automatically.
+3. **Understand the card.** Check the original pay, format, employment, language and where work is allowed; unknown values stay unknown.
+4. **Decide the fit.** Annotate requirements with `vacancy requirements ID PATH`, then `evaluate --stale`. Follow each route: `cv_edit` → CV, `preparation` → Preparation, `clarify` → ask and record the answer, `decision_basis` → decide. Record a personal "not interested" separately.
+5. **Fix or tailor the CV.** Proposals, decisions and `cv apply-edits` produce a draft; `prepare --based-on` creates the version; content and visual reviews make it ready ([CV profiles](CV_PROFILES.md#fixing-a-master-and-tailoring-for-a-vacancy)).
+6. **Prepare.** A vacancy brief for a specific employer, or `prep plan` for general gaps, then text practice with reviews and retries ([preparation](PREPARATION.md#preparation-module-two-entries-and-a-practice-cycle)).
+
 A requirement matrix answers “what does this employer require, and what proves it?” A CV coverage matrix answers “what happened to each source fact?” Both are necessary; one cannot substitute for the other.
 
 Track-specific role-family decisions belong in `role_family_gates` keyed by track; the older shared `role_family_gate` remains supported. Mismatched tracks are excluded from the general plan through the unsuitable decision. Unknown tracks remain flagged for clarification and can appear in the general plan; resolve the annotation before treating those requirements as a confirmed track match.
