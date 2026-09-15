@@ -6,6 +6,8 @@ The public repository contains reusable code and instructions. The private works
 
 ![Public code, hosted agents and private state](assets/architecture.en.svg)
 
+For a single map of modules, code, request lifecycle and containers, see the [system overview](SYSTEM_OVERVIEW.md).
+
 ## Storage boundary
 
 ```text

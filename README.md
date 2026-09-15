@@ -67,7 +67,7 @@ The fit result is one of *insufficient data*, *has questions*, *does not meet a 
 
 Availability, suitability, document readiness, demonstrated learning and actual submission are separate states. A technically valid PDF is not a reviewed CV. A ready package is not a sent application. Company size includes its metric, date, organizational scope and source; missing evidence remains unknown.
 
-See [source behavior and official API references](docs/SOURCES.md), [data contracts](docs/DATA_MODEL.md) and [the complete workflow](docs/WORKFLOW.md).
+See the [system overview](docs/SYSTEM_OVERVIEW.md) for every module, container and data flow on one page, [source behavior and official API references](docs/SOURCES.md), [data contracts](docs/DATA_MODEL.md) and [the complete workflow](docs/WORKFLOW.md).
 
 ## Documentation
 
@@ -84,6 +84,7 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [CV profiles](docs/CV_PROFILES.md) | Two master tracks, vacancy versions, edit decisions, coverage and acceptance |
 | [Sources](docs/SOURCES.md) | Providers, access, replay, limits and failure interpretation |
 | [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
+| [System overview](docs/SYSTEM_OVERVIEW.md) | All modules with their code and records, request lifecycle, runtime topology, containers, release and rollback |
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
 | [Operations](docs/OPERATIONS.md) | Review, diagnostics, migration, backup and restoration |
 | [Privacy](docs/PRIVACY.md) | Worktree, staged/history and release checks |

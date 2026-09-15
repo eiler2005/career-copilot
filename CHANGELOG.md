@@ -4,6 +4,9 @@ Notable changes to Career Copilot. Dates are release dates; there are no publish
 
 ## 2026-09-15 — Documentation alignment
 
+### Added
+- [System overview](docs/SYSTEM_OVERVIEW.md) (English and Russian): every product module with its interface, CLI, code and records; the code map; request and task lifecycle; runtime topology; containers with ports, mounts and hardening; release, data publishing, rollback and quality gates.
+
 ### Changed
 - Workflow, architecture, operations, configuration and dashboard guides (English and Russian) describe the request queue as the explicit write contract, the path from a found vacancy to preparation, candidate constraints, troubleshooting for conflicts, failed requests, stuck tasks and stale assessments, request sync during publishing and recreating the gateway after a Caddyfile change.
 
