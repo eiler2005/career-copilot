@@ -279,3 +279,86 @@ def rename_artifacts(store: Store, apply: bool = False) -> dict:
                 os.replace(target, source)
         raise
     return {**result, "applied": True, "manifest": manifest_path}
+
+
+def reextract_conditions(store: Store, apply: bool = False) -> dict:
+    """Derive `conditions` for existing vacancies from what the journal already retains.
+
+    Sources, in order: the retained posting file (header fields and body), the vacancy
+    text, and the research section that names the vacancy (explicit salary lines only).
+    Values already present stay unless the new extraction states something unknown
+    before. Dry run unless `apply`.
+    """
+    from . import descriptions, vacancy_fields
+
+    legacy = {
+        item["id"]: item["path"]
+        for item in store.all("legacy_files")
+        if isinstance(item.get("path"), str)
+    }
+    registered = {row[0] for row in store.db.execute("SELECT path FROM artifacts")}
+    changes = []
+    for vacancy in store.all("vacancies"):
+        location = str(vacancy.get("location") or "")
+        found = descriptions.describe(store.home, vacancy, legacy, registered)
+        extracted = None
+        if found and found["kind"] == "posting":
+            text = descriptions.read_text(store.home / found["path"]) or ""
+            meta, body = descriptions.parse_posting(text)
+            extracted = vacancy_fields.from_posting(body, meta, location, "posting")
+        elif isinstance(vacancy.get("text"), str) and vacancy["text"].strip():
+            extracted = vacancy_fields.from_posting(vacancy["text"], None, location, "vacancy_text")
+        else:
+            section = ""
+            if found and found["kind"] == "research":
+                text = descriptions.read_text(store.home / found["path"]) or ""
+                match = descriptions.research_section(text, vacancy)
+                section = match[1] if match else ""
+            extracted = vacancy_fields.from_posting(section, None, location, "research")
+            # Research notes describe the role in the researcher's words, not the posting's.
+            extracted["posting_language"] = vacancy_fields.UNKNOWN
+            extracted["language"] = vacancy_fields.field([])
+        merged = vacancy_fields.merge(vacancy.get("conditions"), extracted)
+        fields = vacancy_fields.changed_fields(vacancy.get("conditions"), merged)
+        if fields:
+            changes.append({"vacancy_id": vacancy["id"], "fields": fields, "conditions": merged})
+    result = {
+        "applied": False,
+        "vacancies": len(store.all("vacancies")),
+        "changed": len(changes),
+        "known_after": {
+            "salary": sum(1 for item in changes if item["conditions"].get("salary")),
+            **{
+                name: sum(
+                    1
+                    for item in changes
+                    if item["conditions"][name]["value"] not in (vacancy_fields.UNKNOWN, [])
+                )
+                for name in ("work_mode", "employment", "language")
+            },
+            "allowed_geography": sum(
+                1
+                for item in changes
+                if item["conditions"]["allowed_geography"]["status"] != vacancy_fields.UNKNOWN
+            ),
+        },
+        "changes": [{k: v for k, v in item.items() if k != "conditions"} for item in changes],
+    }
+    if not apply or not changes:
+        return result
+    store.db.execute("BEGIN IMMEDIATE")
+    try:
+        for item in changes:
+            store.patch(
+                "vacancies",
+                item["vacancy_id"],
+                {"conditions": item["conditions"]},
+                None,
+                "maintenance reextract-conditions",
+            )
+        store.event("conditions_reextracted", [], {"changed": len(changes)})
+        store.db.execute("COMMIT")
+    except Exception:
+        store.db.execute("ROLLBACK")
+        raise
+    return {**result, "applied": True}

@@ -25,12 +25,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, descriptions, inbox
+from . import availability, campaigns, descriptions, inbox
 from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
 ALLOWED_KINDS = frozenset(
     {
+        "collection_runs",
         "inbox_requests",
         "tasks",
         "activities",
@@ -73,7 +74,7 @@ WORKSPACE_GROUPS = {
         "interview_feedback",
         "interview_progress",
     ),
-    "sources": ("source_health", "source_settings"),
+    "sources": ("source_health", "source_settings", "collection_runs"),
     "history": ("events", "submissions", "employer_responses", "imports"),
     "work": ("tasks", "inbox_requests"),
 }
@@ -563,6 +564,8 @@ class Journal:
                         for lang, value in entry["translations"].items()
                         if lang in {"ru", "en"} and isinstance(value, str)
                     }
+        settings = self.settings()
+        companies = {item["id"]: item["payload"] for item in grouped["companies"]}
         _mark_superseded(grouped["vacancies"], "assessments")
         _mark_superseded(grouped["preparations"], "learning")
         checks = self.availability_checks()
@@ -576,6 +579,7 @@ class Journal:
             if record["kind"] == "vacancies":
                 _availability_display(record, checks.get(record["id"]))
                 self._describe(record, legacy, registered)
+                self._conditions(record, settings, companies)
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -588,6 +592,8 @@ class Journal:
             "artifacts": artifacts,
             "translations": translations,
             "pending_requests": self.pending_requests(grouped["work"]),
+            "campaigns": self.campaigns(settings),
+            "campaigns_error": campaigns.problem(settings),
             "capabilities": {
                 "availability_check": self.state_dir is not None,
                 "requests": self.state_dir is not None,
@@ -605,6 +611,43 @@ class Journal:
             for item in inbox.pending_files(self.state_dir)
             if item["id"] not in imported
         ]
+
+    def settings(self) -> dict:
+        try:
+            value = json.loads((self.home / "settings.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+        return value if isinstance(value, dict) else {}
+
+    @staticmethod
+    def campaigns(settings: dict) -> list[dict]:
+        """Valid campaigns with the version of the stored value, for campaign_upsert requests."""
+        stored = {
+            item.get("id"): item
+            for item in settings.get("campaigns") or []
+            if isinstance(item, dict)
+        }
+        return [
+            {**item, "version": digest(stored[item["id"]])[:16] if item["id"] in stored else None}
+            for item in campaigns.configured(settings)
+        ]
+
+    @staticmethod
+    def _conditions(record: dict, settings: dict, companies: dict) -> None:
+        payload, display = record["payload"], record["display"]
+        conditions = (
+            payload.get("conditions") if isinstance(payload.get("conditions"), dict) else {}
+        )
+        display["dates"] = {
+            "published_on": conditions.get("published_on"),
+            "discovered_at": payload.get("first_seen"),
+            "verified_at": display.get("checked_at"),
+            "last_seen": payload.get("last_seen"),
+        }
+        country = (display.get("location") or {}).get("country")
+        display["campaigns"] = campaigns.matches(
+            settings, payload, companies.get(payload.get("company_id")), country
+        )
 
     def _describe(self, record: dict, legacy: dict, registered: set[str]) -> None:
         found = descriptions.describe(self.home, record["payload"], legacy, registered)
@@ -800,7 +843,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 )
                 return
         with self.server.request_lock:
-            if len(inbox.pending_files(journal.state_dir)) >= MAX_PENDING_REQUESTS:
+            if len(journal.pending_requests()) >= MAX_PENDING_REQUESTS:
                 self._error(HTTPStatus.TOO_MANY_REQUESTS)
                 return
             stored = inbox.write_request(journal.state_dir, request)
@@ -931,7 +974,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     if isinstance(item["payload"].get("path"), str)
                 }
                 registered = {item["path"] for item in journal.artifacts(connection)}
+                company = journal.record(
+                    connection, "companies", record["payload"].get("company_id") or ""
+                )
             journal._describe(record, legacy, registered)
+            journal._conditions(
+                record,
+                journal.settings(),
+                {company["id"]: company["payload"]} if company else {},
+            )
         self._json(record, head_only)
 
     def _artifact(self, path: str, head_only: bool) -> None:

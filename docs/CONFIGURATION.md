@@ -122,6 +122,29 @@ Use the actual saved snapshot path for `SNAPSHOT.txt`. Replay reads the original
 
 An optional `include_title` expression filters locally after snapshot retention. It does not alter the dataset request, map a career track or establish seniority. Compensation retains the source's `salaryCite` text and `salaryUsdMo` figure with `aggregated` reliability; unavailable numeric data stays null. New listings remain `availability: unknown` until a separate official employer/ATS check. See [source scope and field meanings](SOURCES.md#linkedin-salaries-salary-context-for-new-leads).
 
+## Search campaigns
+
+`campaigns` is an optional list in `settings.json`. Fields and matching rules are in the [data model](DATA_MODEL.md#search-campaigns). Edit it with `ajh campaigns set PATH` or through a `campaign_upsert` request from the dashboard; both validate the whole list. Example with fictional values:
+
+```json
+[
+  {
+    "id": "intl-platform",
+    "name": "International platform product",
+    "market": "intl",
+    "track": "product",
+    "role_titles": ["Product Lead", "Head of Product"],
+    "work_countries": ["Canada"],
+    "work_modes": ["remote", "hybrid"],
+    "languages": ["en"],
+    "salary": {"min": 150000, "currency": "USD", "period": "year", "gross_net": "gross"},
+    "exclusions": ["gambling"]
+  }
+]
+```
+
+Role titles, levels and exclusions match whole words. A campaign never widens where the candidate may legally work and never changes an assessment.
+
 ## Facts and policy changes
 
 Use `facts import PATH` to version evidence; do not treat `facts.json` as a CV template. Imported facts need unique IDs, sources and verification states `verified`, `self_reported` or `conflicting`. Profiles must contain exactly `product` and `technical-leadership`.

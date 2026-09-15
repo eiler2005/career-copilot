@@ -255,10 +255,34 @@ def parser() -> argparse.ArgumentParser:
     upkeep = commands.add_parser("maintenance").add_subparsers(
         dest="maintenance_command", required=True
     )
-    for name in ("dedupe", "rename-artifacts"):
+    for name in ("dedupe", "rename-artifacts", "reextract-conditions"):
         upkeep.add_parser(name).add_argument(
             "--apply", action="store_true", help="Apply changes; default is a dry run"
         )
+    vacancy = commands.add_parser("vacancy").add_subparsers(dest="vacancy_command", required=True)
+    adding = vacancy.add_parser("add", help="Add one vacancy from a public link or pasted text")
+    origin = adding.add_mutually_exclusive_group(required=True)
+    origin.add_argument("--url")
+    origin.add_argument("--text-file", type=Path)
+    adding.add_argument("--title")
+    adding.add_argument("--company", help="Company name when the text does not name it")
+    adding.add_argument("--company-id")
+    adding.add_argument("--location")
+    adding.add_argument("--posting-url", help="Original link for pasted text")
+    adding.add_argument("--market", choices=("ru", "intl", "unknown"))
+    adding.add_argument("--track", choices=TRACKS)
+    search = commands.add_parser(
+        "campaigns", help="Search campaigns in settings.json"
+    ).add_subparsers(dest="campaigns_command", required=True)
+    search.add_parser("list")
+    search.add_parser("set", help="Replace all campaigns from a JSON list").add_argument(
+        "source", type=Path
+    )
+    search.add_parser("match").add_argument("vacancy_id")
+    runs = commands.add_parser("collection").add_subparsers(
+        dest="collection_command", required=True
+    )
+    runs.add_parser("runs").add_argument("--limit", type=int, default=5)
     queue = commands.add_parser("inbox", help="Requests created in the dashboard").add_subparsers(
         dest="inbox_command", required=True
     )
@@ -412,7 +436,65 @@ def run(args) -> dict | list:
 
             if args.maintenance_command == "dedupe":
                 return maintenance.dedupe(store, apply=args.apply)
+            if args.maintenance_command == "reextract-conditions":
+                return maintenance.reextract_conditions(store, apply=args.apply)
             return maintenance.rename_artifacts(store, apply=args.apply)
+        if args.command == "vacancy":
+            from . import intake
+
+            store.db.execute("BEGIN IMMEDIATE")
+            try:
+                if args.url:
+                    result = intake.from_url(
+                        store,
+                        args.url,
+                        company_id=args.company_id,
+                        market=args.market,
+                        track=args.track,
+                    )
+                else:
+                    result = intake.from_text(
+                        store,
+                        args.text_file.read_text(encoding="utf-8"),
+                        title=args.title,
+                        company_name=args.company,
+                        company_id=args.company_id,
+                        url=args.posting_url,
+                        location=args.location,
+                        market=args.market,
+                        track=args.track,
+                    )
+                store.db.execute("COMMIT")
+            except Exception:
+                store.db.execute("ROLLBACK")
+                raise
+            return result
+        if args.command == "campaigns":
+            from . import campaigns
+
+            if args.campaigns_command == "list":
+                return campaigns.configured(store.settings)
+            if args.campaigns_command == "set":
+                values = campaigns.validate_all(read_json(args.source))
+                settings = store.settings
+                store.event(
+                    "campaigns_updated",
+                    [item["id"] for item in values],
+                    {"before": settings.get("campaigns"), "after": values},
+                )
+                atomic_write(
+                    store.home / "settings.json", encode({**settings, "campaigns": values})
+                )
+                return values
+            vacancy = store.get("vacancies", args.vacancy_id)
+            if not vacancy:
+                raise ValueError("Vacancy not found")
+            return campaigns.matches(
+                store.settings, vacancy, store.get("companies", vacancy.get("company_id")) or {}
+            )
+        if args.command == "collection":
+            runs = sorted(store.all("collection_runs"), key=lambda item: item["started_at"])
+            return runs[-max(1, args.limit) :]
         if args.command == "inbox":
             from . import inbox
 

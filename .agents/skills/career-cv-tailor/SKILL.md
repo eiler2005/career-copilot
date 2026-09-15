@@ -15,6 +15,10 @@ Use product or technical-leadership; domains are overlays. Environment flagship 
 
 Inputs are exact facts, track, optional vacancy/evaluation, overlays and source. Run prepare to obtain task schema-v2; author privately, then prepare --cv --coverage with actual author metadata and --contributors when multiple authors/editors contributed. Expect [] for CLI package output. Return package/version IDs and exact files/hashes with honest pending/passed state. Any artifact change needs a new version/review. Read ../../../docs/CV_PROFILES.md and ../../../docs/OPERATIONS.md.
 
+## Queued work from the dashboard
+
+Check `ajh --home PRIVATE_HOME tasks next` for `tailor_cv`, `fix_master_cv` and `extract_cv_facts` tasks. Start the activity from the returned template so `related.task_id` binds the task. A vacancy version never changes the master CV; the user's acceptance of an edit does not replace the content and visual reviews.
+
 ## Journal and execution
 
 Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.

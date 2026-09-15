@@ -52,6 +52,18 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 
 `maintenance` commands are dry runs until `--apply`. Take a `backup` first. `dedupe` moves older results into `superseded_records` (with `superseded_by`) and sets `current_assessments`/`current_learning` pointers; old links keep resolving. `rename-artifacts` applies the naming scheme described in the [data model](DATA_MODEL.md#artifact-file-names), moves files, rewrites references in records and `facts.json`, and records a manifest under `maintenance/`. Both are idempotent.
 
+## Adding vacancies, campaigns and collection runs
+
+| Command | Effect |
+| --- | --- |
+| `vacancy add --url URL [--company-id ID] [--market M] [--track T]` | Reads one public page (hh.ru links through the public HH API, JSON-LD JobPosting, otherwise the visible page text with `--company-id`), stores the original and merges the vacancy; reports `new`, `changed` or `unchanged`, possible duplicates and extracted conditions |
+| `vacancy add --text-file PATH [--title] [--company] [--location] [--posting-url]` | Adds pasted text; header lines `Title:`, `Company:`, `Location:`, `Salary:`, `URL:` are recognised |
+| `campaigns list` / `campaigns set PATH` / `campaigns match VACANCY_ID` | Show valid campaigns, replace them from a JSON list (validated, with an event holding before/after), or compare one vacancy |
+| `collection runs [--limit N]` | Latest collection summaries |
+| `maintenance reextract-conditions [--apply]` | Derives `conditions` for existing vacancies from retained postings, vacancy text or explicit research lines; dry run by default |
+
+A blocked or login-only page is refused with a message to paste the text instead; no access restriction is bypassed. `discover` now also writes a `collection_runs` record, and a misconfigured source (URL outside its host allowlist, proxy without permission) is recorded as `config_error` for that source while the others still run.
+
 ## Dashboard requests and agent tasks
 
 | Command | Effect |

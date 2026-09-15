@@ -514,3 +514,88 @@ def _apply_evaluate(store: Store, request: dict) -> dict:
 
 
 request_type("evaluate")((_validate_evaluate, _apply_evaluate))
+
+
+# --------------------------------------------------------------------------- stage 1 request types
+
+
+def _validate_vacancy_add(payload: dict) -> dict:
+    url = _text(payload.get("url"), "url", 2000, required=False)
+    text = _text(payload.get("text"), "text", 100_000, required=False)
+    if bool(url) == bool(text):
+        raise ValueError("Give either a link or the vacancy text")
+    if url and not re.match(r"^https?://", url):
+        raise ValueError("url must start with http:// or https://")
+    market = payload.get("market") or None
+    if market not in (None, "ru", "intl", "unknown"):
+        raise ValueError("market must be ru, intl or unknown")
+    return {
+        "url": url,
+        "text": text,
+        "title": _text(payload.get("title"), "title", 200, required=False),
+        "company_name": _text(payload.get("company_name"), "company_name", 200, required=False),
+        "company_id": safe_id(str(payload["company_id"])) if payload.get("company_id") else None,
+        "location": _text(payload.get("location"), "location", 200, required=False),
+        "posting_url": _text(payload.get("posting_url"), "posting_url", 2000, required=False),
+        "market": market,
+        "track": _choice(payload["track"], "track", TRACKS) if payload.get("track") else None,
+    }
+
+
+def _apply_vacancy_add(store: Store, request: dict) -> dict:
+    from . import intake
+
+    payload = request["payload"]
+    if payload["url"]:
+        return intake.from_url(
+            store,
+            payload["url"],
+            company_id=payload["company_id"],
+            market=payload["market"],
+            track=payload["track"],
+        )
+    return intake.from_text(
+        store,
+        payload["text"],
+        title=payload["title"],
+        company_name=payload["company_name"],
+        company_id=payload["company_id"],
+        url=payload["posting_url"],
+        location=payload["location"],
+        market=payload["market"],
+        track=payload["track"],
+    )
+
+
+request_type("vacancy_add")((_validate_vacancy_add, _apply_vacancy_add))
+
+
+def _validate_campaign(payload: dict) -> dict:
+    from . import campaigns
+
+    expected = payload.get("expected_version")
+    if expected is not None and not re.fullmatch(r"[0-9a-f]{16}", str(expected)):
+        raise ValueError("expected_version must be a 16-character hex digest")
+    return {"campaign": campaigns.validate(payload.get("campaign")), "expected_version": expected}
+
+
+def _apply_campaign(store: Store, request: dict) -> dict:
+    from . import campaigns
+    from .core import digest
+
+    payload = request["payload"]
+    settings = store.settings
+    updated, previous = campaigns.upsert(settings, payload["campaign"])
+    current = digest(previous)[:16] if previous else None
+    if current != payload["expected_version"]:
+        raise VersionConflict("The campaign changed after the request was made")
+    store.event(
+        "campaigns_updated",
+        [payload["campaign"]["id"]],
+        {"before": previous, "after": payload["campaign"], "request_id": request["id"]},
+    )
+    atomic_write(store.home / "settings.json", encode(updated))
+    return {"campaign_id": payload["campaign"]["id"], "created": previous is None}
+
+
+request_type("campaign_upsert")((_validate_campaign, _apply_campaign))

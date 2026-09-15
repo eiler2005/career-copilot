@@ -2,7 +2,19 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
-## Unreleased — Requests, agent tasks and accurate pipeline stages
+## 2026-09-15 — Collection, clear conditions and vacancy tabs
+
+### Added
+- **Vacancy conditions.** Adapters and added vacancies store `conditions`: the original salary range with currency, period and tax basis (never an invented monthly figure), a provider conversion kept separately, work format, employment, required languages, allowed work geography (remote without a country list stays unknown) and publication dates, each with its source. `ajh maintenance reextract-conditions` derives them for existing vacancies.
+- **Search campaigns** in `settings.json` (market, track, roles, levels, countries, format, language, employment, salary, exclusions) with per-criterion `match`/`mismatch`/`unknown` and a basis; preferences only. `ajh campaigns list|set|match`; dashboard editor through `campaign_upsert` requests with a version check.
+- **Collection runs.** `discover` records new and changed vacancies, possible duplicates across sources and source errors with the last success (`ajh collection runs`). A misconfigured source becomes `config_error` without stopping the others.
+- **Add a vacancy** by public link (hh.ru API, JSON-LD, page text) or pasted text: `ajh vacancy add` or the dashboard form. The original is kept; unknown companies are created for review.
+- **Dashboard.** Vacancy cards in the order title and pay → company and place → conditions → fit and campaigns → next step → dates and source → actions; a market switcher; vacancy tabs Vacancy · Fit · Company · CV · Preparation; personal decision, coding flag, assessment, CV tailoring and vacancy brief requests; a Sources section with collection, campaigns and the request and task queue.
+
+### Changed
+- A shorter excerpt never replaces a more complete retained text, an unknown availability from a later listing never overwrites a recorded one, and only an employer's own board listing sets the verification date during collection.
+
+## 2026-09-15 — Requests, agent tasks and accurate pipeline stages
 
 ### Added
 - **Request queue.** The dashboard stores validated requests (`POST /api/requests`) in its state directory instead of editing the journal. `ajh inbox import|list|apply|reject` brings them into `inbox_requests` and applies them oldest first with a record-version check, so a record changed in between becomes a visible `conflict` rather than a lost update.

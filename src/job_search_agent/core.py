@@ -16,6 +16,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from .naming import day, readable_name, shorten_component
 
 TRACKS = ("product", "technical-leadership")
+# Completeness of retained vacancy text, highest first.
+CONTENT_RANK = {"full": 3, "page_text": 2, "excerpt": 1, "salary_index_card": 0, "card": 0}
 FLAGSHIPS = {"openai": "gpt-6-astra", "claude": "claude-opus-5"}
 
 
@@ -317,6 +319,14 @@ class Store:
     def observe_vacancy(
         self, value: dict, source_id: str, snapshot: str, *, replay: bool = False
     ) -> str:
+        return self.observe_vacancy_detailed(value, source_id, snapshot, replay=replay)["id"]
+
+    def observe_vacancy_detailed(
+        self, value: dict, source_id: str, snapshot: str, *, replay: bool = False
+    ) -> dict:
+        """Merge one observation; returns {id, status: new|changed|unchanged, fields}."""
+        from . import vacancy_fields
+
         urls = [canonical_url(u) for u in value.get("urls", [])]
         candidates = [
             v
@@ -345,7 +355,7 @@ class Store:
         }
         self.put("observations", observation, immutable=True)
         if replay and old:
-            return key
+            return {"id": key, "status": "unchanged", "fields": []}
         merged = {
             **(old or {}),
             **value,
@@ -358,12 +368,32 @@ class Store:
             for field in ("decision", "assessments", "review_status", "requirements", "level"):
                 if field in old:
                     merged[field] = old[field]
-            if not value.get("text") and old.get("text"):
+            old_rank = CONTENT_RANK.get(old.get("content_scope") or "full", 3)
+            new_rank = CONTENT_RANK.get(value.get("content_scope") or "full", 3)
+            if old.get("text") and (not value.get("text") or new_rank < old_rank):
+                # A shorter listing excerpt never replaces a more complete retained text.
                 merged["text"] = old["text"]
                 merged["content_scope"] = old.get("content_scope", "full")
+            if old.get("conditions") or value.get("conditions"):
+                merged["conditions"] = vacancy_fields.merge(
+                    old.get("conditions"), value.get("conditions")
+                )
+            if value.get("availability", "unknown") == "unknown" and old.get("availability"):
+                merged["availability"] = old["availability"]
+            for field in ("status_checked_on", "availability_check", "availability_history"):
+                if field in old and field not in value:
+                    merged[field] = old[field]
         merged["source_observation"] = observation["id"]
+        ignored = {"last_seen", "source_observation", "status_checked_on", "availability_basis"}
+        fields = sorted(
+            name
+            for name in set(merged) | set(old or {})
+            if name not in ignored and (old or {}).get(name) != merged.get(name)
+        )
         self.put("vacancies", merged)
-        return key
+        if not old:
+            return {"id": key, "status": "new", "fields": []}
+        return {"id": key, "status": "changed" if fields else "unchanged", "fields": fields}
 
 
 def import_legacy(store: Store, registry: Path, *, dry_run: bool = False) -> dict:

@@ -869,3 +869,64 @@ def test_description_excerpts_are_short_and_end_cleanly():
     assert plain("**Bold** [link](https://x.test) `code` - item") == "Bold link code - item"
     meta, body = parse_posting("Title: A\nSalary: \n\nBody text")
     assert meta == {"title": "A", "salary": ""} and body == "Body text"
+
+
+def test_vacancies_carry_dates_campaign_matches_and_collection_runs(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    (home / "settings.json").write_text(
+        json.dumps(
+            {
+                "campaigns": [
+                    {
+                        "id": "intl",
+                        "name": "Synthetic intl",
+                        "market": "intl",
+                        "track": "product",
+                        "work_modes": ["remote"],
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with sqlite3.connect(home / "journal.sqlite") as connection:
+        connection.execute(
+            "UPDATE records SET payload=? WHERE kind='vacancies' AND id='role-1'",
+            (
+                json.dumps(
+                    {
+                        "id": "role-1",
+                        "title": "Example role",
+                        "market": "intl",
+                        "first_seen": "2026-09-01T00:00:00+00:00",
+                        "conditions": {
+                            "published_on": "2026-08-30",
+                            "work_mode": {"value": "remote", "source": "synthetic"},
+                        },
+                    }
+                ),
+            ),
+        )
+    add_record(
+        home,
+        "collection_runs",
+        {"id": "run-1", "started_at": "2026-09-02T00:00:00+00:00", "new": ["role-1"]},
+    )
+    with running_server(home, tmp_path) as base:
+        payload = json.loads(request(base + "/api/workspace")[2])
+        vacancy = next(item for item in payload["vacancies"] if item["id"] == "role-1")
+        detail = json.loads(request(base + "/api/records/vacancies/role-1")[2])
+    assert vacancy["display"]["dates"]["published_on"] == "2026-08-30"
+    assert vacancy["display"]["dates"]["discovered_at"].startswith("2026-09-01")
+    [match] = vacancy["display"]["campaigns"]
+    assert match["campaign_id"] == "intl"
+    assert {item["name"]: item["status"] for item in match["criteria"]}["work_modes"] == "match"
+    assert detail["display"]["campaigns"] == vacancy["display"]["campaigns"]
+    # An invalid campaign list is not partially applied.
+    assert payload["campaigns"] == [] or all(
+        item["id"] != "broken" for item in payload["campaigns"]
+    )
+    assert [item["id"] for item in payload["sources"] if item["kind"] == "collection_runs"] == [
+        "run-1"
+    ]
+    assert len(vacancy["version"]) == 16

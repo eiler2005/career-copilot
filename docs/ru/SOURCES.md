@@ -109,6 +109,14 @@ uv run ajh --home /tmp/job-search-demo-EXAMPLE discover --source SOURCE_ID --rep
 результат остаётся доступен при последующей ошибке, но должен читаться вместе
 с датой успеха и текущим состоянием источника.
 
+## Итог сбора, условия и добавление вакансии
+
+Каждый запуск `discover` пишет запись `collection_runs`: новые вакансии, изменившиеся вакансии с изменёнными полями, число без изменений, возможные дубли между источниками (одинаковое нормализованное название с той же компанией или с тем же конкретным местом; автоматически не сливаются) и ошибки по источникам с последним успехом. Источник с некорректной настройкой — адрес вне allowlist или прокси без `proxy_allowed` — получает `config_error` с причиной и не отправляет запрос; остальные источники продолжают работу.
+
+Адаптеры извлекают [условия](DATA_MODEL.md#условия-и-даты-вакансии) из структурированных полей: HH `salary`/`work_format`/`schedule`/`employment`/`languages`/`published_at`, Lever `commitment`/`workplaceType`/`salaryRange`/`createdAt`, Ashby `employmentType`/`workplaceType`/`isRemote`/`compensation`/`publishedAt`, Greenhouse `first_published`/`updated_at`, JSON-LD `baseSalary`/`employmentType`/`jobLocationType`/`applicantLocationRequirements`/`datePosted`/`validThrough`, LinkedIn Salaries `salaryCite`, `jobMode`, `jobTime`, `dayKey`, а `salaryUsdMo` сохраняется как пересчёт поставщика. Строки о зарплате, явные ограничения стран для удалённой работы и языковые требования в тексте заполняют только то, что структурированные поля оставили неизвестным.
+
+Отдельную вакансию можно добавить вне реестра через `ajh vacancy add --url` или `--text-file` (или форму в интерфейсе). Ссылка должна вести на публичные адреса; заблокированная страница не запрашивается другим маршрутом.
+
 ## Прокси
 
 Прокси допустим только для разрешённого технического маршрута конкретного

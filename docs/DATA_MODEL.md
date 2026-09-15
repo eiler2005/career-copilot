@@ -46,6 +46,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | Plan → actual practice → feedback → explicit progress decision |
 | `employer_responses` | Evidence-backed received replies linked to a registered submission |
 | `submissions` | User-confirmed external action tied to exact package/version |
+| `collection_runs` | One discovery run: `new` vacancy IDs, `changed` IDs with field names, `unchanged` count, `possible_duplicates` (never merged automatically) and source `errors` with status, HTTP code, reason and last success |
 | `inbox_requests` | A dashboard request (`type`, `base{kind,id,version}`, `payload`) with `status` `pending`, `applied`, `queued_for_agent`, `conflict`, `failed` or `rejected`, its `result` or `error` |
 | `tasks` | Work for an agent session: `type`, `skill`, `status` `queued`, `running`, `blocked`, `failed` or `done`, `related` IDs, `request_id`, `activity_id`, `result_refs` |
 
@@ -53,7 +54,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 
 A record version is the first 16 hex characters of the SHA-256 of its canonical JSON payload (`Store.version`). `Store.patch(kind, id, changes, expected_version, reason)` changes top-level fields in one `BEGIN IMMEDIATE` transaction: if the stored version differs from `expected_version`, nothing is written (`VersionConflict`); otherwise the record is updated and a `record_updated` event stores the changed fields before and after, both versions and the reason. A field set to `null` is removed; `id` never changes.
 
-The dashboard never writes the journal. It stores requests as `requests/<id>.json` in its state directory. `ajh inbox import` copies them into `inbox_requests`, and `ajh inbox apply` runs each one in its own transaction: a request that changes a record carries the version the user saw, so a record changed in between becomes `conflict` instead of a lost update. Deterministic request types (for example `vacancy_decision`, `clarification_answer`, `coding_requirement`, `evaluate`) are applied by controlled operations. Requests that need authored or researched work create `tasks`; an agent session picks one up with `ajh tasks next`, starts an activity with `related.task_id`, and the task mirrors the real activity outcome (`running` → `done`, `blocked` or `failed`). A task is never marked done without a finished activity.
+The dashboard never writes the journal. It stores requests as `requests/<id>.json` in its state directory. `ajh inbox import` copies them into `inbox_requests`, and `ajh inbox apply` runs each one in its own transaction: a request that changes a record carries the version the user saw, so a record changed in between becomes `conflict` instead of a lost update. Deterministic request types are applied by controlled operations: `vacancy_decision` (personal `interested`/`not_interested` with reason, or `cleared`; evidence is untouched), `clarification_answer`, `coding_requirement` (`required`/`not_required`/`unknown` with basis and source), `evaluate`, `vacancy_add` (link or text) and `campaign_upsert` (checked against the version of the stored campaign; `null` for a new one). Requests that need authored or researched work create `tasks`; an agent session picks one up with `ajh tasks next`, starts an activity with `related.task_id`, and the task mirrors the real activity outcome (`running` → `done`, `blocked` or `failed`). A task is never marked done without a finished activity.
 
 ## Candidate facts
 
@@ -90,6 +91,27 @@ Create the actual `evidence-note.md` next to this JSON before importing. A non-U
 Company research should maintain `about`, `business_areas`, products, markets, customer segments and source-linked hiring information. A size object includes `metric`, `value`, `as_of`, `scope`, `source_url` and confidence/reliability. Do not replace missing headcount with an unsourced guess.
 
 Vacancies need `id`, `company_id`, `title`, canonical `urls` and the relevant target track(s). Keep `role_family`, `role_type`, `level.raw`, `level.source`, `market`, `availability` and `status_checked_on` independent. Source-derived cards initially need human/agent annotation; discovery does not infer a reliable role-family or level mapping.
+
+### Vacancy conditions and dates
+
+`conditions` (method `conditions-v1`) keeps what a source states, each value with its `source`:
+
+| Field | Content |
+| --- | --- |
+| `salary` | `min`, `max`, `currency`, `period` (`month`, `year`, `hour`, `unknown`), `gross_net` (`gross`, `net`, `unknown`), `raw` wording and `source`; `null` when not stated. A single amount appears only when the source gives one; no monthly figure is derived |
+| `provider_conversion` | A provider's recalculation (for example the LinkedIn Salaries monthly USD estimate), kept apart from the employer's range |
+| `work_mode`, `employment`, `language` | `{value, source, raw?}`; `value` is `remote`/`hybrid`/`office`, `full_time`/`part_time`/`contract`/`internship`/`temporary`, a list of ISO language codes, or `unknown` |
+| `posting_language` | Language of the retained text (`ru`, `en`, `unknown`), not a requirement |
+| `allowed_geography` | `status` `listed` (explicit countries), `office_location` or `unknown`, with `countries`, `basis` and `source`. Remote without a country list stays `unknown` |
+| `published_on`, `updated_on`, `valid_through` | Dates published by the source |
+
+Discovery (`first_seen`), last listing (`last_seen`) and verification (`status_checked_on`, availability checks) stay separate from publication. Only an employer's own board listing (Greenhouse, Lever, Ashby, HH) sets `status_checked_on` during collection; aggregator cards, corporate pages and replays do not. A merge keeps known condition values when a later source is silent, never replaces a more complete text (`full` > `page_text` > `excerpt` > card) and does not turn a recorded availability into `unknown`.
+
+`ajh vacancy add` stores the original response or pasted text under `snapshots/intake/` and merges it as an observation from source `intake`. A company that cannot be matched by name or alias is created with `needs_review: true`.
+
+### Search campaigns
+
+`settings.json → campaigns[]` describes what the user is looking for: `id`, `name`, `market` (`ru`, `intl`, `any`), `track`, `role_titles`, `levels`, `work_countries`, `work_modes`, `languages`, `employment`, `salary {min, currency, period, gross_net}`, `exclusions`, `source_ids`, `active`. Matching a vacancy against a campaign yields `match`, `mismatch` or `unknown` per criterion with a basis and an overall status (any mismatch → `mismatch`, any unknown → `unknown`). Salaries in another currency or period are `unknown`; no conversion is assumed. Campaigns are preferences only and never change a qualification assessment; one vacancy stays one record when several campaigns fit it. An invalid campaign list is ignored as a whole and reported.
 
 The dashboard preserves these fields under each API record's `payload`. Its separate `display.location` contains `raw`, `country`, `city` and `remote` for presentation and filtering. Explicit country/city fields and supported unambiguous geographic formats inform that projection; unsupported places remain unknown. This does not migrate records, overwrite the source location or treat remote work as permission to work from any country. See [dashboard](DASHBOARD.md) for the read-only API and deployment contract.
 

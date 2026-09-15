@@ -15,6 +15,10 @@ Map requirement to evidence to gap, prioritize by interview date and available h
 
 Inputs are track, date/format, requirements, candidate evidence, gaps, company context and time budget. Expect interview_plan for a plan, or the appropriate interview_practice/interview_feedback/interview_progress types for actual practice. Preserve attempts and link feedback to the exact evidence; progress requires a reviewer session and demonstrated/needs_practice/blocked decision. Return the next concrete exercise. Read ../../../docs/PREPARATION.md.
 
+## Queued work from the dashboard
+
+Check `ajh --home PRIVATE_HOME tasks next` for `prepare_vacancy_brief`, `track_plan_materials` and `review_practice` tasks. Start the activity from the returned template so `related.task_id` binds the task. Mark each claim as confirmed, participant report or assumption with sources and dates; a coding requirement needs a basis and never follows from the job title alone.
+
 ## Journal and execution
 
 Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.

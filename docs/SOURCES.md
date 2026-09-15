@@ -88,6 +88,12 @@ Replay does not make a network request, refresh live source health or establish 
 
 Source failures often appear as entries in a JSON list with process exit code zero. Check each result's `status`, not only the exit code. The journal retains last attempt, last success, count, HTTP status and next permitted attempt. An error does not erase successful observations or prove a vacancy closed.
 
+Each `discover` run also writes a `collection_runs` record: new vacancies, changed vacancies with the changed fields, the unchanged count, possible duplicates across sources (same normalised title with the same company, or with the same concrete location; never merged automatically) and per-source errors with the last success. A source whose configuration is invalid — a URL outside its host allowlist or a proxy without `proxy_allowed` — is marked `config_error` with the reason and sends no request; other sources continue.
+
+Adapters extract [conditions](DATA_MODEL.md#vacancy-conditions-and-dates) from structured fields: HH `salary`/`work_format`/`schedule`/`employment`/`languages`/`published_at`, Lever `commitment`/`workplaceType`/`salaryRange`/`createdAt`, Ashby `employmentType`/`workplaceType`/`isRemote`/`compensation`/`publishedAt`, Greenhouse `first_published`/`updated_at`, JSON-LD `baseSalary`/`employmentType`/`jobLocationType`/`applicantLocationRequirements`/`datePosted`/`validThrough`, and LinkedIn Salaries `salaryCite`, `jobMode`, `jobTime`, `dayKey` with `salaryUsdMo` kept as a provider conversion. Salary lines, explicit remote country limits and language requirements in the text fill only what structured fields leave unknown.
+
+A single vacancy can be added outside the registry with `ajh vacancy add --url` or `--text-file` (or the dashboard form). The link must resolve to public addresses; a blocked page is not retried through another route.
+
 Availability states such as `open`, `archived`, `expired_copy` and `unknown` describe evidence about the posting. A fresh successful official list can support `open`; missing data, blocked access or stale copies do not support a confident live-status claim.
 
 ## Limits and access policy

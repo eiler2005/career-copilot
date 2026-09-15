@@ -122,6 +122,29 @@ uv run ajh --home /absolute/private/career-workspace discover --source linkedins
 
 Необязательный `include_title` фильтрует локально после сохранения снимка. Он не меняет запрос набора, не определяет карьерный трек и не подтверждает уровень. Оплата сохраняет `salaryCite` и `salaryUsdMo` источника с надёжностью `aggregated`; отсутствующее число остаётся null. Новая вакансия сохраняет `availability: unknown` до отдельной проверки официального работодателя/ATS. Подробнее — [охват и смысл полей](SOURCES.md#linkedin-salaries-зарплатный-контекст-для-новых-вакансий).
 
+## Кампании поиска
+
+`campaigns` — необязательный список в `settings.json`. Поля и правила сравнения описаны в [модели данных](DATA_MODEL.md#кампании-поиска). Меняйте его через `ajh campaigns set PATH` или заявку `campaign_upsert` из интерфейса; оба пути проверяют весь список. Пример с вымышленными значениями:
+
+```json
+[
+  {
+    "id": "intl-platform",
+    "name": "International platform product",
+    "market": "intl",
+    "track": "product",
+    "role_titles": ["Product Lead", "Head of Product"],
+    "work_countries": ["Canada"],
+    "work_modes": ["remote", "hybrid"],
+    "languages": ["en"],
+    "salary": {"min": 150000, "currency": "USD", "period": "year", "gross_net": "gross"},
+    "exclusions": ["gambling"]
+  }
+]
+```
+
+Роли, уровни и исключения сравниваются по целым словам. Кампания не расширяет разрешённую кандидату географию работы и не меняет оценку.
+
 ## Факты и изменение политики
 
 Версионируйте доказательства через `facts import PATH`; `facts.json` не является шаблоном CV. Нужны уникальные ID, источники и классификация `verified`, `self_reported` или `conflicting`. Профили содержат ровно `product` и `technical-leadership`.

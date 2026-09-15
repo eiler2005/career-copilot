@@ -86,3 +86,19 @@ def test_pipeline_stages_count_only_confirmed_employer_events():
         in body
     )
     assert '["interview", "offer"].includes(item.payload.status)' in body
+
+
+def test_vacancy_detail_uses_accessible_tabs_and_requests_never_claim_completion():
+    script = app_js()
+    for name in (
+        '"vacancy", "fit", "company", "resume", "prep"',
+        'setAttribute("role", "tablist")',
+        'setAttribute("aria-selected"',
+        '"ArrowRight"',
+    ):
+        assert name in script
+    assert '"X-Career-Copilot": "request"' in script
+    # A saved request is described as waiting for sync, not as done.
+    assert "awaitingImport" in script and "requestQueued" in script
+    styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
+    assert ".vc-salary{" in styles and ".tabs{" in styles

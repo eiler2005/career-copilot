@@ -210,6 +210,37 @@ def classify(original: str, status: int, final: str, markup: str) -> dict:
     return {"status": "unknown", "confidence": "low", "reason": "no_signal", "evidence": None}
 
 
+def fetch_page(
+    url: str, client: httpx.Client, accept: str = "text/html,application/json;q=0.9"
+) -> tuple[int, str, str]:
+    """GET a public URL with bounded redirects and size; returns (status, final URL, body).
+
+    Raises ValueError("not_public_url" | "network_error" | "too_many_redirects").
+    """
+    current = public_url(url)
+    for _ in range(MAX_REDIRECTS + 1):
+        with client.stream(
+            "GET",
+            current,
+            headers={
+                "User-Agent": USER_AGENT,
+                "Accept": accept,
+                "Accept-Language": "en-US,en;q=0.9,ru;q=0.7",
+            },
+        ) as response:
+            if response.is_redirect and response.headers.get("location"):
+                current = public_url(urljoin(current, response.headers["location"]))
+                continue
+            body = bytearray()
+            for chunk in response.iter_bytes():
+                body += chunk
+                if len(body) > MAX_BYTES:
+                    break
+            markup = body.decode(response.encoding or "utf-8", errors="replace")
+            return response.status_code, str(response.url), markup
+    raise ValueError("too_many_redirects")
+
+
 def check_url(url: str | None, client: httpx.Client | None = None) -> dict:
     """Fetch one posting URL and classify it; never raises for remote failures."""
     started = now()
@@ -231,39 +262,14 @@ def check_url(url: str | None, client: httpx.Client | None = None) -> dict:
     own = client is None
     client = client or httpx.Client(timeout=20, follow_redirects=False, trust_env=False)
     try:
-        current = public_url(url)
-        for _ in range(MAX_REDIRECTS + 1):
-            with client.stream(
-                "GET",
-                current,
-                headers={"User-Agent": USER_AGENT, "Accept-Language": "en-US,en;q=0.9,ru;q=0.7"},
-            ) as response:
-                if response.is_redirect and response.headers.get("location"):
-                    current = public_url(urljoin(current, response.headers["location"]))
-                    continue
-                body = bytearray()
-                for chunk in response.iter_bytes():
-                    body += chunk
-                    if len(body) > MAX_BYTES:
-                        break
-                markup = body.decode(response.encoding or "utf-8", errors="replace")
-                verdict = classify(url, response.status_code, str(response.url), markup)
-                return {
-                    **base,
-                    **verdict,
-                    "http_status": response.status_code,
-                    "final_url": str(response.url),
-                }
-        return {
-            **base,
-            "status": "unknown",
-            "confidence": "low",
-            "reason": "too_many_redirects",
-            "evidence": None,
-        }
+        status, final, markup = fetch_page(url, client)
+        verdict = classify(url, status, final, markup)
+        return {**base, **verdict, "http_status": status, "final_url": final}
     except ValueError as error:
         reason = (
-            str(error) if str(error) in {"not_public_url", "network_error"} else "network_error"
+            str(error)
+            if str(error) in {"not_public_url", "network_error", "too_many_redirects"}
+            else "network_error"
         )
         return {
             **base,

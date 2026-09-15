@@ -17,6 +17,7 @@ from urllib.parse import quote, urlsplit
 
 import httpx
 
+from . import vacancy_fields
 from .core import Store, canonical_url, digest, now, safe_id
 
 
@@ -105,8 +106,9 @@ def linkedinsalaries_jobs(data: dict, source: dict) -> list[dict]:
                 "text": "",
                 "requirements": [],
                 "availability": "unknown",
-                "status_checked_on": now(),
+                # An aggregated index card does not verify that the posting is still open.
                 "content_scope": "salary_index_card",
+                "conditions": vacancy_fields.from_aggregate(item),
                 "compensation": {
                     "source": "linkedinsalaries.com",
                     "raw": item.get("salaryCite"),
@@ -176,6 +178,10 @@ def parse_jobs(provider: str, body: str, source: dict) -> list[dict]:
         if provider == "manual":
             value = dict(item)
             value.setdefault("availability", "unknown")
+            if "conditions" not in value:
+                value["conditions"] = vacancy_fields.from_posting(
+                    value.get("text", ""), None, str(value.get("location", "")), "manual"
+                )
         else:
             external = str(
                 item.get("id")
@@ -221,6 +227,7 @@ def parse_jobs(provider: str, body: str, source: dict) -> list[dict]:
             valid = item.get("validThrough")
             if valid and str(valid)[:10] < now()[:10]:
                 availability = "expired_copy"
+            text = plain(content)
             value = {
                 "id": f"{provider}-{safe_id(source['company_id'])}-{safe_id(external)}",
                 "company_id": source["company_id"],
@@ -230,14 +237,18 @@ def parse_jobs(provider: str, body: str, source: dict) -> list[dict]:
                 "location": str(location),
                 "market": source.get("market", "unknown"),
                 "urls": [canonical_url(url)],
-                "text": plain(content),
+                "text": text,
                 "requirements": [],
                 "availability": availability,
-                "status_checked_on": now(),
                 "content_scope": "excerpt"
                 if not item.get("description") and provider == "hh"
                 else "full",
+                "conditions": vacancy_fields.from_provider(provider, item, text, str(location)),
             }
+            if provider in {"greenhouse", "lever", "ashby", "hh"}:
+                # Being listed on the employer's own board is a dated availability signal.
+                value["status_checked_on"] = now()
+                value["availability_basis"] = f"{provider} board listing"
         result.append(value)
     return result
 
@@ -300,6 +311,8 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
     if source_id and not sources:
         raise ValueError("Unknown or disabled source")
     results = []
+    run = {"new": [], "changed": [], "unchanged": 0, "errors": []}
+    started = now()
     remaining = int(settings.get("max_requests_per_run", 20))
     for source in sources:
         sid = safe_id(source["id"])
@@ -343,15 +356,23 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                 if remaining <= 0:
                     status = "partial" if health["count"] else "budget_exhausted"
                     break
-                url = endpoint(source, page)
-                allowed = set(source.get("allowed_hosts", [])) | {
-                    urlsplit(endpoint(source)).hostname
-                }
-                checked_url(url, allowed)
-                if source.get("proxy_env") and not source.get("proxy_allowed", False):
-                    raise ValueError("Proxy requires explicit per-source permission")
-                if source.get("proxy_env") and "linkedin" in urlsplit(url).hostname:
-                    raise ValueError("LinkedIn proxy route is forbidden")
+                try:
+                    url = endpoint(source, page)
+                    allowed = set(source.get("allowed_hosts", [])) | {
+                        urlsplit(endpoint(source)).hostname
+                    }
+                    checked_url(url, allowed)
+                    if source.get("proxy_env") and not source.get("proxy_allowed", False):
+                        raise ValueError("Proxy requires explicit per-source permission")
+                    if source.get("proxy_env") and "linkedin" in urlsplit(url).hostname:
+                        raise ValueError("LinkedIn proxy route is forbidden")
+                except (ValueError, KeyError) as error:
+                    # A configuration problem is recorded for this source; others still run.
+                    status = "config_error"
+                    health["config_error"] = (
+                        str(error) if isinstance(error, ValueError) else f"missing {error}"
+                    )
+                    break
                 proxy = os.environ.get(source.get("proxy_env", ""))
                 own_client = client is None
                 transport = client or httpx.Client(
@@ -460,7 +481,15 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                         value.update(
                             availability="unknown", status_checked_on=None, historical_snapshot=True
                         )
-                    store.observe_vacancy(value, sid, snapshot, replay=bool(replay))
+                    observed = store.observe_vacancy_detailed(
+                        value, sid, snapshot, replay=bool(replay)
+                    )
+                    if observed["status"] == "new":
+                        run["new"].append(observed["id"])
+                    elif observed["status"] == "changed":
+                        run["changed"].append({"id": observed["id"], "fields": observed["fields"]})
+                    else:
+                        run["unchanged"] += 1
                 health["count"] += len(selected_jobs)
                 status = "success_nonempty" if health["count"] else "success_empty"
             except (ValueError, KeyError, TypeError, AttributeError):
@@ -474,6 +503,18 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
         if health["count"] and not status.startswith("success"):
             health["failure_status"], status = status, "partial"
         health["status"] = status
+        if status != "config_error":
+            health.pop("config_error", None)
+        if not status.startswith("success"):
+            run["errors"].append(
+                {
+                    "source_id": sid,
+                    "status": health.get("failure_status", status),
+                    "http_status": health.get("http_status"),
+                    "reason": health.get("config_error"),
+                    "last_success": health.get("last_success"),
+                }
+            )
         if status.startswith("success"):
             health.update(last_success=now(), rate_limit_attempts=0)
         if status != "rate_limited" and health.get("failure_status") != "rate_limited":
@@ -493,4 +534,68 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
             store.put("source_health", health)
             store.event("source_checked", [sid], {"health": health})
         results.append(health)
+    if not replay and sources:
+        record_run(store, run, started, [safe_id(source["id"]) for source in sources])
     return results
+
+
+def _identity(text: object) -> str:
+    value = unicodedata.normalize("NFKC", str(text or "")).casefold()
+    value = re.sub(r"\((?:m|f|w|d|x)(?:/(?:m|f|w|d|x))*\)", " ", value)
+    return re.sub(r"[^\w]+", " ", value).strip()
+
+
+def possible_duplicates(store: Store, vacancy_ids: list[str]) -> list[dict]:
+    """Different records that look like the same role; never merged automatically."""
+    vacancies = store.all("vacancies")
+    companies = {item["id"]: _identity(item.get("name")) for item in store.all("companies")}
+    found, seen = [], set()
+    for key in vacancy_ids:
+        vacancy = next((item for item in vacancies if item["id"] == key), None)
+        if not vacancy:
+            continue
+        title = _identity(vacancy.get("title"))
+        company = companies.get(vacancy.get("company_id")) or _identity(vacancy.get("company_id"))
+        place = _identity(vacancy.get("location"))
+        for other in vacancies:
+            if other["id"] == key or not title or _identity(other.get("title")) != title:
+                continue
+            other_company = companies.get(other.get("company_id")) or _identity(
+                other.get("company_id")
+            )
+            reason = (
+                "same_title_and_company"
+                if company and company == other_company
+                else "same_title_and_location"
+                if place
+                and place not in {"unknown", "remote"}
+                and place == _identity(other.get("location"))
+                else None
+            )
+            pair = tuple(sorted((key, other["id"])))
+            if reason and pair not in seen:
+                seen.add(pair)
+                found.append({"vacancy_id": key, "other_id": other["id"], "reason": reason})
+    return found
+
+
+def record_run(store: Store, run: dict, started: str, source_ids: list[str]) -> dict:
+    touched = run["new"] + [item["id"] for item in run["changed"]]
+    value = {
+        "id": "run-" + digest([started, source_ids, run])[:20],
+        "started_at": started,
+        "finished_at": now(),
+        "source_ids": source_ids,
+        "new": run["new"],
+        "changed": run["changed"],
+        "unchanged": run["unchanged"],
+        "possible_duplicates": possible_duplicates(store, touched),
+        "errors": run["errors"],
+    }
+    store.put("collection_runs", value, immutable=True)
+    store.event(
+        "collection_finished",
+        source_ids,
+        {key: len(value[key]) for key in ("new", "changed", "possible_duplicates", "errors")},
+    )
+    return value

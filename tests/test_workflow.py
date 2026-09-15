@@ -447,8 +447,16 @@ def test_proxy_without_permission_rejected(store):
     settings = store.settings
     settings["sources"][0]["proxy_env"] = "SYNTHETIC_PROXY"
     atomic_write(store.home / "settings.json", encode(settings))
-    with pytest.raises(ValueError):
-        sources.discover(store)
+
+    def forbidden(_request):
+        raise AssertionError("no request may be sent for a misconfigured source")
+
+    client = httpx.Client(transport=httpx.MockTransport(forbidden))
+    [health] = sources.discover(store, client=client)
+    assert health["status"] == "config_error"
+    assert "permission" in health["config_error"]
+    [run] = store.all("collection_runs")
+    assert run["errors"][0]["status"] == "config_error"
 
 
 def test_only_safe_urls():
