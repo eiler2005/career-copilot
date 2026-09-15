@@ -40,7 +40,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `assessments` | Vacancy + track + input hash; explicit requirement evidence and rule decision |
 | `packages` | Logical master/vacancy + track; current version and retained version list |
 | `events` | Concrete operation, entity IDs, details and time |
-| `source_health` | Attempt/success times, status, HTTP result, counts and next attempt |
+| `source_health` | Attempt/success times, status, HTTP result, counts, network route (`direct`, `proxy`, `proxy_fallback`) and next attempt |
 | `activities`, `activity_events` | Hosted skill scope/actor/result and links to CLI events |
 | `company_dossiers`, `text_revisions`, `cover_letters` | Sourced research and standalone authored output |
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | Plan → actual practice → feedback → explicit progress decision |

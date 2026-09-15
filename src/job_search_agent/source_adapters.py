@@ -46,6 +46,17 @@ def plain(text: object) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", value)).strip()
 
 
+def repair_mojibake(text: object) -> str:
+    """Undo UTF-8 text that a provider decoded as Latin-1 before encoding again."""
+    value = str(text or "")
+    if not re.search(r"[\u00c2-\u00f4][\u0080-\u00bf]", value):
+        return value
+    try:
+        return value.encode("latin-1").decode("utf-8")
+    except UnicodeError:
+        return value
+
+
 def company_id(provider: str, name: str) -> str:
     identity = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", name).strip())
     ascii_name = unicodedata.normalize("NFKD", identity).encode("ascii", "ignore").decode()
@@ -373,17 +384,19 @@ def remoteok(data: object, source: dict) -> list[dict]:
         # The first element is Remote OK's legal notice, not a job.
         if not isinstance(item, dict) or not item.get("id") or not item.get("position"):
             continue
-        text = plain(item.get("description"))
+        # Remote OK serves some UTF-8 text encoded twice ("InvestigaciÃ³n").
+        text = plain(repair_mojibake(item.get("description")))
+        location = repair_mojibake(item.get("location")) or "Remote"
         result.append(
             card(
                 "remoteok",
                 source,
                 external=item.get("id"),
-                title=item.get("position"),
+                title=repair_mojibake(item.get("position")),
                 url=item.get("url") or item.get("apply_url"),
                 text=text,
-                location=item.get("location") or "Remote",
-                company_name=str(item.get("company") or ""),
+                location=location,
+                company_name=repair_mojibake(item.get("company")),
                 conditions_value=conditions(
                     text,
                     "Remote",
@@ -396,7 +409,9 @@ def remoteok(data: object, source: dict) -> list[dict]:
                         "remoteok.salary",
                     ),
                     work_mode="remote",
-                    allowed=geography(item.get("location"), "remoteok.location"),
+                    allowed=geography(
+                        location if item.get("location") else None, "remoteok.location"
+                    ),
                     published=item.get("date") or item.get("epoch"),
                 ),
             )

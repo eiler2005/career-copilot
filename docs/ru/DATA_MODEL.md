@@ -40,7 +40,7 @@ SQLite хранит актуальные сущности и сохранённ�
 | `assessments` | Вакансия + трек + хеш входов; доказательства требований и решение правил |
 | `packages` | Мастер/вакансия + трек, текущая версия и история |
 | `events` | Операция, ID сущностей, подробности и время |
-| `source_health` | Попытка/успех, статус, HTTP, счётчики, следующая попытка |
+| `source_health` | Попытка/успех, статус, HTTP, счётчики, сетевой маршрут (`direct`, `proxy`, `proxy_fallback`), следующая попытка |
 | `activities`, `activity_events` | Работа hosted-навыка, исполнитель, результат и связи с событиями CLI |
 | `company_dossiers`, `text_revisions`, `cover_letters` | Исследования и самостоятельные авторские материалы |
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | План → реальная практика → обратная связь → решение о прогрессе |

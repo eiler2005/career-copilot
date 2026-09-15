@@ -34,6 +34,7 @@ src/job_search_agent/
   inbox.py          request validation, import/apply with version checks, tasks
   sources.py        collection loop, core adapters, HH search, collection runs, duplicates
   source_adapters.py ATS boards, remote-job boards, regional boards and Russian open data
+                    (Adapter registry: endpoint + parse; see SOURCE_ARCHITECTURE.md)
   intake.py         add one vacancy from a public link or pasted text
   vacancy_fields.py salary, format, employment, language, geography and dates with origin
   campaigns.py      search campaigns and per-criterion preference matching
@@ -126,6 +127,10 @@ Without the gateway, the dashboard is reached through an SSH tunnel to `127.0.0.
 | Security at HTTP level | allowed `Host` names only, CSP, `X-Frame-Options: DENY` for pages and `SAMEORIGIN` only for PDF previews, no request logging | Basic Auth on every path except `/healthz` and `/robots.txt`, HSTS, `Authorization` not forwarded, no access log |
 
 Outbound network use from the dashboard container is limited to availability checks of stored posting URLs; interface requests never fetch anything on the server — links in `vacancy_add` are read on the owner's machine during `apply`.
+
+## Where collection runs
+
+Vacancy collection (`ajh discover`) runs on the owner's machine against the local journal, not in the containers; the hosted dashboard only shows the published snapshot and can queue a `collect` task. Each source uses one of three network routes — direct, always through a permitted proxy, or direct with a one-time proxy retry after a failed connection (`proxy_mode: fallback`). Refusals such as 403, 429 or a challenge page stop the source and are never retried through another route. The route is recorded in `source_health.route` and shown on the source card. The pipeline, adapter contract and steps to add a provider are in [source architecture](SOURCE_ARCHITECTURE.md).
 
 ## Release, data publishing and rollback
 

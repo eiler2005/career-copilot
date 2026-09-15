@@ -324,6 +324,11 @@ def endpoint(source: dict, page: int = 0) -> str:
     return canonical_url(source["url"])
 
 
+def proxy_client(proxy: str) -> httpx.Client:
+    """Client for the reserve proxy channel; the proxy URL is never logged or stored."""
+    return httpx.Client(timeout=40, follow_redirects=False, trust_env=False, proxy=proxy)
+
+
 def retry_delay(header: str | None) -> int:
     try:
         if header and header.isdigit():
@@ -371,6 +376,7 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
         old_health = store.get("source_health", sid) or {}
         health = {**old_health, "id": sid, "last_attempt": now(), "count": 0}
         health.pop("failure_status", None)
+        health.pop("route", None)
         if not replay and old_health.get("next_attempt", "") > now():
             results.append(
                 {"id": sid, "status": "cooldown", "next_attempt": old_health["next_attempt"]}
@@ -430,6 +436,8 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                         raise ValueError("Proxy requires explicit per-source permission")
                     if source.get("proxy_env") and "linkedin" in urlsplit(url).hostname:
                         raise ValueError("LinkedIn proxy route is forbidden")
+                    if source.get("proxy_mode", "always") not in {"always", "fallback"}:
+                        raise ValueError("proxy_mode must be always or fallback")
                 except (ValueError, KeyError) as error:
                     # A configuration problem is recorded for this source; others still run.
                     status = "config_error"
@@ -437,10 +445,15 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                         str(error) if isinstance(error, ValueError) else f"missing {error}"
                     )
                     break
-                proxy = os.environ.get(source.get("proxy_env", ""))
+                proxy = os.environ.get(source.get("proxy_env", "")) or None
+                # In fallback mode the proxy is a reserve channel for network failures only.
+                fallback = proxy if source.get("proxy_mode") == "fallback" else None
                 own_client = client is None
                 transport = client or httpx.Client(
-                    timeout=25, follow_redirects=False, trust_env=False, proxy=proxy
+                    timeout=25,
+                    follow_redirects=False,
+                    trust_env=False,
+                    proxy=None if fallback else proxy,
                 )
                 remaining -= 1
                 host_key = "host-request:" + urlsplit(url).hostname
@@ -455,15 +468,23 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                 store.db.execute(
                     "INSERT OR REPLACE INTO meta VALUES(?,?)", (host_key, str(time.time()))
                 )
-                try:
-                    response = transport.get(
-                        url,
-                        headers={
-                            "User-Agent": source.get(
-                                "user_agent", "job-search-agent/0.1 (read-only job research)"
-                            )
-                        },
+                headers = {
+                    "User-Agent": source.get(
+                        "user_agent", "job-search-agent/0.1 (read-only job research)"
                     )
+                }
+                try:
+                    try:
+                        response = transport.get(url, headers=headers)
+                        health["route"] = "proxy" if proxy and not fallback else "direct"
+                    except (httpx.TimeoutException, httpx.TransportError):
+                        if not fallback:
+                            raise
+                        # Only a failed connection is retried; HTTP answers such as 403 or
+                        # 429 and challenge pages are never retried through another route.
+                        with proxy_client(fallback) as reserve:
+                            response = reserve.get(url, headers=headers)
+                        health["route"] = "proxy_fallback"
                     raw = response.content
                     if len(raw) > 5_000_000:
                         status = "response_too_large"

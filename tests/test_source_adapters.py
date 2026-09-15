@@ -213,6 +213,10 @@ def test_structured_conditions_keep_their_origin():
     [remotive] = sources.parse_jobs("remotive", json.dumps(PAYLOADS["remotive"]), AGGREGATE)
     assert remotive["conditions"]["allowed_geography"]["countries"] == ["Europe", "UK"]
     [remoteok] = sources.parse_jobs("remoteok", json.dumps(PAYLOADS["remoteok"]), AGGREGATE)
+    garbled = dict(PAYLOADS["remoteok"][1], position="Director de InvestigaciÃ³n")
+    [repaired] = sources.parse_jobs("remoteok", json.dumps([garbled]), AGGREGATE)
+    assert repaired["title"] == "Director de Investigación"
+    assert source_adapters.repair_mojibake("Zürich Ã") == "Zürich Ã"
     assert remoteok["conditions"]["allowed_geography"]["countries"] == ["Worldwide"]
     assert (
         remoteok["conditions"]["salary"]["min"] == 140000
@@ -363,3 +367,75 @@ def test_paginated_open_data_stops_on_a_short_page(store):
         sources.discover(store, client=client)
     assert len(calls) == 1
     assert store.get("vacancies", "trudvsem-00000000-aaaa-bbbb-cccc-000000000001")["market"] == "ru"
+
+
+SECRET_PROXY = "http://user:" + "synthetic-secret" + "@proxy.invalid:8080"
+
+
+def fallback_source(**updates):
+    return {
+        "id": "jobicy-fallback",
+        "provider": "jobicy",
+        "query": "product",
+        "market": "intl",
+        "proxy_env": "CC_SYNTHETIC_PROXY",
+        "proxy_allowed": True,
+        "proxy_mode": "fallback",
+        **updates,
+    }
+
+
+def test_proxy_fallback_only_retries_failed_connections(store, monkeypatch):
+    monkeypatch.setenv("CC_SYNTHETIC_PROXY", SECRET_PROXY)
+    used = []
+
+    def reserve(proxy):
+        used.append(proxy)
+        return httpx.Client(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, json=PAYLOADS["jobicy"])
+            )
+        )
+
+    monkeypatch.setattr(sources, "proxy_client", reserve)
+    configure(store, fallback_source())
+
+    def unreachable(request):
+        raise httpx.ConnectTimeout("synthetic timeout", request=request)
+
+    with httpx.Client(transport=httpx.MockTransport(unreachable)) as client:
+        [health] = sources.discover(store, client=client)
+    assert health["status"] == "success_nonempty" and health["route"] == "proxy_fallback"
+    assert used == [SECRET_PROXY]
+    journal = json.dumps(
+        [store.all(kind) for kind in ("source_health", "events", "collection_runs")]
+    )
+    assert "synthetic-secret" not in journal
+
+
+def test_proxy_fallback_never_retries_http_refusals(store, monkeypatch):
+    monkeypatch.setenv("CC_SYNTHETIC_PROXY", SECRET_PROXY)
+    monkeypatch.setattr(
+        sources, "proxy_client", lambda proxy: pytest.fail("a refusal must not use the proxy")
+    )
+    configure(store, fallback_source())
+    with httpx.Client(
+        transport=httpx.MockTransport(lambda request: httpx.Response(403, text="challenge"))
+    ) as client:
+        [health] = sources.discover(store, client=client)
+    assert health["status"] == "blocked" and health["route"] == "direct"
+
+
+def test_proxy_modes_need_permission_and_a_known_mode(store, monkeypatch):
+    monkeypatch.setenv("CC_SYNTHETIC_PROXY", SECRET_PROXY)
+    for updates, message in (
+        ({"proxy_allowed": False}, "permission"),
+        ({"proxy_mode": "evade"}, "proxy_mode"),
+    ):
+        configure(store, fallback_source(**updates))
+        with httpx.Client(
+            transport=httpx.MockTransport(lambda request: pytest.fail("no request"))
+        ) as client:
+            [health] = sources.discover(store, client=client, source_id="jobicy-fallback")
+        assert health["status"] == "config_error" and message in health["config_error"]
+        store.db.execute("DELETE FROM records WHERE kind='source_health'")

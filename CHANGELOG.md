@@ -2,6 +2,15 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-16 — Source reserve channel and architecture guide
+
+### Added
+- `proxy_mode: "fallback"` for sources with an allowed proxy: the request goes directly first and is repeated once through the proxy only after a timeout or failed connection. HTTP refusals (403, 429, authentication walls, challenge pages) are never retried; the route taken is recorded as `source_health.route` and shown on source cards.
+- [Source architecture](docs/SOURCE_ARCHITECTURE.md) guide: collection pipeline, source families, network routes, adapter contract and a step-by-step checklist with a code template for connecting a provider.
+
+### Fixed
+- Remote OK titles, companies, locations and descriptions arrived double-encoded ("InvestigaciÃ³n"); the adapter now repairs text that round-trips cleanly and leaves other text unchanged.
+
 ## 2026-09-15 — More job sources
 
 ### Added

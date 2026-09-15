@@ -68,4 +68,4 @@ Docker packages public application code and browser assets only. Mount a separat
 
 Entry points are [cli.py](../src/job_search_agent/cli.py), persistence is [core.py](../src/job_search_agent/core.py), collection is [sources.py](../src/job_search_agent/sources.py), document/evaluation work is [workflow.py](../src/job_search_agent/workflow.py), and the local UI is [report.py](../src/job_search_agent/report.py). The distribution `job-search-agent`, import module `job_search_agent` and command `ajh` remain for compatibility with earlier versions.
 
-Adapters follow [source policy](SOURCES.md); migrations and recovery follow [operations](OPERATIONS.md); public artifacts follow [privacy](PRIVACY.md). See [data model](DATA_MODEL.md) before extending record kinds or contracts.
+Adapters follow [source policy](SOURCES.md) and the [source architecture](SOURCE_ARCHITECTURE.md) contract; migrations and recovery follow [operations](OPERATIONS.md); public artifacts follow [privacy](PRIVACY.md). See [data model](DATA_MODEL.md) before extending record kinds or contracts.

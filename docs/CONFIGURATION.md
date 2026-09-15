@@ -88,6 +88,7 @@ The disabled [example configuration](../examples/source-config.json) can be adap
 | `user_agent` | Read-only client identity | HTTP User-Agent |
 | `proxy_allowed` | False | Explicit source permission for proxy use |
 | `proxy_env` | Optional | Proxy environment-variable name; requires permission |
+| `proxy_mode` | `always` | `always` sends every request through the proxy; `fallback` requests directly and retries once through the proxy only after a timeout or failed connection, never after an HTTP refusal (see [routes](SOURCE_ARCHITECTURE.md#network-routes-and-the-proxy)) |
 
 The client disables redirects and ambient proxy inheritance, uses a 25-second timeout and a 5 MB post-download response check. See [sources](SOURCES.md) for retry and access policy. Source rules are not a full network sandbox.
 
