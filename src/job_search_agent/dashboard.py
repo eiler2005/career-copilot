@@ -449,22 +449,39 @@ def _mark_superseded(records: list[dict], kind: str = "assessments") -> None:
 
 
 def _topic_statuses(records: list[dict]) -> None:
-    """Topic status from practice attempts and reviews only; materials never change it."""
+    """Topic status per plan from practice attempts and reviews only; materials never change it.
+
+    Track plans use their topic IDs; vacancy learning plans use gap IDs and `week-N`.
+    """
     sessions = [r["payload"] for r in records if r["kind"] == "practice_sessions"]
     attempts = [r["payload"] for r in records if r["kind"] == "practice_attempts"]
     reviewed = {r["payload"].get("attempt_id") for r in records if r["kind"] == "practice_reviews"}
     for record in records:
-        if record["kind"] != "track_plans":
+        payload = record["payload"]
+        if record["kind"] == "track_plans":
+            topic_ids = [topic.get("id") for topic in payload.get("topics") or []]
+        elif record["kind"] == "learning":
+            topic_ids = [
+                gap.get("id") for gap in payload.get("gaps") or [] if isinstance(gap, dict)
+            ]
+            topic_ids += [
+                f"week-{week.get('week')}"
+                for week in payload.get("weeks") or []
+                if isinstance(week, dict)
+            ]
+        else:
             continue
         statuses = {}
-        for topic in record["payload"].get("topics") or []:
+        for topic_id in topic_ids:
             own = {
                 s["id"]
                 for s in sessions
-                if s.get("plan_id") == record["id"] and s.get("topic_id") == topic.get("id")
+                if s.get("plan_id") == record["id"]
+                and (s.get("plan_kind") or "track_plans") == record["kind"]
+                and s.get("topic_id") == topic_id
             }
             tried = [a for a in attempts if a.get("session_id") in own]
-            statuses[topic.get("id")] = (
+            statuses[topic_id] = (
                 "reviewed"
                 if any(a["id"] in reviewed for a in tried)
                 else "attempted"

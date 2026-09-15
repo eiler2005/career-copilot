@@ -2,6 +2,18 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-15 — Preparation page redesign
+
+### Fixed
+- Plan document tables collapsed a column to one character: the source catalog's no-wrap rule leaked into the Preparation and CV views. The rule is now scoped to the catalog, and document tables wrap with minimum column widths.
+- The Preparation page was about 24,000 px tall with real plans below empty forms and the shared interview document shown open twice.
+
+### Changed
+- Preparation starts with a summary and a next step, then compact plan cards with progress, a single shared interview-plan document with a table of contents and secondary authorship metadata, briefs, practice and a collapsed "start new preparation" block; a track switch replaces search. Vacancy plans are titled by role and company and no longer repeat an identical weekly deliverable.
+
+### Added
+- Practice from vacancy learning plans: each week and non-structural gap can create a practice question (`plan_kind`, `topic_id`) and shows its status; structural gaps link to clarification in the vacancy.
+
 ## 2026-09-15 — Documentation alignment
 
 ### Added

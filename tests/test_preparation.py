@@ -333,3 +333,71 @@ def test_text_practice_cycle_reviews_quoted_fragments_and_changes_no_facts(store
                 "provenance": "generated",
             },
         )
+
+
+def test_practice_can_follow_a_vacancy_learning_plan_week_or_gap(store):
+    from job_search_agent.dashboard import Journal
+
+    vacancy = store.get("vacancies", VACANCY)
+    gap = {
+        "id": "req-x",
+        "text": "Design pricing experiments",
+        "mandatory": True,
+        "evidence_checked": True,
+    }
+    store.put("vacancies", {**vacancy, "target_track": "product", "requirements": [gap]})
+    plan = workflow.learning_plan(store, VACANCY, "product")
+    with pytest.raises(ValueError, match="plan_kind"):
+        preparation.create_session(
+            store,
+            {
+                "plan_id": plan["id"],
+                "plan_kind": "unknown",
+                "question": "q",
+                "type": "product_case",
+                "tests": "t",
+                "provenance": "generated",
+            },
+        )
+    with pytest.raises(ValueError, match="Plan not found"):
+        preparation.create_session(
+            store,
+            {
+                "plan_id": "missing",
+                "plan_kind": "learning",
+                "question": "q",
+                "type": "product_case",
+                "tests": "t",
+                "provenance": "generated",
+            },
+        )
+    session = preparation.create_session(
+        store,
+        {
+            "track": "product",
+            "vacancy_id": VACANCY,
+            "plan_id": plan["id"],
+            "plan_kind": "learning",
+            "topic_id": "week-1",
+            "question": "Frame a problem",
+            "type": "product_case",
+            "tests": "Discovery",
+            "provenance": "generated",
+        },
+    )
+    preparation.submit_answer(
+        store, {"session_id": session["id"], "answer": "Segments first, then success criteria."}
+    )
+    data = Journal.open(store.home).workspace()
+    record = next(
+        item
+        for item in data["preparations"]
+        if item["kind"] == "learning" and item["id"] == plan["id"]
+    )
+    assert record["display"]["topic_status"]["week-1"] == "attempted"
+    assert record["display"]["topic_status"]["week-2"] == "open"
+    assert all(
+        status == "open"
+        for key, status in record["display"]["topic_status"].items()
+        if key != "week-1"
+    )

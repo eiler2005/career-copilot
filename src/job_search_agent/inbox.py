@@ -687,6 +687,9 @@ def _validate_prep_create(payload: dict) -> dict:
         "track": _choice(payload["track"], "track", TRACKS) if payload.get("track") else None,
         "vacancy_id": optional_id("vacancy_id"),
         "plan_id": optional_id("plan_id"),
+        "plan_kind": _choice(payload["plan_kind"], "plan_kind", preparation.PLAN_KINDS)
+        if payload.get("plan_kind")
+        else None,
         "topic_id": optional_id("topic_id"),
         "question": _text(payload.get("question"), "question", 1000),
         "type": _choice(payload.get("type"), "type", preparation.QUESTION_TYPES),

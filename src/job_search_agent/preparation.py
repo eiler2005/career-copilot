@@ -32,6 +32,8 @@ QUESTION_TYPES = frozenset(
 PROVENANCE = frozenset({"published", "generated"})
 CODING = frozenset({"required", "not_required", "unknown"})
 TOPIC_STATUSES = ("open", "attempted", "reviewed")
+# Plans a practice session can belong to: general-gap plans, vacancy learning plans, interview plans.
+PLAN_KINDS = frozenset({"track_plans", "learning", "interview_plans"})
 BASELINE = {
     "product": [
         (
@@ -419,8 +421,11 @@ def create_session(store: Store, payload: dict) -> dict:
     if vacancy_id and not store.get("vacancies", vacancy_id):
         raise ValueError("Vacancy not found")
     plan_id = payload.get("plan_id")
-    if plan_id and not store.get("track_plans", plan_id):
-        raise ValueError("Track plan not found")
+    plan_kind = payload.get("plan_kind") or ("track_plans" if plan_id else None)
+    if plan_kind not in (None, *PLAN_KINDS):
+        raise ValueError(f"plan_kind must be one of {sorted(PLAN_KINDS)}")
+    if plan_id and not store.get(plan_kind, plan_id):
+        raise ValueError("Plan not found")
     if payload["type"] == "coding" and vacancy_id:
         coding = (store.get("vacancies", vacancy_id).get("coding_requirement") or {}).get("status")
         if coding != "required":
@@ -430,6 +435,7 @@ def create_session(store: Store, payload: dict) -> dict:
         "track": payload.get("track") if payload.get("track") in TRACKS else None,
         "vacancy_id": vacancy_id,
         "plan_id": plan_id,
+        "plan_kind": plan_kind,
         "topic_id": payload.get("topic_id"),
         "question": _text(payload.get("question"), "question", 1000),
         "type": payload["type"],
@@ -541,7 +547,11 @@ def validate_review(store: Store, data: dict) -> dict:
 
 def topic_statuses(store: Store, plan: dict) -> dict[str, str]:
     """Derived status per topic: attempts and reviews only; materials never change it."""
-    sessions = [s for s in store.all("practice_sessions") if s.get("plan_id") == plan["id"]]
+    sessions = [
+        s
+        for s in store.all("practice_sessions")
+        if s.get("plan_id") == plan["id"] and (s.get("plan_kind") or "track_plans") == "track_plans"
+    ]
     attempts = store.all("practice_attempts")
     reviews = {r["attempt_id"] for r in store.all("practice_reviews")}
     result = {}

@@ -103,3 +103,15 @@ def test_vacancy_detail_uses_accessible_tabs_and_requests_never_claim_completion
     assert "awaitingImport" in script and "requestQueued" in script
     styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
     assert ".vc-salary{" in styles and ".tabs{" in styles
+
+
+def test_preparation_layout_keeps_document_tables_readable():
+    styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
+    script = app_js()
+    # The source catalog's no-wrap column rule must not reach plan documents or module views.
+    assert ".sources-view .plan-table" not in styles
+    assert ".source-catalog .plan-table td:nth-child(3){white-space:nowrap}" in styles
+    assert ".markdown .plan-table th,.markdown .plan-table td{min-width:120px" in styles
+    body = script.split("function renderPreparationModule(list) {", 1)[1][:400]
+    assert '"module-view prep-view"' in body and "sources-view" not in body
+    assert "function markdownWithToc(text)" in script and "function prepSummary(list)" in script
