@@ -101,6 +101,47 @@ def seniority(vacancy: dict, company: dict, policy: dict) -> dict:
     }
 
 
+# Fields that identify when or from which snapshot a result was produced, not what it says.
+PROVENANCE_FIELDS = frozenset({"id", "at", "created_at", "input_sha256"})
+
+
+def _substance(value: dict | None) -> dict | None:
+    return None if value is None else {k: v for k, v in value.items() if k not in PROVENANCE_FIELDS}
+
+
+def supersede(store: Store, kind: str, old: dict, new_id: str, reason: str) -> None:
+    """Move an outdated result out of the active journal, keeping it for audit and old links."""
+    store.put(
+        "superseded_records",
+        {
+            "id": f"{kind}--{old['id']}",
+            "kind": kind,
+            "record_id": old["id"],
+            "superseded_by": new_id,
+            "archived_at": now(),
+            "reason": reason,
+            "payload": old,
+        },
+        immutable=True,
+    )
+    store.db.execute("DELETE FROM records WHERE kind=? AND id=?", (kind, old["id"]))
+
+
+def current_result(
+    store: Store, kind: str, pointer_kind: str, pointer_field: str, pointer_id: str, match: dict
+) -> dict | None:
+    """Return the current result for a vacancy/track pointer, falling back to the newest match."""
+    pointer = store.get(pointer_kind, pointer_id)
+    if pointer and (found := store.get(kind, pointer[pointer_field])):
+        return found
+    candidates = [
+        item
+        for item in store.insertion_order(kind)
+        if all(item.get(field) == value for field, value in match.items())
+    ]
+    return candidates[-1] if candidates else None
+
+
 def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product") -> list[dict]:
     if track not in TRACKS:
         raise ValueError("Unknown career track")
@@ -183,9 +224,23 @@ def evaluate(store: Store, vacancy_id: str | None = None, track: str = "product"
             "unknowns": ([] if requirements else ["Requirements need source-linked annotation"])
             + (["Target career track needs annotation"] if track_verdict == "flag" else []),
         }
+        pointer_id = vacancy["id"] + ":" + track
+        previous = current_result(
+            store,
+            "assessments",
+            "current_assessments",
+            "assessment_id",
+            pointer_id,
+            {"vacancy_id": vacancy["id"], "track": track},
+        )
         key = "assessment-" + digest(result)[:24]
-        if not store.get("assessments", key):
+        if previous and _substance(previous) == _substance(result):
+            # Same conclusion from refreshed inputs: keep one record instead of a duplicate.
+            key = previous["id"]
+        elif not store.get("assessments", key):
             store.put("assessments", {"id": key, "at": now(), **result}, immutable=True)
+        if previous and previous["id"] != key:
+            supersede(store, "assessments", previous, key, "re-evaluated vacancy and track")
         store.event("vacancy_evaluated", [vacancy["id"]], {"assessment_id": key})
         store.put(
             "current_assessments",
@@ -249,10 +304,29 @@ def learning_plan(store: Store, vacancy_id: str | None, track: str):
         "shared": ["Company brief", "Evidence and STAR bank", "Questions for employer"],
         "warning": "Baseline curriculum is not extracted vacancy requirements. Structural gaps are not courses.",
     }
+    pointer_id = f"{vacancy_id or 'all-vacancies'}:{track}"
+    previous = current_result(
+        store,
+        "learning",
+        "current_learning",
+        "learning_id",
+        pointer_id,
+        {"vacancy_id": vacancy_id, "track": track},
+    )
     key = "learning-" + digest(plan)[:24]
-    if not store.get("learning", key):
+    if previous and _substance(previous) == _substance(plan):
+        key = previous["id"]
+    elif not store.get("learning", key):
         store.put("learning", {"id": key, "created_at": now(), **plan}, immutable=True)
-        store.artifact(f"learning/{key}.json", encode(plan))
+        store.readable_artifact(
+            "learning", [track, vacancy_id or "all-vacancies"], encode(plan), ".json"
+        )
+    if previous and previous["id"] != key:
+        supersede(store, "learning", previous, key, "re-planned vacancy and track")
+    store.put(
+        "current_learning",
+        {"id": pointer_id, "vacancy_id": vacancy_id, "track": track, "learning_id": key},
+    )
     store.event("learning_planned", [vacancy_id] if vacancy_id else [], {"plan_id": key})
     return store.get("learning", key)
 
@@ -685,8 +759,9 @@ def record_review(store: Store, package_id: str, report: Path) -> dict:
             raise ValueError("Every letter page must be visually inspected")
     if not review.get("findings"):
         raise ValueError("Review needs substantive findings, not only a pass flag")
-    relative = f"reviews/{digest(review)}.json"
-    store.artifact(relative, encode(review))
+    relative = store.readable_artifact(
+        "reviews", [package_id, version["id"], review["kind"]], encode(review), ".json"
+    )
     reviews = version.setdefault("reviews", [])
     if relative not in reviews:
         reviews.append(relative)

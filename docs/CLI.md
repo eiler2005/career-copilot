@@ -10,7 +10,7 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 
 Omit `--activity-id` outside a running hosted-skill activity. `AI_JOB_HUNTER_HOME` can supply the workspace. Commands print JSON; `report --open` also opens a local browser file.
 
-The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] [--port 8080] [--allowed-host HOSTNAME]` entry point runs a private read-only web server in the foreground. Repeat `--allowed-host` (or set comma-separated `AJH_DASHBOARD_ALLOWED_HOSTS`) only for a hostname served by an authenticating reverse proxy. Its workspace option belongs to that command; it does not start a skill activity or alter journal records. See [dashboard and deployment](DASHBOARD.md).
+The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] [--port 8080] [--allowed-host HOSTNAME] [--state-dir PATH]` entry point runs a private read-only web server in the foreground. `--state-dir` (outside the workspace) enables availability checks from the interface. Repeat `--allowed-host` (or set comma-separated `AJH_DASHBOARD_ALLOWED_HOSTS`) only for a hostname served by an authenticating reverse proxy. Its workspace option belongs to that command; it does not start a skill activity or alter journal records. See [dashboard and deployment](DASHBOARD.md).
 
 ## Commands and effects
 
@@ -37,8 +37,20 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 | `backup --destination PATH` | New destination | Database/files snapshot and manifest |
 | `restore SNAPSHOT --destination PATH` | Valid backup; new destination | Restored workspace; no active `--home` needed |
 | `privacy check` | `--scope`, `--root`, dictionary, optional Gitleaks/artifact | Public-content/privacy result |
+| `availability check [ID ...]` | `--unverified`, `--stale-days N`, `--limit N`, `--delay S` | Read-only check of stored posting URLs; availability, `availability_check`, history and event |
+| `availability import PATH` | Dashboard `availability-checks.json` | Applies newer web-interface checks to the journal |
+| `translations export --output PATH [--all]` | Current journal | Translatable texts missing a Russian or English rendering |
+| `translations import PATH` | Export file with translations and actual translator `actor.model` | `text_translations` records; originals unchanged |
+| `maintenance dedupe [--apply]` | Current journal | Keeps the newest assessment/learning plan per vacancy and track; archives the rest |
+| `maintenance rename-artifacts [--apply]` | Current journal | Renames hash-named or over-long files to readable names; updates references and writes a manifest |
 
 `TRACK` is exactly `product` or `technical-leadership`. Use `uv run ajh COMMAND --help` for parser syntax.
+
+## Availability, translations and maintenance
+
+`availability check` reads only URLs already stored on vacancies, follows at most five redirects to public addresses and never bypasses a login, CAPTCHA or bot protection. Without IDs it checks active vacancies (not closed, archived or rejected). Each result records `status` (`open`, `closed`, `unknown`), `reason`, `confidence`, the visible `evidence`, HTTP status, final URL and time. Rules: HTTP 404/410 or an explicit visible closed/archived message → closed (high); a redirect that drops the posting identifier → closed (medium); a visible apply control or a published structured job posting → open (medium); blocked access, errors or no reliable signal → unknown. A recorded closed or archived state is never reopened by a medium-confidence signal — it becomes `conflicting` for a human decision.
+
+`maintenance` commands are dry runs until `--apply`. Take a `backup` first. `dedupe` moves older results into `superseded_records` (with `superseded_by`) and sets `current_assessments`/`current_learning` pointers; old links keep resolving. `rename-artifacts` applies the naming scheme described in the [data model](DATA_MODEL.md#artifact-file-names), moves files, rewrites references in records and `facts.json`, and records a manifest under `maintenance/`. Both are idempotent.
 
 ## Preparing authored documents
 

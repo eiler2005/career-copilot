@@ -2,9 +2,9 @@
 
 // All journal values enter the document as text. No source HTML is executed.
 (() => {
-  const sections = ["overview", "vacancies", "companies", "documents", "activities", "preparations", "sources", "history"];
+  const sections = ["overview", "pipeline", "vacancies", "companies", "documents", "activities", "preparations", "sources", "history"];
   const kinds = {documents: "packages", preparations: "learning", sources: "source_health", history: "events"};
-  const icons = ["◫", "↗", "▦", "▤", "◷", "◎", "⊞", "≡"];
+  const icons = ["◫", "⇉", "↗", "▦", "▤", "◷", "◎", "⊞", "≡"];
   const copy = {
     ru: {
       overview: "Обзор", vacancies: "Вакансии", companies: "Компании", documents: "Документы", activities: "Активности", preparations: "Подготовка", sources: "Источники", history: "История",
@@ -35,6 +35,8 @@
     todo: ["К выполнению", "To do"], timeout: ["Превышено время", "Timed out"], expired_copy: ["Копия устарела", "Expired copy"], follow_up: ["Вернуться позже", "Follow up"], unassigned: ["Не распределена", "Unassigned"], monitor: ["Наблюдать", "Monitor"], not_priority: ["Не в приоритете", "Not a priority"], ranked: ["Ранжирована", "Ranked"], researched: ["Изучена", "Researched"], rejected: ["Отклонена", "Rejected"], lead: ["Наводка", "Lead"], legacy_unverified: ["Не проверено (старый журнал)", "Legacy, unverified"], passed: ["Пройдена", "Passed"], vacancy: ["Вакансия", "Vacancy"], evidence: ["Доказательства", "Evidence"], interview: ["Интервью", "Interview"], practice: ["Практика", "Practice"], structural: ["Структурный", "Structural"], intl: ["Международный", "International"], ru: ["Россия", "Russia"], not_disclosed: ["Не раскрыто", "Not disclosed"], not_disclosed_on_checked_page: ["Не раскрыто на проверенной странице", "Not disclosed on checked page"], reported: ["Сообщается", "Reported"], company_and_application: ["Компания и отклик", "Company and application"], target_screen: ["Целевой отбор", "Target screen"], vacancies_only: ["Только вакансии", "Vacancies only"], flag: ["Флаг", "Flag"], master: ["Мастер-резюме", "Master CV"], interview_plans: ["Планы интервью", "Interview plans"], interview_plan: ["План интервью", "Interview plan"], corporate: ["Корпоративный сайт", "Corporate site"], greenhouse: ["Greenhouse", "Greenhouse"], global: ["Глобально", "Global"], enabled: ["Включён", "Enabled"], disabled: ["Выключен", "Disabled"], never_checked: ["Ещё не проверялся", "Never checked"], unverified: ["Не проверена", "Unverified"], needs_check: ["Требует проверки", "Needs a check"], current: ["Актуальная", "Current"], superseded: ["Устарела", "Superseded"], expired: ["Истекла", "Expired"],
     activity_finished: ["Активность завершена", "Activity finished"], activity_output_registered: ["Результат активности зарегистрирован", "Activity output registered"], activity_started: ["Активность начата", "Activity started"], annotation_sources_preserved: ["Источники аннотаций сохранены", "Annotation sources preserved"], annotation_sources_verified: ["Источники аннотаций проверены", "Annotation sources verified"], backup_created: ["Создана резервная копия", "Backup created"], career_copilot_implemented: ["Career Copilot внедрён", "Career Copilot implemented"], company_policy_reconciled: ["Правила по компаниям сверены", "Company policy reconciled"], company_profile_reviewed: ["Профиль компании проверен", "Company profile reviewed"], dashboard_deployed: ["Дашборд развёрнут", "Dashboard deployed"], document_prepared: ["Документ подготовлен", "Document prepared"], document_reviewed: ["Документ проверен", "Document reviewed"], drafts_recorded: ["Черновики записаны", "Drafts recorded"], facts_imported: ["Факты импортированы", "Facts imported"], history_imported: ["История импортирована", "History imported"], learning_planned: ["План подготовки составлен", "Learning planned"], legacy_imported: ["Старый журнал импортирован", "Legacy imported"], packages_recorded: ["Пакеты документов записаны", "Packages recorded"], pipeline_repository_renamed: ["Репозиторий переименован", "Pipeline repository renamed"], public_project_pushed: ["Публичный проект опубликован", "Public project pushed"], requirements_annotated: ["Требования размечены", "Requirements annotated"], research_recorded: ["Исследование записано", "Research recorded"], rules_updated: ["Правила обновлены", "Rules updated"], search_policy_reconciled: ["Правила поиска сверены", "Search policy reconciled"], source_checked: ["Источник проверен", "Source checked"], vacancy_evaluated: ["Вакансия оценена", "Vacancy evaluated"], workflow_configured: ["Процесс настроен", "Workflow configured"], workflow_delivered: ["Процесс передан", "Workflow delivered"], workspace_consolidated: ["Рабочее пространство объединено", "Workspace consolidated"], dashboard_snapshot_artifact_aliased: ["Файл снимка дашборда связан с журналом", "Dashboard snapshot file linked"], greenhouse: ["Greenhouse", "Greenhouse"], linkedinsalaries: ["LinkedIn Salaries", "LinkedIn Salaries"], lever: ["Lever", "Lever"]
   });
+  Object.assign(extraCopy.ru, {pipeline: "Воронка", pipelineDesc: "Где находится каждая активная вакансия: от находки до интервью, сколько дней на этапе и что пора сделать.", contentTranslated: "Тексты: перевод", contentOriginal: "Тексты: оригинал", contentToggleHint: "Показывать сохранённые переводы записей или исходный текст", freshnessFilter: "Проверка доступности", freshness_fresh: "Проверена за 7 дней", freshness_aging: "Проверена 8–14 дней назад", freshness_stale: "Давно не проверялась (15+ дней)", freshness_never: "Не проверялась", neverChecked: "Доступность не проверялась", checkedAgo: "Проверена", undetermined: "результат не определён", checkNow: "Проверить", checkAll: "Проверить доступность", checkingProgress: "Проверяем доступность", checkDone: "Проверка завершена", checkBusy: "Проверка уже идёт — дождитесь её окончания.", checkFailed: "Не удалось выполнить проверку. Попробуйте позже.", checkUnavailable: "Проверка из интерфейса не настроена: запустите ajh availability check или dashboard с --state-dir.", availabilityTitle: "Доступность вакансии", checkResult: "Результат", checkReason: "Основание", checkConfidence: "Уверенность", checkEvidence: "Признак", checkTime: "Проверено", checkUrl: "Проверенная страница", pendingImport: "Результат сохранён на сервере и будет перенесён в локальный журнал при следующей синхронизации.", noCheckYet: "Автоматическая проверка ещё не проводилась.", reason_http_gone: "Страница вакансии удалена (HTTP 404/410)", reason_redirected_away: "Ссылка перенаправляет на общий список или страницу закрытия", reason_closed_marker: "На странице сказано, что вакансия закрыта или в архиве", reason_structured_expired: "Истёк срок в структурированной разметке вакансии", reason_apply_control: "На странице есть кнопка отклика", reason_structured_posting: "Страница публикует структурированную вакансию", reason_access_blocked: "Сайт ограничил автоматический доступ; обход не выполняется", reason_http_error: "Сайт вернул ошибку", reason_no_signal: "На странице нет надёжного признака", reason_network_error: "Сетевая ошибка", reason_not_public_url: "Адрес недоступен для проверки", reason_no_url: "У вакансии нет ссылки на объявление", reason_too_many_redirects: "Слишком много перенаправлений", confidence_high: "высокая", confidence_medium: "средняя", confidence_low: "низкая", remindersTitle: "Напоминания", reminderCheckGroup: "Доступность не проверялась или устарела (15+ дней)", remindersDesc: "Что пора сделать по активным вакансиям. Правила: интервью в ближайшие 7 дней, проверенные документы без отклика дольше 3 дней, документы без ревью дольше 5 дней, нет ответа дольше 14 дней, давно не проверенная доступность.", noReminders: "Сейчас напоминаний нет", noRemindersDesc: "Активные вакансии в порядке.", reminderInterview: "Интервью через", reminderSubmit: "Документы проверены, отклик не отправлен", reminderReview: "Документы ждут ревью", reminderResponse: "Нет ответа после отправки", reminderCheck: "Доступность проверялась", reminderNeverChecked: "Доступность ни разу не проверялась", funnelTitle: "Этапы", funnelDesc: "Вакансия стоит на самом дальнем достигнутом этапе. Дата этапа — из журнала.", inStage: "На этапе", closedLane: "Закрытые и отклонённые", stage_found: "Найдена", stage_found_hint: "Сохранена в журнале", stage_assessed: "Оценена", stage_assessed_hint: "Есть оценка соответствия", stage_documents: "Документы", stage_documents_hint: "Подготовлен пакет", stage_reviewed: "Проверены", stage_reviewed_hint: "Независимое ревью пройдено", stage_submitted: "Отклик отправлен", stage_submitted_hint: "Зафиксирована отправка", stage_response: "Ответ", stage_response_hint: "Есть ответ работодателя", stage_interview: "Интервью", stage_interview_hint: "Назначено или пройдено"});
+  Object.assign(extraCopy.en, {pipeline: "Pipeline", pipelineDesc: "Where each active vacancy stands, from discovery to interview, how long it has been in a stage and what is due.", contentTranslated: "Texts: translated", contentOriginal: "Texts: original", contentToggleHint: "Show stored record translations or the original text", freshnessFilter: "Availability check", freshness_fresh: "Checked within 7 days", freshness_aging: "Checked 8–14 days ago", freshness_stale: "Not checked for 15+ days", freshness_never: "Never checked", neverChecked: "Availability never checked", checkedAgo: "Checked", undetermined: "no clear result", checkNow: "Check", checkAll: "Check availability", checkingProgress: "Checking availability", checkDone: "Check finished", checkBusy: "A check is already running; wait for it to finish.", checkFailed: "The check could not run. Try again later.", checkUnavailable: "Checks from the interface are not configured: run ajh availability check or start the dashboard with --state-dir.", availabilityTitle: "Vacancy availability", checkResult: "Result", checkReason: "Reason", checkConfidence: "Confidence", checkEvidence: "Signal", checkTime: "Checked", checkUrl: "Checked page", pendingImport: "Stored on the server; it is imported into the local journal at the next sync.", noCheckYet: "No automated check yet.", reason_http_gone: "The posting was removed (HTTP 404/410)", reason_redirected_away: "The link redirects to a listing or closed page", reason_closed_marker: "The page says the vacancy is closed or archived", reason_structured_expired: "The structured posting has expired", reason_apply_control: "The page shows an apply control", reason_structured_posting: "The page publishes a structured job posting", reason_access_blocked: "The site restricted automated access; no bypass is attempted", reason_http_error: "The site returned an error", reason_no_signal: "No reliable signal on the page", reason_network_error: "Network error", reason_not_public_url: "The address cannot be checked", reason_no_url: "The vacancy has no posting link", reason_too_many_redirects: "Too many redirects", confidence_high: "high", confidence_medium: "medium", confidence_low: "low", remindersTitle: "Reminders", reminderCheckGroup: "Availability never checked or stale (15+ days)", remindersDesc: "What is due for active vacancies. Rules: interview within 7 days, reviewed documents not sent for over 3 days, documents awaiting review for over 5 days, no response for over 14 days, stale availability.", noReminders: "No reminders right now", noRemindersDesc: "Active vacancies are up to date.", reminderInterview: "Interview in", reminderSubmit: "Documents reviewed, not sent", reminderReview: "Documents awaiting review", reminderResponse: "No response after sending", reminderCheck: "Availability last checked", reminderNeverChecked: "Availability never checked", funnelTitle: "Stages", funnelDesc: "A vacancy sits in the furthest stage it has reached. Stage dates come from the journal.", inStage: "In stage", closedLane: "Closed and rejected", stage_found: "Found", stage_found_hint: "Saved to the journal", stage_assessed: "Assessed", stage_assessed_hint: "Fit assessment exists", stage_documents: "Documents", stage_documents_hint: "Package prepared", stage_reviewed: "Reviewed", stage_reviewed_hint: "Independent review passed", stage_submitted: "Applied", stage_submitted_hint: "Submission recorded", stage_response: "Response", stage_response_hint: "Employer responded", stage_interview: "Interview", stage_interview_hint: "Scheduled or held"});
   Object.assign(extraCopy.ru, {openPosting: "Открыть вакансию", postingShort: "вакансия", hoursShort: "ч", foundOn: "найдена", downloadPdf: "Скачать PDF", downloadMarkdown: "Скачать Markdown", openRecord: "Карточка записи", showPlan: "План целиком", createdOn: "Создан", weeksShort: "нед.", notScheduled: "не назначена", weeksTitle: "Недельный план", focusColumn: "Фокус", gapsTitle: "Пробелы и что закрыть", mandatoryShort: "обязательных", detailedPlan: "Подробный план", planLoading: "Загружаем подробный план…", planUnavailable: "Подробный план недоступен или не прошёл проверку целостности.", sharedPlanNote: "Этот подробный план общий для направлений", showSuperseded: "Показать предыдущие версии планов", hideSuperseded: "Скрыть предыдущие версии планов", configuredSources: "Настроенные источники", configuredSourcesDesc: "Автоматические проверки вакансий: расписание, последняя проверка и результат.", dataSources: "Все источники данных", dataSourcesDesc: "Сайты, на которые ссылаются вакансии, компании, документы и история. Раскройте число ссылок, чтобы перейти к каждой.", sourceHost: "Сайт", sourceUse: "Где используется", sourceRecords: "Записей", sourceLinks: "Ссылки", schedule: "Расписание", daily: "раз в сутки", every: "каждые", lastCheck: "Последняя проверка", nextCheck: "Следующая проверка", foundCount: "Найдено вакансий", titleFilter: "Фильтр названий", never: "ещё не проводилась", noSourceLink: "Ссылка на источник не сохранена в настройках.", noTime: "время не указано", more: "ещё", recordChanged: "запись обновлена", eventType: "Тип события", foundLabel: "Найдена", versionFrom: "Версия от"});
   Object.assign(extraCopy.en, {openPosting: "Open posting", postingShort: "posting", hoursShort: "h", foundOn: "found", downloadPdf: "Download PDF", downloadMarkdown: "Download Markdown", openRecord: "Record details", showPlan: "Full plan", createdOn: "Created", weeksShort: "wk", notScheduled: "not scheduled", weeksTitle: "Weekly plan", focusColumn: "Focus", gapsTitle: "Gaps to close", mandatoryShort: "mandatory", detailedPlan: "Detailed plan", planLoading: "Loading the detailed plan…", planUnavailable: "The detailed plan is unavailable or failed its integrity check.", sharedPlanNote: "This detailed plan is shared by tracks", showSuperseded: "Show previous plan versions", hideSuperseded: "Hide previous plan versions", configuredSources: "Configured sources", configuredSourcesDesc: "Automated vacancy checks: schedule, last check and result.", dataSources: "All data sources", dataSourcesDesc: "Websites referenced by vacancies, companies, documents and history. Expand the link count to open each one.", sourceHost: "Website", sourceUse: "Used by", sourceRecords: "Records", sourceLinks: "Links", schedule: "Schedule", daily: "daily", every: "every", lastCheck: "Last check", nextCheck: "Next check", foundCount: "Vacancies found", titleFilter: "Title filter", never: "not yet run", noSourceLink: "No source link is stored in settings.", noTime: "time not recorded", more: "more", recordChanged: "record updated", eventType: "Event type", foundLabel: "Found", versionFrom: "Version of"});
   Object.assign(extraCopy.ru, {recentVacancies: "Свежие вакансии", needs_check: "Требует проверки", masterCv: "Мастер-резюме", files: "Файлы журнала", filesDesc: "Все зарегистрированные материалы, доступные для скачивания", activityEvent: "Событие активности", importRecord: "Импорт", superseded: "устарела"});
@@ -46,22 +48,24 @@
   const humanize = (value) => String(value).replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
   const regionNames = {};
   const countryName = (value) => { const code = countryCodes[value]; if (!code || typeof Intl.DisplayNames !== "function") return value; try { regionNames[state.lang] ||= new Intl.DisplayNames([state.lang], {type: "region"}); return regionNames[state.lang].of(code) || value; } catch (_) { return value; } };
-  const state = {lang: "ru", section: "overview", data: null, query: "", filters: {}, sort: "newest", page: 1, pageSize: 24, detailToken: 0, opened: null, filtersOpen: false, loadedAt: null, showSuperseded: false};
-  try { state.lang = localStorage.getItem("career-copilot-language") === "en" ? "en" : "ru"; } catch (_) { /* Storage is optional. */ }
+  const state = {lang: "ru", section: "overview", data: null, query: "", filters: {}, sort: "newest", page: 1, pageSize: 24, detailToken: 0, opened: null, filtersOpen: false, loadedAt: null, showSuperseded: false, contentMode: "translated"};
+  try { state.lang = localStorage.getItem("career-copilot-language") === "en" ? "en" : "ru"; state.contentMode = localStorage.getItem("career-copilot-content") === "original" ? "original" : "translated"; } catch (_) { /* Storage is optional. */ }
   const $ = (id) => document.getElementById(id);
   const t = (key) => copy[state.lang][key] || key;
   const label = (key) => labels[key]?.[state.lang === "ru" ? 0 : 1] || copy[state.lang][key] || String(key).replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
-  const translated = (value) => enums[value]?.[state.lang === "ru" ? 0 : 1] || (typeof value === "string" && /^[a-z]+(?:_[a-z0-9]+)+$/.test(value) ? humanize(value) : String(value));
+  const translated = (value) => enums[value]?.[state.lang === "ru" ? 0 : 1] || (typeof value === "string" && /^[a-z]+(?:_[a-z0-9]+)+$/.test(value) ? humanize(value) : typeof value === "string" ? tx(value) : String(value));
   const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
   const button = (text, className, action) => { const node = el("button", className, text); node.type = "button"; node.addEventListener("click", action); return node; };
-  const scalar = (value) => value === null || value === undefined ? "" : typeof value === "object" ? (Array.isArray(value) ? value.map(scalar).filter(Boolean).join(" · ") : scalar(value.text || value.name || value.title || value.value || value.raw || value.description)) : String(value);
+  // Journal text in the interface language when a stored translation exists; originals stay one click away.
+  const tx = (text) => state.contentMode === "original" ? text : state.data?.translations?.[text]?.[state.lang] || text;
+  const scalar = (value) => value === null || value === undefined ? "" : typeof value === "object" ? (Array.isArray(value) ? value.map(scalar).filter(Boolean).join(" · ") : scalar(value.text || value.name || value.title || value.value || value.raw || value.description)) : typeof value === "string" ? tx(value) : String(value);
   const known = (value) => { const v = scalar(value).trim(); return v && !/^(unknown|not specified|n\/a|null|none|неизвестно|не указано)$/i.test(v) ? v : ""; };
-  const records = (section) => state.data?.[section] || [];
+  const records = (section) => section === "pipeline" ? (state.data?.vacancies || []).filter((record) => record.kind === "vacancies") : state.data?.[section] || [];
   const primaryRecords = (section) => ["companies", "vacancies", "activities"].includes(section) ? records(section).filter((record) => record.kind === section) : section === "documents" ? records(section).filter((record) => record.kind !== "legacy_files") : records(section);
   const defaultFilters = (section) => ["companies", "vacancies", "activities"].includes(section) ? {kind: section} : {};
   const unwrap = (record) => record.payload && typeof record.payload === "object" && !Array.isArray(record.payload) ? record.payload : record;
   const normalize = (record, section) => ({...record, id: String(record.id ?? unwrap(record).id ?? ""), kind: record.kind || kinds[section] || section, payload: unwrap(record)});
-  const allRecords = () => state.all || sections.flatMap((section) => records(section));
+  const allRecords = () => state.all || sections.filter((section) => section !== "pipeline").flatMap((section) => records(section));
   const byId = (id, preferred) => { const index = state.index; if (index) return (preferred && index.get(`${preferred}/${id}`)) || index.get(`*/${id}`); const all = allRecords(); return (preferred && all.find((record) => record.kind === preferred && record.id === id)) || all.find((record) => record.id === id && !["activity_events", "legacy_files"].includes(record.kind)); };
   const recordTitle = (record) => {
     const p = record.payload;
@@ -74,10 +78,10 @@
     if (record.kind === "learning" && !p.title) return `${kindName("learning")} · ${tracks(record).map(translated).join(", ") || record.id}`;
     return scalar(p.title || p.name || p.operation || p.exercise || p.objectives || (p.type ? translated(p.type) : "") || (p.track ? translated(p.track) : "")) || record.id || t("unknownRecord");
   };
-  const needsCheck = (record) => record.kind === "vacancies" && record.payload.review_status !== "rejected" && record.payload.record_type !== "lead" && (!known(record.payload.availability) || record.payload.availability === "conflicting");
+  const needsCheck = (record) => record.kind === "vacancies" && record.payload.review_status !== "rejected" && record.payload.record_type !== "lead" && (!known(record.display?.availability || record.payload.availability) || (record.display?.availability || record.payload.availability) === "conflicting");
   const status = (record) => {
     const p = record.payload;
-    if (record.kind === "vacancies") return known(p.availability || p.status) || "unverified";
+    if (record.kind === "vacancies") return known(record.display?.availability || p.availability || p.status) || "unverified";
     if (record.kind === "companies") return isToken(p.decision) ? p.decision : known(p.status) || "unknown";
     if (record.kind === "packages") { const current = Array.isArray(p.versions) ? p.versions.find((version) => version.id === p.current_version) : null; return known(p.application_status || current?.review_status) || "unknown"; }
     if (record.kind === "source_settings") { if (p.enabled === false) return "disabled"; return known(p.health?.status) || "never_checked"; }
@@ -118,7 +122,7 @@
   function applyHash() {
     const raw = location.hash.slice(1), split = raw.indexOf("?"), name = split < 0 ? raw : raw.slice(0, split), params = new URLSearchParams(split < 0 ? "" : raw.slice(split + 1));
     state.section = sections.includes(name) ? name : "overview"; state.query = params.get("q") || ""; state.sort = params.get("sort") === "name" ? "name" : "newest"; state.page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
-    state.filters = defaultFilters(state.section); ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
+    state.filters = defaultFilters(state.section); ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type", "freshness"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
     return params.get("record");
   }
   function navigate(section, preset) { if (!sections.includes(section)) section = "overview"; if (state.section !== section || preset) { state.query = ""; state.filters = {...defaultFilters(section), ...(preset || {})}; state.page = 1; state.sort = "newest"; } state.section = section; const hash = hashFor(section, false); if (location.hash !== hash) history.pushState(null, "", hash); render(); $("main").focus({preventScroll: true}); window.scrollTo(0, 0); }
@@ -139,6 +143,9 @@
     const journalTime = state.data?.meta?.journal_updated_at, loaded = state.loadedAt;
     $("updated-at").textContent = [journalTime ? `${t("journalUpdated")} ${formatDateTime(journalTime)}` : "", loaded ? `${t("loadedAt")} ${formatDateTime(loaded)}` : ""].filter(Boolean).join(" · ");
     $("refresh").textContent = $("refresh").disabled ? t("refreshing") : t("refresh");
+    $("content-language").textContent = state.contentMode === "original" ? t("contentOriginal") : t("contentTranslated");
+    $("content-language").setAttribute("aria-pressed", String(state.contentMode === "original"));
+    $("content-language").title = t("contentToggleHint");
   }
   function formatDateTime(value) { const date = new Date(value); return Number.isNaN(date.valueOf()) ? scalar(value) : new Intl.DateTimeFormat(state.lang === "ru" ? "ru-RU" : "en-GB", {day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"}).format(date); }
   function emptyState(title, description, compact = false) { const block = el("div", `empty-state${compact ? " compact" : ""}`); block.append(el("span", "eyebrow", "CAREER COPILOT"), el("h2", "", t(title)), el("p", "", t(description))); return block; }
@@ -158,11 +165,13 @@
       const bottom = el("div", "opportunity-bottom"), place = ["country", "city", "remote"].filter((key) => geo[key] !== "unknown").map((key) => geographyValue(geo[key], key)).join(" · ");
       bottom.append(el("span", "location-line", [seenDate(record) ? `${t("foundLabel")} ${formatDate(seenDate(record))}` : "", place].filter(Boolean).join(" · ") || t("unknown")));
       const link = postingLink(record); if (link) bottom.append(link);
-      row.append(bottom); latest.append(row);
+      row.append(bottom); const age = el("div", "card-age"); age.append(ageBadge(record)); row.append(age); latest.append(row);
     });
     const rail = el("div", "overview-rail"), focus = el("section", "focus-panel"); const unknown = primaryRecords("vacancies").filter(needsCheck).length;
-    focus.append(el("div", "eyebrow", t("focus")), el("h2", "", t("focusTitle")), el("p", "", t("focusDesc")), el("div", "focus-divider"), el("span", "focus-number", String(unknown).padStart(2, "0")), el("p", "", t("unknownAvailability")));
-    if (unknown) focus.append(button(t("showUnknown"), "focus-link", () => navigate("vacancies", {availability: "needs_check"})));
+    focus.append(el("div", "eyebrow", t("focus")), el("h2", "", t("focusTitle")), el("p", "", t("focusDesc")), el("div", "focus-divider"), el("span", "focus-number", String(unknown).padStart(2, "0")), el("p", "", state.lang === "ru" ? `${plural(unknown, ["вакансия требует", "вакансии требуют", "вакансий требуют", "", ""])} проверки доступности` : t("unknownAvailability")));
+    if (unknown) { const links = el("div", "focus-actions"); links.append(button(t("showUnknown"), "focus-link", () => navigate("vacancies", {availability: "needs_check"}))); if (canCheck()) links.append(checkButton(() => primaryRecords("vacancies").filter(needsCheck).map((record) => record.id), `${t("checkAll")} (${unknown})`, "focus-link")); focus.append(links); }
+    const due = groupedReminders(primaryRecords("vacancies")), remindersBox = sectionPanel("remindersTitle", "pipeline");
+    if (due.length) due.slice(0, 4).forEach((item) => remindersBox.append(reminderRow(item))); else remindersBox.append(emptyState("noReminders", "noRemindersDesc", true));
     const actions = sectionPanel("nextSteps", "vacancies");
     // Open work first: unfinished activities, then active vacancies and followed companies with a recorded next step.
     const openActivity = (record) => record.kind === "activities" && !["completed", "failed"].includes(record.payload.status);
@@ -171,19 +180,19 @@
     const next = [...records("activities"), ...primaryRecords("vacancies"), ...primaryRecords("companies")].filter(actionable).sort((a, b) => rank(a) - rank(b) || dateValue(b).localeCompare(dateValue(a))).slice(0, 5);
     if (!next.length) actions.append(emptyState("noActions", "noActionsDesc", true));
     next.forEach((record, index) => { const row = el("article", "action-item"), body = el("div"); body.append(button(scalar(record.payload.next_action), "record-title", () => openRecord(record))); if (record.kind === "vacancies") { const context = el("div", "action-context"); context.append(el("span", "", `${kindName(record.kind)} · `), vacancyReference(record, {compact: true})); body.append(context); } else body.append(el("p", "", `${kindName(record.kind)} · ${recordTitle(record)}`)); row.append(el("span", "action-number", String(index + 1).padStart(2, "0")), body); actions.append(row); });
-    rail.append(focus, actions); grid.append(latest, rail);
+    rail.append(focus, remindersBox, actions); grid.append(latest, rail);
     const strip = el("div", "summary-strip overview-section"); ["preparations", "sources", "history"].forEach((section) => { const item = button("", "", () => navigate(section)); item.append(el("span", "", `${t(section)} ↗`), el("strong", "mono", String(records(section).length).padStart(2, "0"))); strip.append(item); });
     $("overview").replaceChildren(stats, grid, strip);
   }
-  const optionText = (key, value) => key === "type" ? (value.includes("_") || enums[value] ? translated(value) : label(value)) : key === "kind" ? label(value) : ["country", "city", "remote"].includes(key) ? geographyValue(value, key) : translated(value);
+  const optionText = (key, value) => key === "freshness" ? t(`freshness_${value}`) : key === "type" ? (value.includes("_") || enums[value] ? translated(value) : label(value)) : key === "kind" ? label(value) : ["country", "city", "remote"].includes(key) ? geographyValue(value, key) : translated(value);
   function renderToolbar() {
     const bar = el("div", `toolbar${state.filtersOpen ? " filters-open" : ""}`), searchRow = el("div", "search-row"), searchBox = el("div", "search-box"), search = el("input"); search.type = "search"; search.id = "record-search"; search.placeholder = t("search"); search.setAttribute("aria-label", t("search")); search.setAttribute("aria-keyshortcuts", "/"); search.title = t("searchHint"); search.autocomplete = "off"; search.value = state.query; search.addEventListener("input", () => { state.query = search.value; state.page = 1; renderResults(); }); search.addEventListener("keydown", (event) => { if (event.key === "Escape" && search.value) { event.preventDefault(); search.value = ""; state.query = ""; state.page = 1; renderResults(); } }); searchBox.append(el("span", "search-symbol", "⌕"), search);
     const sort = el("select", "sort-control"); sort.setAttribute("aria-label", state.lang === "ru" ? "Сортировка" : "Sort"); [["newest", "newest"], ["name", "alphabetical"]].forEach(([value, key]) => { const option = el("option", "", t(key)); option.value = value; sort.append(option); }); sort.value = state.sort; sort.addEventListener("change", () => { state.sort = sort.value; state.page = 1; renderResults(); });
     const count = activeFilterCount(), toggle = button(count ? `${t("filters")} · ${count}` : t("filters"), "filters-toggle", () => { state.filtersOpen = !state.filtersOpen; bar.classList.toggle("filters-open", state.filtersOpen); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); }); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); toggle.setAttribute("aria-controls", "filter-row");
     searchRow.append(searchBox, sort, toggle); bar.append(searchRow);
-    const row = el("div", "filter-row"), filterKeys = state.section === "vacancies" ? ["kind", "availability", "review", "track", "country", "city", "remote"] : state.section === "companies" ? ["kind", "country", "city", "status", "track"] : state.section === "history" ? ["type"] : state.section === "sources" ? [] : state.section === "preparations" ? ["kind", "track"] : ["kind", "status", "track"]; row.id = "filter-row";
+    const row = el("div", "filter-row"), filterKeys = state.section === "vacancies" ? ["kind", "availability", "freshness", "review", "track", "country", "city", "remote"] : state.section === "pipeline" ? ["track"] : state.section === "companies" ? ["kind", "country", "city", "status", "track"] : state.section === "history" ? ["type"] : state.section === "sources" ? [] : state.section === "preparations" ? ["kind", "track"] : ["kind", "status", "track"]; row.id = "filter-row";
     filterKeys.forEach((key) => {
-      const wrapper = el("label", "filter-control"), select = el("select"); select.id = `filter-${key}`; wrapper.append(el("span", "", key === "kind" ? label("type") : key === "availability" ? t("availabilityFilter") : key === "review" ? label("review_status") : key === "type" ? t("eventType") : t(key)));
+      const wrapper = el("label", "filter-control"), select = el("select"); select.id = `filter-${key}`; wrapper.append(el("span", "", key === "kind" ? label("type") : key === "availability" ? t("availabilityFilter") : key === "review" ? label("review_status") : key === "type" ? t("eventType") : key === "freshness" ? t("freshnessFilter") : t(key)));
       // Facet options come from records matching the other active filters, so a choice never leads to an empty list.
       const values = new Set(), others = Object.entries(state.filters).filter(([other, value]) => other !== key && value);
       records(state.section).filter((record) => others.every(([other, value]) => filterValues(record, other).includes(value))).forEach((record) => filterValues(record, key).forEach((v) => values.add(v)));
@@ -195,7 +204,7 @@
     const reset = button(t("reset"), "reset-button", resetFilters); reset.disabled = !filtersActive(); row.append(reset); if (filterKeys.length) bar.append(row); else { sort.hidden = true; toggle.hidden = true; } $("toolbar").replaceChildren(bar);
   }
   function resetFilters() { state.query = ""; state.filters = defaultFilters(state.section); state.page = 1; renderToolbar(); renderResults(); $("record-search")?.focus(); }
-  function filterValues(record, key) { if (key === "kind") return [record.kind]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
+  function filterValues(record, key) { if (key === "kind") return [record.kind]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "freshness") return [record.kind === "vacancies" ? freshness(record) : "never"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.display?.availability || record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
   function renderResults() {
     const query = state.query.trim().toLocaleLowerCase(state.lang);
     const filtered = records(state.section).filter((record) => (!query || `${recordTitle(record)} ${companyName(record)} ${JSON.stringify(record.payload)}`.toLocaleLowerCase(state.lang).includes(query)) && Object.entries(state.filters).every(([key, value]) => !value || filterValues(record, key).includes(value)));
@@ -203,8 +212,8 @@
     const totalPages = Math.max(1, Math.ceil(filtered.length / state.pageSize)); state.page = Math.min(state.page, totalPages);
     const active = filtersActive(), reset = document.querySelector(".reset-button"); if (reset) reset.disabled = !active;
     $("results-heading").replaceChildren(el("span", "", `${t("found")}: ${filtered.length.toLocaleString(state.lang)} ${recordsWord(filtered.length)}`), el("span", "", active ? t("activeFilters") : `${String(sections.indexOf(state.section) + 1).padStart(2, "0")} / ${t(state.section)}`));
-    if (state.section === "sources" || (filtered.length && ["preparations", "history"].includes(state.section))) {
-      $("results").replaceChildren(state.section === "sources" ? renderSources(filtered) : state.section === "history" ? renderHistory(filtered) : renderPreparations(filtered));
+    if (state.section === "sources" || (filtered.length && ["preparations", "history", "pipeline"].includes(state.section))) {
+      $("results").replaceChildren(state.section === "sources" ? renderSources(filtered) : state.section === "history" ? renderHistory(filtered) : state.section === "pipeline" ? renderPipeline(filtered) : renderPreparations(filtered));
       $("pagination").replaceChildren(); renderFiles(); syncHash(); return;
     }
     if (!filtered.length) { const block = emptyState(records(state.section).length ? "noResults" : "noRecords", records(state.section).length ? "noResultsDesc" : "noRecordsDesc"); if (records(state.section).length && active) block.append(button(t("reset"), "primary-button", resetFilters)); $("results").replaceChildren(block); } else { const grid = el("div", "records-grid"); filtered.slice((state.page - 1) * state.pageSize, state.page * state.pageSize).forEach((record) => grid.append(recordCard(record))); $("results").replaceChildren(grid); }
@@ -244,7 +253,7 @@
     if (record.kind === "companies") { const own = companyVacancies(record); if (own.length) { const box = el("div", "card-vacancy"); box.append(el("p", "company-label", `${label("vacancies")} · ${own.length}`)); own.slice(0, 3).forEach((vacancy) => box.append(vacancyReference(vacancy, {compact: true, company: false}))); if (own.length > 3) box.append(button(`+${own.length - 3} ${t("more")}`, "text-button", () => openRecord(record))); card.append(box); } }
     const footer = el("div", "card-footer"), stamp = record.kind === "vacancies" ? seenDate(record) : dateValue(record), prefix = record.kind === "vacancies" ? `${t("foundLabel")} ` : record.kind === "packages" ? `${t("versionFrom")} ` : "";
     footer.append(el("span", "", formatDate(stamp) ? `${prefix}${formatDate(stamp)}` : t("noDate")));
-    if (record.kind === "vacancies") { const link = postingLink(record); if (link) footer.append(link); } else { const firstUrl = [...linksFrom(p.urls || p.url || p.profile_sources || p.source_url || [])][0]; if (firstUrl) footer.append(externalLink(firstUrl, t("original"))); }
+    if (record.kind === "vacancies") { const link = postingLink(record); if (link) footer.append(link); const age = el("div", "card-age"); age.append(ageBadge(record)); if (canCheck() && !inactiveVacancy(record)) age.append(checkButton([record.id])); card.append(age); } else { const firstUrl = [...linksFrom(p.urls || p.url || p.profile_sources || p.source_url || [])][0]; if (firstUrl) footer.append(externalLink(firstUrl, t("original"))); }
     footer.append(button(`${t("open")} →`, "text-button", () => openRecord(record))); card.append(footer); return card;
   }
   // ---------------------------------------------------------------------------
@@ -498,6 +507,145 @@
     });
     return timeline;
   }
+  // ---------------------------------------------------------------------------
+  // Data age: when a vacancy's availability was last checked, with stale highlighting.
+  // ---------------------------------------------------------------------------
+  const DAY_MS = 86400000;
+  // Calendar days in the viewer's time zone, so "yesterday" means the previous date, not 24 hours.
+  const daysSince = (value) => { if (!value) return null; const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value); if (Number.isNaN(date.valueOf())) return null; const start = new Date(date.getFullYear(), date.getMonth(), date.getDate()), today = new Date(); return Math.max(0, Math.round((new Date(today.getFullYear(), today.getMonth(), today.getDate()) - start) / DAY_MS)); };
+  const relativeDays = (days) => new Intl.RelativeTimeFormat(state.lang === "ru" ? "ru" : "en", {numeric: "auto"}).format(-days, "day");
+  const checkedAt = (record) => record.display?.checked_at || record.payload.status_checked_on || null;
+  function freshness(record) { const days = daysSince(checkedAt(record)); return days === null ? "never" : days <= 7 ? "fresh" : days <= 14 ? "aging" : "stale"; }
+  function ageBadge(record) {
+    const days = daysSince(checkedAt(record)), bucket = freshness(record);
+    const undetermined = (record.display?.availability_check || record.payload.availability_check)?.status === "unknown";
+    const text = days === null ? `${t("neverChecked")}${daysSince(seenDate(record)) !== null ? ` · ${t("foundOn")} ${relativeDays(daysSince(seenDate(record)))}` : ""}` : `${t("checkedAgo")} ${relativeDays(days)}${undetermined ? ` · ${t("undetermined")}` : ""}`;
+    const node = el("span", `age age-${undetermined && bucket === "fresh" ? "aging" : bucket}`, text); node.title = t(`freshness_${bucket}`); return node;
+  }
+
+  // ---------------------------------------------------------------------------
+  // On-demand availability checks through the dashboard state directory.
+  // ---------------------------------------------------------------------------
+  const canCheck = () => Boolean(state.data?.capabilities?.availability_check);
+  let checking = false;
+  async function checkAvailability(ids) {
+    if (checking || !ids.length) return;
+    if (!canCheck()) { showNotice(t("checkUnavailable")); return; }
+    checking = true; let done = 0; const outcome = {open: 0, closed: 0, unknown: 0};
+    try {
+      for (let index = 0; index < ids.length; index += 10) {
+        const batch = ids.slice(index, index + 10);
+        showNotice(`${t("checkingProgress")} ${Math.min(index + batch.length, ids.length)} / ${ids.length}…`, 60000);
+        const response = await fetch("/api/availability/check", {method: "POST", credentials: "same-origin", cache: "no-store", headers: {"Content-Type": "application/json", "X-Career-Copilot": "availability-check"}, body: JSON.stringify({vacancy_ids: batch})});
+        if (response.status === 409) { showNotice(t("checkBusy")); return; }
+        if (!response.ok) throw new Error("check failed");
+        const data = await response.json();
+        Object.values(data.results || {}).forEach((result) => { outcome[result.status] = (outcome[result.status] || 0) + 1; done++; });
+      }
+      await load();
+      showNotice(`${t("checkDone")}: ${done} · ${translated("open")} ${outcome.open} · ${translated("closed")} ${outcome.closed} · ${translated("unknown")} ${outcome.unknown}`, 8000);
+      if (state.opened && $("record-dialog").open) { const fresh = byId(state.opened.id, state.opened.kind); if (fresh) openRecord(fresh); }
+    } catch (_) { showNotice(t("checkFailed")); }
+    finally { checking = false; }
+  }
+  function checkButton(ids, text, className = "text-button check-button") {
+    const node = button(text || t("checkNow"), className, () => checkAvailability(typeof ids === "function" ? ids() : ids));
+    node.disabled = !canCheck(); if (!canCheck()) node.title = t("checkUnavailable"); return node;
+  }
+  function availabilityPanel(record) {
+    const check = record.display?.availability_check || record.payload.availability_check, panel = el("section", "detail-section availability-panel"), head = el("div", "plan-section-row");
+    head.append(el("h3", "", t("availabilityTitle")), checkButton([record.id], t("checkNow"), "quiet-button check-button")); panel.append(head);
+    const row = el("div", "card-meta"); row.append(badge(status(record)), ageBadge(record)); panel.append(row);
+    if (check) {
+      panel.append(factList([[t("checkResult"), translated(check.status)], [t("checkReason"), t(`reason_${check.reason}`)], [t("checkConfidence"), t(`confidence_${check.confidence}`)], [t("checkEvidence"), check.evidence ? String(check.evidence) : ""], [t("checkTime"), formatDateTime(check.checked_at)], [t("checkUrl"), check.final_url ? externalLink(check.final_url, check.final_url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 80)) : ""]]));
+      if (check.pending_import) panel.append(el("p", "muted small-note", t("pendingImport")));
+    } else panel.append(el("p", "muted", t("noCheckYet")));
+    return panel;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Application funnel: furthest stage per vacancy, time in stage and reminders.
+  // ---------------------------------------------------------------------------
+  const STAGES = ["found", "assessed", "documents", "reviewed", "submitted", "response", "interview"];
+  const stamp = (...values) => values.map((value) => scalar(value)).filter(Boolean).sort().pop() || "";
+  function vacancyStage(record) {
+    const p = record.payload, reached = {found: stamp(p.first_seen, p.created_at)};
+    const assessment = allRecords().filter((item) => item.kind === "assessments" && item.payload.vacancy_id === record.id && item.display?.current !== false);
+    if (assessment.length || (Array.isArray(p.assessments) && p.assessments.length) || ["ranked", "researched"].includes(p.review_status)) reached.assessed = stamp(...assessment.map((item) => item.payload.at), p.reviewed_on) || reached.found;
+    const packages = records("documents").filter((item) => item.kind === "packages" && item.payload.vacancy_id === record.id);
+    packages.forEach((item) => {
+      const versions = Array.isArray(item.payload.versions) ? item.payload.versions : [], current = versions.find((version) => version.id === item.payload.current_version);
+      const first = versions.map((version) => scalar(version.date)).filter(Boolean).sort()[0];
+      reached.documents = reached.documents || first || reached.assessed || reached.found;
+      if (current?.review_status === "passed") reached.reviewed = stamp(current.date) || reached.documents;
+      if (item.payload.application_status === "submitted") reached.submitted = stamp(item.payload.submission?.at, item.payload.submission?.date) || reached.reviewed || reached.documents;
+    });
+    const linked = (kind) => allRecords().filter((item) => item.kind === kind && (item.payload.vacancy_id === record.id || (Array.isArray(item.payload.vacancy_ids) && item.payload.vacancy_ids.includes(record.id))));
+    const submissions = linked("submissions"); if (submissions.length) reached.submitted = stamp(...submissions.map((item) => item.payload.at || item.payload.date || item.payload.submitted_at));
+    const responses = linked("employer_responses"); if (responses.length) reached.response = stamp(...responses.map((item) => item.payload.at || item.payload.date || item.payload.received_at));
+    const interviews = [...linked("interview_practices"), ...linked("interview_feedback")];
+    if (p.interview_date || interviews.length) reached.interview = stamp(p.interview_date, ...interviews.map((item) => item.payload.at || item.payload.date));
+    const stage = [...STAGES].reverse().find((name) => reached[name] !== undefined) || "found";
+    return {stage, since: reached[stage], reached};
+  }
+  const inactiveVacancy = (record) => INACTIVE.has(status(record)) || record.payload.review_status === "rejected";
+  function reminders(list = primaryRecords("vacancies")) {
+    const items = [];
+    list.filter((record) => !inactiveVacancy(record)).forEach((record) => {
+      const {stage, since, reached} = vacancyStage(record), inStage = daysSince(since);
+      if (record.payload.interview_date && new Date(record.payload.interview_date).valueOf() >= Date.now() - DAY_MS && Math.ceil((new Date(record.payload.interview_date).valueOf() - Date.now()) / DAY_MS) <= 7) items.push({record, severity: 0, key: "reminderInterview", days: Math.max(0, Math.ceil((new Date(record.payload.interview_date).valueOf() - Date.now()) / DAY_MS))});
+      if (stage === "reviewed" && inStage !== null && inStage > 3) items.push({record, severity: 1, key: "reminderSubmit", days: inStage});
+      if (stage === "documents" && inStage !== null && inStage > 5) items.push({record, severity: 2, key: "reminderReview", days: inStage});
+      if (stage === "submitted" && inStage !== null && inStage > 14) items.push({record, severity: 1, key: "reminderResponse", days: inStage});
+      if (reached.assessed && ["stale", "never"].includes(freshness(record))) items.push({record, severity: 3, key: "reminderCheck", days: daysSince(checkedAt(record))});
+    });
+    return items.sort((a, b) => a.severity - b.severity || (b.days ?? 999) - (a.days ?? 999));
+  }
+  function groupedReminders(list) {
+    const items = reminders(list), checks = items.filter((item) => item.key === "reminderCheck"), others = items.filter((item) => item.key !== "reminderCheck");
+    return checks.length > 1 ? [...others, {key: "reminderCheckGroup", severity: 3, records: checks.map((item) => item.record)}] : items;
+  }
+  function reminderRow(item) {
+    if (item.key === "reminderCheckGroup") {
+      const row = el("article", "reminder severity-3"), body = el("div"), details = el("details", "link-details"), list = el("div", "stacked-refs");
+      details.append(el("summary", "", `${item.records.length} ${plural(item.records.length, ["вакансия", "вакансии", "вакансий", "vacancy", "vacancies"])}`));
+      item.records.forEach((record) => { const line = el("div", "card-age"); line.append(vacancyReference(record, {date: false, compact: true}), ageBadge(record)); list.append(line); });
+      details.append(list); body.append(el("strong", "", t("reminderCheckGroup")), details); row.append(body, checkButton(item.records.map((record) => record.id), `${t("checkAll")} (${item.records.length})`));
+      return row;
+    }
+    const row = el("article", `reminder severity-${item.severity}`), body = el("div");
+    const text = item.key === "reminderCheck" ? (item.days === null ? t("reminderNeverChecked") : `${t("reminderCheck")} ${relativeDays(item.days)}`) : `${t(item.key)}: ${item.days} ${plural(item.days, ["день", "дня", "дней", "day", "days"])}`;
+    body.append(el("strong", "", text), vacancyReference(item.record, {date: false, compact: true}));
+    row.append(body);
+    if (item.key === "reminderCheck") row.append(checkButton([item.record.id]));
+    return row;
+  }
+  function renderPipeline(list) {
+    const container = el("div", "pipeline-view"), active = list.filter((record) => !inactiveVacancy(record)), inactive = list.filter(inactiveVacancy);
+    const due = groupedReminders(active);
+    const remindersPanel = el("section", "view-section"); remindersPanel.append(el("h2", "view-title", `${t("remindersTitle")} · ${due.length}`), el("p", "muted", t("remindersDesc")));
+    if (due.length) { const box = el("div", "reminder-list"); due.forEach((item) => box.append(reminderRow(item))); remindersPanel.append(box); } else remindersPanel.append(emptyState("noReminders", "noRemindersDesc", true));
+    const board = el("div", "pipeline-board"), byStage = new Map(STAGES.map((name) => [name, []]));
+    active.forEach((record) => { const info = vacancyStage(record); byStage.get(info.stage).push({record, info}); });
+    STAGES.forEach((name) => {
+      const column = el("section", "pipeline-column"), items = byStage.get(name).sort((a, b) => (a.info.since || "").localeCompare(b.info.since || ""));
+      const header = el("header", "pipeline-head"); header.append(el("span", "", t(`stage_${name}`)), el("strong", "mono", String(items.length))); column.append(header, el("p", "pipeline-hint", t(`stage_${name}_hint`)));
+      items.forEach(({record, info}) => {
+        const card = el("article", "pipeline-card"); card.append(el("p", "company-label", companyName(record) || t("unknown")), button(recordTitle(record), "record-title", () => openRecord(record)));
+        const meta = el("div", "card-meta"); meta.append(badge(status(record)), ageBadge(record)); card.append(meta);
+        const since = daysSince(info.since); if (since !== null) card.append(el("p", "pipeline-since", `${t("inStage")} ${since} ${plural(since, ["день", "дня", "дней", "day", "days"])} · ${formatDate(info.since)}`));
+        if (known(record.payload.next_action)) card.append(el("p", "record-summary", scalar(record.payload.next_action)));
+        const link = postingLink(record); if (link) card.append(link);
+        column.append(card);
+      });
+      board.append(column);
+    });
+    const funnel = el("section", "view-section"); funnel.append(el("h2", "view-title", t("funnelTitle")), el("p", "muted", t("funnelDesc")));
+    const scroll = el("div", "pipeline-scroll"); scroll.append(board); funnel.append(scroll);
+    const closed = el("details", "files-panel"); const summary = el("summary"); summary.append(el("span", "", t("closedLane")), el("span", "mono", String(inactive.length))); closed.append(summary);
+    const closedBody = el("div", "files-body stacked-refs"); inactive.forEach((record) => closedBody.append(vacancyReference(record, {compact: true}))); closed.append(closedBody);
+    container.append(remindersPanel, funnel, closed); return container;
+  }
   function relation(value, key) {
     const preferred = {company_id: "companies", vacancy_id: "vacancies", vacancy_ids: "vacancies", related_vacancy_ids: "vacancies", package_id: "packages", activity_id: "activities", parent_activity_id: "activities", event_id: "events", assessment_id: "assessments", plan_id: "interview_plans"}[key];
     if (preferred) return byId(value, preferred) || null;
@@ -522,6 +670,7 @@
     const meta = el("div", "card-meta"); if (status(record) !== "unknown" || record.kind === "vacancies") meta.append(badge(status(record))); tracks(record).forEach((track) => meta.append(badge(track))); fragment.append(meta);
     if (notice) { const message = el("p", notice === "detailLoading" ? "muted" : "detail-warning", t(notice)); if (notice === "detailLoading") message.setAttribute("role", "status"); fragment.append(message); }
     if (["companies", "vacancies"].includes(record.kind)) { const geo = el("div", "detail-geography"); geo.append(geographyBlock(record)); const raw = geography(record).raw; if (raw) { const rawText = el("div", "location-line"); rawText.textContent = `${t("originalLocation")}: ${raw}`; geo.append(rawText); } fragment.append(geo); }
+    if (record.kind === "vacancies" && !record.missing) fragment.append(availabilityPanel(record));
     const links = [...linksFrom(p.urls || p.url || p.profile_sources || p.source_url || [])]; if (links.length) { const group = el("div", "detail-links"); links.forEach((url, index) => group.append(externalLink(url, record.kind === "vacancies" && index === 0 ? `${t("openPosting")} ↗` : `${t("source")} ${index + 1} ↗`))); fragment.append(group); }
     const groups = {recordFields: {}, evidenceFields: {}, versionFields: {}, sourceFields: {}};
     Object.entries(p).forEach(([key, value]) => { if (key === "id") return; const group = /^(versions|files|artifacts|reviews|current_version|review_status|application_status)$/.test(key) ? "versionFields" : /(requirement|evidence|assessment|gate|decision|seniority|gap)/.test(key) ? "evidenceFields" : /(source|url|snapshot|dossier|provenance)/.test(key) ? "sourceFields" : "recordFields"; groups[group][key] = value; });
@@ -539,7 +688,7 @@
   }
   async function load() {
     const firstLoad = !state.data; $("refresh").disabled = true; $("refresh").textContent = t("refreshing"); $("main").setAttribute("aria-busy", "true");
-    try { const response = await fetch("/api/workspace", {cache: "no-store", credentials: "same-origin"}); if (!response.ok) throw new Error("workspace unavailable"); const data = await response.json(); const normalized = {...data}; sections.filter((section) => section !== "overview").forEach((section) => { const values = data[section] || data.entities?.[section] || data[kinds[section]] || []; normalized[section] = Array.isArray(values) ? values.map((record) => normalize(record, section)) : []; }); state.data = normalized; state.all = sections.flatMap((section) => normalized[section] || []); state.index = new Map(); state.all.forEach((record) => { state.index.set(`${record.kind}/${record.id}`, record); if (!["activity_events", "legacy_files"].includes(record.kind) && !state.index.has(`*/${record.id}`)) state.index.set(`*/${record.id}`, record); }); state.loadedAt = new Date().toISOString(); state.artifacts = new Set((data.artifacts || []).map((artifact) => typeof artifact === "string" ? artifact : artifact.path)); state.artifactAliases = new Map(); [...(data.legacy_files || []), ...allRecords().filter((record) => record.kind === "legacy_files")].forEach((record) => { const p = unwrap(record); if (typeof p.path === "string") state.artifactAliases.set(String(p.id || record.id), p.path); }); $("refresh").disabled = false; render(); if (firstLoad) openLinkedRecord(pendingRecord); }
+    try { const response = await fetch("/api/workspace", {cache: "no-store", credentials: "same-origin"}); if (!response.ok) throw new Error("workspace unavailable"); const data = await response.json(); const normalized = {...data}; sections.filter((section) => !["overview", "pipeline"].includes(section)).forEach((section) => { const values = data[section] || data.entities?.[section] || data[kinds[section]] || []; normalized[section] = Array.isArray(values) ? values.map((record) => normalize(record, section)) : []; }); state.data = normalized; state.all = sections.filter((section) => section !== "pipeline").flatMap((section) => normalized[section] || []); state.index = new Map(); state.all.forEach((record) => { state.index.set(`${record.kind}/${record.id}`, record); if (!["activity_events", "legacy_files"].includes(record.kind) && !state.index.has(`*/${record.id}`)) state.index.set(`*/${record.id}`, record); }); state.loadedAt = new Date().toISOString(); state.artifacts = new Set((data.artifacts || []).map((artifact) => typeof artifact === "string" ? artifact : artifact.path)); state.artifactAliases = new Map(); [...(data.legacy_files || []), ...allRecords().filter((record) => record.kind === "legacy_files")].forEach((record) => { const p = unwrap(record); if (typeof p.path === "string") state.artifactAliases.set(String(p.id || record.id), p.path); }); $("refresh").disabled = false; render(); if (firstLoad) openLinkedRecord(pendingRecord); }
     catch (_) {
       if (state.data) { $("connection").textContent = ""; showNotice(t("refreshFailed")); }
       else { $("connection").textContent = ""; $("overview").hidden = true; $("collection").hidden = true; const error = emptyState("error", "errorDesc"); error.append(button(t("retry"), "primary-button", load)); $("load-state").replaceChildren(error); $("load-state").className = ""; $("load-state").hidden = false; }
@@ -547,10 +696,11 @@
     finally { $("refresh").disabled = false; $("refresh").textContent = t("refresh"); $("main").removeAttribute("aria-busy"); }
   }
   let noticeTimer = 0;
-  function showNotice(message) { const notice = $("notice"); notice.textContent = message; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { notice.hidden = true; }, 5000); }
+  function showNotice(message, duration = 5000) { const notice = $("notice"); notice.textContent = message; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { notice.hidden = true; }, duration); }
   async function copyLink() { const url = location.href; try { await navigator.clipboard.writeText(url); showNotice(t("linkCopied")); } catch (_) { window.prompt(t("copyLink"), url); } }
   $("refresh").addEventListener("click", load);
   $("copy-link").addEventListener("click", copyLink);
+  $("content-language").addEventListener("click", () => { state.contentMode = state.contentMode === "original" ? "translated" : "original"; try { localStorage.setItem("career-copilot-content", state.contentMode); } catch (_) { /* Storage is optional. */ } render(); if ($("record-dialog").open && state.opened) renderDetail(state.opened); });
   $("language").addEventListener("click", () => { state.lang = state.lang === "ru" ? "en" : "ru"; try { localStorage.setItem("career-copilot-language", state.lang); } catch (_) { /* Storage is optional. */ } render(); if ($("record-dialog").open && state.opened) renderDetail(state.opened); });
   $("close-detail").addEventListener("click", () => $("record-dialog").close());
   $("record-dialog").addEventListener("close", () => { state.detailToken++; state.opened = null; syncHash(); });

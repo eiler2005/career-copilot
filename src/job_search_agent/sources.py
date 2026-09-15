@@ -383,7 +383,9 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                     if len(raw) > 5_000_000:
                         status = "response_too_large"
                         break
-                    snapshot = store.artifact(f"snapshots/{sid}/{digest(raw)}.txt", raw)
+                    snapshot = store.readable_artifact(
+                        f"snapshots/{sid}", ["response"], raw, ".txt"
+                    )
                     body = response.text
                     health["http_status"] = response.status_code
                     if response.status_code == 429:

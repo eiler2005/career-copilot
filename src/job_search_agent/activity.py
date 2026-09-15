@@ -85,7 +85,7 @@ def snapshot_ref(store: Store, ref: dict, base: Path) -> dict:
     body = path.read_bytes()
     if digest(body) != ref["sha256"]:
         raise ValueError("File reference missing or stale")
-    relative = store.artifact(f"activity-artifacts/{digest(body)}{path.suffix}", body)
+    relative = store.readable_artifact("activity-artifacts", [path.stem], body, path.suffix)
     return {"path": relative, "sha256": digest(body), "original_path": str(path)}
 
 

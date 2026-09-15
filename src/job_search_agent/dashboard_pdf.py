@@ -281,9 +281,22 @@ def plan_pdf(
     vacancy: dict | None = None,
     company: dict | None = None,
     plan_text: str | None = None,
+    translations: dict[str, dict] | None = None,
 ) -> bytes:
     """Render a learning or interview plan into a PDF document."""
     _register_fonts()
+    lookup = translations or {}
+
+    def localized(value: object) -> object:
+        if isinstance(value, str):
+            return (lookup.get(value) or {}).get(lang) or value
+        if isinstance(value, list):
+            return [localized(item) for item in value]
+        if isinstance(value, dict):
+            return {key: localized(item) for key, item in value.items()}
+        return value
+
+    record = {**record, "payload": localized(record["payload"])}
     labels = LABELS["en" if lang == "en" else "ru"]
     payload = record["payload"]
     kind = record["kind"]

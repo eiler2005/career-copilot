@@ -19,6 +19,10 @@ SQLite records describe current entities and retained decisions. Files preserve 
 | `learning/`, `report/` | Plans and generated local views |
 | `imports/`, `legacy/` | Original migration input and retained legacy files |
 
+## Artifact file names
+
+Generated files follow `<YYYY-MM-DD>-<context>-<sha256 prefix><suffix>` inside their directory, for example `learning/2026-09-14-product-demo-platform-lead-53275ec9.json`, `reviews/2026-09-14-master-product-v-86bc5079e2f59c79-content-cbfd1f49.json` or `evidence/2026-09-14-verified-distinctions-1bc1969f.md`. The date is when the material entered the journal, the context names what it is (track and vacancy, package/version/review kind, original file name) and the eight-character hash ties the name to the registered checksum and keeps it unique. Identical content registered again in the same directory reuses the existing file. Preserved legacy file names stay readable but are shortened to at most 200 bytes, below the 255-byte limit of common file systems.
+
 All of these paths belong in private storage. Artifact references inside the journal are workspace-relative; external working paths in activity metadata can be private absolute paths and must not be published.
 
 ## Database tables
@@ -30,7 +34,9 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `companies` | Company ID, business profile, size evidence and dossier references |
 | `vacancies` | Company/provider/external IDs, URLs, source observation, availability, requirements and role gates |
 | `observations` | Immutable relationship between vacancy, source, snapshot and parsed payload |
-| `current_assessments` | Current assessment pointer per vacancy/track; retained history remains in assessments |
+| `current_assessments`, `current_learning` | Current assessment and learning-plan pointers per vacancy/track |
+| `superseded_records` | Archived older results (`kind`, `record_id`, `superseded_by`, full `payload`) removed from the active kinds |
+| `text_translations` | Russian/English renderings of one exact journal text (ID = hash of the text) and translator identity |
 | `assessments` | Vacancy + track + input hash; explicit requirement evidence and rule decision |
 | `packages` | Logical master/vacancy + track; current version and retained version list |
 | `events` | Concrete operation, entity IDs, details and time |
@@ -85,7 +91,9 @@ Requirements use stable `id`, `text`, `source`, `mandatory`, optional `tag`, `ev
 
 ## Assessments and document versions
 
-An assessment's input hash covers the vacancy, company, candidate facts and policy. Rule decisions are `priority`, `needs_clarification`, `not_suitable` or `watch`. A tag match is only a suggestion; coverage requires reviewed links to verified nontarget facts. These conservative rules are not a semantic ranking model.
+An assessment's input hash covers the vacancy, company, candidate facts and policy. Re-running `evaluate` or `learn` for the same vacancy and track does not accumulate duplicates: an unchanged conclusion keeps the current record even when inputs were refreshed, and a changed conclusion becomes current while the previous one moves to `superseded_records`.
+
+A vacancy's `availability_check` holds the latest automated check (`status`, `reason`, `confidence`, `evidence`, `http_status`, `final_url`, `checked_at`, `method`) and `availability_history` keeps the last 20. A determined result also sets `availability` and `status_checked_on`; see [CLI](CLI.md#availability-translations-and-maintenance) for the rules. Rule decisions are `priority`, `needs_clarification`, `not_suitable` or `watch`. A tag match is only a suggestion; coverage requires reviewed links to verified nontarget facts. These conservative rules are not a semantic ranking model.
 
 A package version preserves source, PDF, extracted text, optional letter, context, coverage, task, author identity, contributor provenance, page counts and file hashes. Identical inputs reuse the version; changed inputs create a new one. Reviews bind to the full hash set and exact `version_id`.
 

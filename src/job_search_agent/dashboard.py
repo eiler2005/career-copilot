@@ -15,6 +15,7 @@ import mimetypes
 import os
 import re
 import sqlite3
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -24,7 +25,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from .core import safe_id, validate_home
+from . import availability
+from .core import atomic_write, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
 ALLOWED_KINDS = frozenset(
@@ -50,6 +52,7 @@ ALLOWED_KINDS = frozenset(
         "source_health",
         "source_settings",
         "submissions",
+        "superseded_records",
         "text_revisions",
         "vacancies",
     }
@@ -366,6 +369,34 @@ def _record(kind: str, payload: dict, row_id: str) -> dict:
 
 
 PLAN_KINDS = frozenset({"learning", "interview_plans"})
+AVAILABILITY_STATE = "availability-checks.json"
+MAX_CHECK_BATCH = 10
+CHECK_COOLDOWN_SECONDS = 600
+
+
+def _availability_display(record: dict, state_check: dict | None) -> None:
+    """Expose the newest availability check and the effective status for display."""
+    payload = record["payload"]
+    journal_check = (
+        payload.get("availability_check")
+        if isinstance(payload.get("availability_check"), dict)
+        else None
+    )
+    check = journal_check
+    availability_value = payload.get("availability")
+    if state_check and (
+        not journal_check or state_check.get("checked_at", "") > journal_check.get("checked_at", "")
+    ):
+        check = {**state_check, "pending_import": True}
+        availability_value = availability.effective_availability(availability_value, state_check)
+    stamps = [
+        value
+        for value in ((check or {}).get("checked_at"), payload.get("status_checked_on"))
+        if isinstance(value, str) and value
+    ]
+    record["display"]["availability"] = availability_value
+    record["display"]["availability_check"] = check
+    record["display"]["checked_at"] = max(stamps) if stamps else None
 
 
 def _mark_superseded(records: list[dict], kind: str = "assessments") -> None:
@@ -392,16 +423,23 @@ def _mark_superseded(records: list[dict], kind: str = "assessments") -> None:
 @dataclass(frozen=True)
 class Journal:
     home: Path
+    state_dir: Path | None = None
 
     @classmethod
-    def open(cls, home: str | Path) -> Journal:
+    def open(cls, home: str | Path, state_dir: str | Path | None = None) -> Journal:
         home_path = validate_home(home)
         if (
             not (home_path / "workspace.json").is_file()
             or not (home_path / "journal.sqlite").is_file()
         ):
             raise ValueError("Workspace journal is unavailable")
-        return cls(home_path)
+        state = None
+        if state_dir is not None:
+            state = Path(state_dir).expanduser().resolve()
+            if state == home_path or state.is_relative_to(home_path):
+                raise ValueError("Dashboard state must live outside the read-only workspace")
+            state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        return cls(home_path, state)
 
     @contextmanager
     def snapshot(self) -> Iterator[sqlite3.Connection]:
@@ -477,7 +515,18 @@ class Journal:
         row = connection.execute(
             "SELECT id, payload FROM records WHERE kind=? AND id=?", (kind, key)
         ).fetchone()
-        return _record(kind, json.loads(row[1]), row[0]) if row else None
+        if row:
+            return _record(kind, json.loads(row[1]), row[0])
+        archived = connection.execute(
+            "SELECT payload FROM records WHERE kind='superseded_records' AND id=?",
+            (f"{kind}--{key}",),
+        ).fetchone()
+        if not archived:
+            return None
+        entry = json.loads(archived[0])
+        result = _record(kind, entry.get("payload") or {}, key)
+        result["display"].update(current=False, superseded_by=entry.get("superseded_by"))
+        return result
 
     @staticmethod
     def artifacts(connection: sqlite3.Connection) -> list[dict]:
@@ -494,8 +543,25 @@ class Journal:
                 for name, kinds in WORKSPACE_GROUPS.items()
             }
             artifacts = self.artifacts(connection)
+            translations = {}
+            for (payload,) in connection.execute(
+                "SELECT payload FROM records WHERE kind='text_translations'"
+            ):
+                entry = json.loads(payload)
+                if isinstance(entry.get("text"), str) and isinstance(
+                    entry.get("translations"), dict
+                ):
+                    translations[redact_local_text(entry["text"])] = {
+                        lang: redact_local_text(value)
+                        for lang, value in entry["translations"].items()
+                        if lang in {"ru", "en"} and isinstance(value, str)
+                    }
         _mark_superseded(grouped["vacancies"], "assessments")
         _mark_superseded(grouped["preparations"], "learning")
+        checks = self.availability_checks()
+        for record in grouped["vacancies"]:
+            if record["kind"] == "vacancies":
+                _availability_display(record, checks.get(record["id"]))
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -506,7 +572,19 @@ class Journal:
             },
             **grouped,
             "artifacts": artifacts,
+            "translations": translations,
+            "capabilities": {"availability_check": self.state_dir is not None},
         }
+
+    def availability_checks(self) -> dict:
+        if self.state_dir is None:
+            return {}
+        try:
+            data = json.loads((self.state_dir / AVAILABILITY_STATE).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+        checks = data.get("checks") if isinstance(data, dict) else None
+        return checks if isinstance(checks, dict) else {}
 
     def journal_updated_at(self) -> str | None:
         """Last write to the journal or its WAL, so a remote snapshot shows its age."""
@@ -599,7 +677,82 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self._dispatch(head_only=False)
 
     def do_POST(self) -> None:
-        self._error(HTTPStatus.METHOD_NOT_ALLOWED)
+        try:
+            if not self._trusted_host():
+                self._error(HTTPStatus.BAD_REQUEST)
+                return
+            if urlsplit(self.path).path != "/api/availability/check":
+                self._error(HTTPStatus.METHOD_NOT_ALLOWED)
+                return
+            self._availability_check()
+        except BrokenPipeError:
+            return
+        except (OSError, ValueError):
+            try:
+                self._error(HTTPStatus.SERVICE_UNAVAILABLE)
+            except BrokenPipeError:
+                return
+
+    def _same_origin(self) -> bool:
+        origin = self.headers.get("Origin")
+        if not origin:
+            return True
+        host = (urlsplit(origin).hostname or "").casefold()
+        return host in self.server.allowed_hosts
+
+    def _availability_check(self) -> None:
+        """Run read-only checks for stored posting URLs; results go to the state directory."""
+        journal = self.server.journal
+        if journal.state_dir is None:
+            self._error(HTTPStatus.NOT_IMPLEMENTED)
+            return
+        if (
+            self.headers.get("X-Career-Copilot") != "availability-check"
+            or not self.headers.get("Content-Type", "").startswith("application/json")
+            or not self._same_origin()
+        ):
+            self._error(HTTPStatus.FORBIDDEN)
+            return
+        length = int(self.headers.get("Content-Length") or 0)
+        if not 0 < length <= 10_000:
+            self._error(HTTPStatus.BAD_REQUEST)
+            return
+        body = json.loads(self.rfile.read(length))
+        ids = body.get("vacancy_ids") if isinstance(body, dict) else None
+        if not isinstance(ids, list) or not 0 < len(ids) <= MAX_CHECK_BATCH:
+            self._error(HTTPStatus.BAD_REQUEST)
+            return
+        try:
+            ids = [safe_id(str(value)) for value in ids]
+        except ValueError:
+            self._error(HTTPStatus.BAD_REQUEST)
+            return
+        if not self.server.check_lock.acquire(blocking=False):
+            self._error(HTTPStatus.CONFLICT)
+            return
+        try:
+            with journal.snapshot() as connection:
+                vacancies = {key: journal.record(connection, "vacancies", key) for key in ids}
+            state_path = journal.state_dir / AVAILABILITY_STATE
+            checks = journal.availability_checks()
+            results = {}
+            now_utc = datetime.now(UTC)
+            for key, record in vacancies.items():
+                if record is None:
+                    continue
+                previous = checks.get(key)
+                if previous:
+                    age = now_utc - datetime.fromisoformat(previous["checked_at"])
+                    if age.total_seconds() < CHECK_COOLDOWN_SECONDS:
+                        results[key] = {**previous, "cached": True}
+                        continue
+                result = availability.check_url(availability.posting_url(record["payload"]))
+                checks[key] = result
+                results[key] = result
+            atomic_write(state_path, encode({"schema_version": 1, "checks": checks}))
+        finally:
+            self.server.check_lock.release()
+        self._json({"results": results}, head_only=False)
 
     def _dispatch(self, *, head_only: bool) -> None:
         try:
@@ -670,6 +823,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if record is None:
             self._error(HTTPStatus.NOT_FOUND)
             return
+        if kind == "vacancies":
+            _availability_display(record, self.server.journal.availability_checks().get(key))
         self._json(record, head_only)
 
     def _artifact(self, path: str, head_only: bool) -> None:
@@ -741,7 +896,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 plan_text = artifact[0].read_text(encoding="utf-8", errors="replace")
         query = urlsplit(self.path).query
         lang = "en" if "lang=en" in query.split("&") else "ru"
-        data = plan_pdf(record, lang, vacancy, company, plan_text)
+        with journal.snapshot() as connection:
+            translations = {
+                entry["text"]: entry.get("translations", {})
+                for entry in (
+                    json.loads(row[0])
+                    for row in connection.execute(
+                        "SELECT payload FROM records WHERE kind='text_translations'"
+                    )
+                )
+                if isinstance(entry.get("text"), str)
+            }
+        data = plan_pdf(record, lang, vacancy, company, plan_text, translations)
         track = re.sub(r"[^A-Za-z0-9-]+", "-", str(record["payload"].get("track") or "plan"))
         stamp = str(record["payload"].get("created_at") or "")[:10]
         name = f"career-copilot-{kind.replace('_', '-')}-{track}{'-' + stamp if stamp else ''}.pdf"
@@ -829,6 +995,7 @@ class DashboardServer(ThreadingHTTPServer):
         self.journal = journal
         self.assets = assets
         self.allowed_hosts = hosts
+        self.check_lock = threading.Lock()
         super().__init__(address, DashboardHandler)
 
 
@@ -841,12 +1008,14 @@ def serve(
     host: str = "127.0.0.1",
     port: int = 8080,
     hosts: frozenset[str] = LOOPBACK_HOSTS,
+    state_dir: str | Path | None = None,
 ) -> None:
     if host not in {"127.0.0.1", "0.0.0.0"}:
         raise ValueError("Dashboard host must be 127.0.0.1 or the container bind address 0.0.0.0")
     if not 1 <= port <= 65535:
         raise ValueError("Dashboard port must be between 1 and 65535")
-    with DashboardServer((host, port), Journal.open(home), assets_path(), hosts) as server:
+    journal = Journal.open(home, state_dir)
+    with DashboardServer((host, port), journal, assets_path(), hosts) as server:
         server.serve_forever()
 
 
@@ -861,6 +1030,10 @@ def parser() -> argparse.ArgumentParser:
         default=[],
         help=f"Hostname served by an authenticating reverse proxy; repeatable (or {ALLOWED_HOSTS_ENV})",
     )
+    result.add_argument(
+        "--state-dir",
+        help="Writable directory for on-demand availability checks; enables the check button",
+    )
     return result
 
 
@@ -868,7 +1041,7 @@ def main() -> int:
     args = parser().parse_args()
     try:
         hosts = allowed_hosts([*args.allowed_host, os.environ.get(ALLOWED_HOSTS_ENV, "")])
-        serve(args.home, args.host, args.port, hosts)
+        serve(args.home, args.host, args.port, hosts, args.state_dir)
     except ValueError as error:
         parser().error(str(error))
     return 0

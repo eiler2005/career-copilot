@@ -373,7 +373,7 @@ def test_allowed_hosts_come_from_cli_and_environment(tmp_path: Path, monkeypatch
     monkeypatch.setattr(
         dashboard,
         "serve",
-        lambda home_arg, host, port, hosts: captured.update(home=home_arg, hosts=hosts),
+        lambda home_arg, host, port, hosts, state_dir: captured.update(home=home_arg, hosts=hosts),
     )
     monkeypatch.setenv("AJH_DASHBOARD_ALLOWED_HOSTS", "env.example.test")
     monkeypatch.setattr(
@@ -642,3 +642,129 @@ def test_markdown_blocks_parse_the_plan_subset():
     assert redact_local_text("see ~/notes/plan.md, then /api/text") == (
         "see [local]/plan.md, then /api/text"
     )
+
+
+def post(url: str, body: object, headers: dict | None = None):
+    data = json.dumps(body).encode()
+    target = Request(
+        url,
+        data=data,
+        method="POST",
+        headers={"Content-Type": "application/json", **(headers or {})},
+    )
+    with urlopen(target, timeout=5) as response:
+        return response.status, json.loads(response.read())
+
+
+@contextmanager
+def stateful_server(home: Path, tmp_path: Path):
+    assets = tmp_path / "state-assets"
+    assets.mkdir()
+    (assets / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    journal = Journal.open(home, tmp_path / "dashboard-state")
+    server = DashboardServer(("127.0.0.1", 0), journal, assets)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}"
+    finally:
+        server.shutdown()
+        thread.join(timeout=5)
+        server.server_close()
+
+
+def test_availability_check_endpoint_is_guarded_cached_and_overlaid(tmp_path: Path, monkeypatch):
+    home = make_workspace(tmp_path)
+    calls = []
+
+    def fake_check(url):
+        calls.append(url)
+        return {
+            "url": url,
+            "status": "closed",
+            "confidence": "high",
+            "reason": "closed_marker",
+            "evidence": "вакансия в архиве",
+            "checked_at": dashboard.datetime.now(dashboard.UTC).isoformat(timespec="seconds"),
+            "method": "availability-rules-v1",
+            "http_status": 200,
+            "final_url": url,
+        }
+
+    monkeypatch.setattr(dashboard.availability, "check_url", fake_check)
+    header = {"X-Career-Copilot": "availability-check"}
+    with running_server(home, tmp_path) as base:
+        with pytest.raises(HTTPError) as error:
+            post(base + "/api/availability/check", {"vacancy_ids": ["role-1"]}, header)
+        assert error.value.code == 501
+        assert json.loads(request(base + "/api/workspace")[2])["capabilities"] == {
+            "availability_check": False
+        }
+    with stateful_server(home, tmp_path) as base:
+        for body, headers, code in (
+            ({"vacancy_ids": ["role-1"]}, {}, 403),
+            ({"vacancy_ids": ["role-1"]}, {**header, "Origin": "https://attacker.example"}, 403),
+            ({"vacancy_ids": [f"role-{i}" for i in range(11)]}, header, 400),
+            ({"vacancy_ids": ["../x"]}, header, 400),
+        ):
+            with pytest.raises(HTTPError) as error:
+                post(base + "/api/availability/check", body, headers)
+            assert error.value.code == code
+        status, result = post(
+            base + "/api/availability/check",
+            {"vacancy_ids": ["role-1", "missing"]},
+            {**header, "Origin": "http://127.0.0.1"},
+        )
+        assert status == 200 and list(result["results"]) == ["role-1"]
+        _, cached = post(base + "/api/availability/check", {"vacancy_ids": ["role-1"]}, header)
+        assert cached["results"]["role-1"]["cached"] is True and len(calls) == 1
+        payload = json.loads(request(base + "/api/workspace")[2])
+        vacancy = next(item for item in payload["vacancies"] if item["id"] == "role-1")
+        assert payload["capabilities"] == {"availability_check": True}
+        assert vacancy["display"]["availability"] == "closed"
+        assert vacancy["display"]["availability_check"]["pending_import"] is True
+        detail = json.loads(request(base + "/api/records/vacancies/role-1")[2])
+        assert detail["display"]["checked_at"] == vacancy["display"]["checked_at"]
+    assert calls == ["https://example.test/role"]
+    state = json.loads((tmp_path / "dashboard-state" / "availability-checks.json").read_text())
+    assert state["checks"]["role-1"]["reason"] == "closed_marker"
+    with pytest.raises(ValueError):
+        Journal.open(home, home / "state")
+
+
+def test_translations_and_superseded_records_reach_the_browser(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    add_record(
+        home,
+        "text_translations",
+        {
+            "id": "tr-1",
+            "text": "Archive only; do not apply.",
+            "translations": {
+                "en": "Archive only; do not apply.",
+                "ru": "Только архив; не откликаться.",
+                "xx": "ignored",
+            },
+        },
+    )
+    add_record(
+        home,
+        "superseded_records",
+        {
+            "id": "assessments--assessment-old",
+            "kind": "assessments",
+            "record_id": "assessment-old",
+            "superseded_by": "assessment-new",
+            "payload": {"id": "assessment-old", "vacancy_id": "role-1", "track": "product"},
+        },
+    )
+    with running_server(home, tmp_path) as base:
+        payload = json.loads(request(base + "/api/workspace")[2])
+        archived = json.loads(request(base + "/api/records/assessments/assessment-old")[2])
+    assert payload["translations"]["Archive only; do not apply."] == {
+        "en": "Archive only; do not apply.",
+        "ru": "Только архив; не откликаться.",
+    }
+    assert archived["payload"]["vacancy_id"] == "role-1"
+    assert archived["display"]["current"] is False
+    assert archived["display"]["superseded_by"] == "assessment-new"

@@ -75,6 +75,7 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [Workflow](docs/WORKFLOW.md) | Inputs, results, ownership, stops and restart for every stage |
 | [Agent workflows](docs/AGENT_WORKFLOWS.md) | Eight independent roles, activity JSON and typed handoffs |
 | [CLI](docs/CLI.md) | Commands, output, identities, contributors and exit behavior |
+| [Changelog](CHANGELOG.md) | What changed in each release and why |
 | [Dashboard and deployment](docs/DASHBOARD.md) | Browser interface, SQLite reads, Docker, tunnel or authenticated HTTPS access and updates |
 | [Configuration](docs/CONFIGURATION.md) | Environment, source defaults, budgets and policy |
 | [Data model](docs/DATA_MODEL.md) | Facts, records, immutable artifacts and version relationships |

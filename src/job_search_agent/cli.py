@@ -1,4 +1,4 @@
-"""CLI entrypoints. Mutations are private/local; the sole network command is discover."""
+"""CLI entrypoints. Mutations are private/local; network commands are discover and availability."""
 
 from __future__ import annotations
 
@@ -168,15 +168,17 @@ def import_facts(store: Store, source: Path) -> dict:
                 if not path.is_file():
                     raise ValueError("Fact source missing; evidence import cannot silently skip it")
                 body = path.read_bytes()
-                materialized.append(store.artifact(f"evidence/{digest(body)}{path.suffix}", body))
+                materialized.append(
+                    store.readable_artifact("evidence", [path.stem], body, path.suffix)
+                )
         fact["original_sources"] = original
         fact["sources"] = materialized
     for profile in data["profiles"].values():
         if not set(profile.get("distinction_ids", [])).issubset(ids):
             raise ValueError("Unknown distinction fact ID")
     old = store.facts
-    store.artifact(f"facts-history/{digest(old)}.json", encode(old))
-    store.artifact(f"facts-history/{digest(data)}.json", encode(data))
+    store.readable_artifact("facts-history", ["facts-before-import"], encode(old), ".json")
+    store.readable_artifact("facts-history", ["facts-imported"], encode(data), ".json")
     atomic_write(store.home / "facts.json", encode(data))
     store.event("facts_imported", [], {"sha256": digest(data), "fact_count": len(ids)})
     return {"facts": len(ids), "profiles": list(data["profiles"]), "sha256": digest(data)}
@@ -231,6 +233,32 @@ def parser() -> argparse.ArgumentParser:
     overview = commands.add_parser("report")
     overview.add_argument("--open", action="store_true")
     commands.add_parser("verify")
+    availability = commands.add_parser("availability").add_subparsers(
+        dest="availability_command", required=True
+    )
+    check = availability.add_parser("check", help="Read-only check of stored posting URLs")
+    check.add_argument("vacancy_ids", nargs="*")
+    check.add_argument("--unverified", action="store_true", help="Only unknown or conflicting")
+    check.add_argument("--stale-days", type=int, help="Only vacancies not checked for N days")
+    check.add_argument("--limit", type=int, default=50)
+    check.add_argument(
+        "--delay", type=float, default=2.0, help="Seconds between same-host requests"
+    )
+    availability.add_parser("import").add_argument("source", type=Path)
+    language = commands.add_parser("translations").add_subparsers(
+        dest="translations_command", required=True
+    )
+    exporting = language.add_parser("export", help="List journal texts that lack a translation")
+    exporting.add_argument("--all", action="store_true", help="Include already translated texts")
+    exporting.add_argument("--output", type=Path, required=True)
+    language.add_parser("import").add_argument("source", type=Path)
+    upkeep = commands.add_parser("maintenance").add_subparsers(
+        dest="maintenance_command", required=True
+    )
+    for name in ("dedupe", "rename-artifacts"):
+        upkeep.add_parser(name).add_argument(
+            "--apply", action="store_true", help="Apply changes; default is a dry run"
+        )
     snapshot = commands.add_parser("backup")
     snapshot.add_argument("--destination", type=Path, required=True)
     restore = commands.add_parser("restore")
@@ -339,6 +367,34 @@ def run(args) -> dict | list:
             return {"report": str(path)}
         if args.command == "verify":
             return verify(store)
+        if args.command == "availability":
+            from . import availability as checks
+
+            if args.availability_command == "import":
+                data = read_json(args.source)
+                return checks.import_results(store, data.get("checks", data))
+            return checks.run(
+                store,
+                args.vacancy_ids,
+                unverified=args.unverified,
+                stale_days=args.stale_days,
+                limit=args.limit,
+                delay=args.delay,
+            )
+        if args.command == "translations":
+            from . import translations
+
+            if args.translations_command == "export":
+                data = translations.export(store, missing_only=not args.all)
+                atomic_write(args.output, encode(data))
+                return {"output": str(args.output), "items": len(data["items"])}
+            return translations.import_translations(store, read_json(args.source))
+        if args.command == "maintenance":
+            from . import maintenance
+
+            if args.maintenance_command == "dedupe":
+                return maintenance.dedupe(store, apply=args.apply)
+            return maintenance.rename_artifacts(store, apply=args.apply)
         if args.command == "backup":
             return backup.backup(store, args.destination)
     raise ValueError("Unsupported command")

@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
+from .naming import day, readable_name, shorten_component
+
 TRACKS = ("product", "technical-leadership")
 FLAGSHIPS = {"openai": "gpt-6-astra", "claude": "claude-opus-5"}
 
@@ -229,6 +231,27 @@ class Store:
         )
         return relative
 
+    def readable_artifact(
+        self,
+        directory: str,
+        parts: list[object],
+        data: str | bytes,
+        suffix: str,
+        date: str | None = None,
+    ) -> str:
+        """Register content under `<date>-<context>-<sha8><suffix>`, reusing identical files."""
+        value = data.encode() if isinstance(data, str) else data
+        sha = digest(value)
+        prefix = directory.rstrip("/") + "/"
+        for (existing,) in self.db.execute(
+            "SELECT path FROM artifacts WHERE sha256=? ORDER BY path", (sha,)
+        ):
+            inside = existing.startswith(prefix) and "/" not in existing[len(prefix) :]
+            if inside and self.artifact_intact(existing):
+                return existing
+        name = readable_name(parts, sha, suffix, date or day(now()))
+        return self.artifact(prefix + name, value)
+
     def observe_vacancy(
         self, value: dict, source_id: str, snapshot: str, *, replay: bool = False
     ) -> str:
@@ -335,9 +358,10 @@ def import_legacy(store: Store, registry: Path, *, dry_run: bool = False) -> dic
         return result
     store.db.execute("BEGIN IMMEDIATE")
     try:
-        store.artifact("imports/" + digest(raw) + ".json", raw)
+        store.readable_artifact("imports", ["legacy-registry"], raw, ".json")
         for name, body in files.items():
-            relative = "legacy/" + name
+            folder, _, filename = ("legacy/" + name).rpartition("/")
+            relative = f"{folder}/{shorten_component(filename, digest(body))}"
             store.artifact(relative, body)
             store.put(
                 "legacy_files",
