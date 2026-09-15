@@ -6,17 +6,17 @@
 
 **Turn a private career history into a focused job search, credible CVs and better-prepared interviews.** Career Copilot gives Codex and Claude eight independent skills backed by a local evidence journal, versioned documents and a readable browser overview.
 
-Start with the result you need: research an employer, find suitable roles, tailor a CV, improve a paragraph, write a letter, practice an interview or understand what is stalled. A coordinator connects stages when your request needs several of them.
+The main path is **collect vacancies → read clear cards → decide the fit with an explanation → fix or tailor the CV → prepare**, for a specific employer or for general gaps. You can also start with any single result: research an employer, find roles, tailor a CV, improve a paragraph, write a letter, practice an interview or understand what is stalled. A coordinator connects stages when your request needs several of them.
 
 | You want to… | Skill | Concrete result |
 | --- | --- | --- |
 | Move a search through several stages | `career-copilot` | Linked work, dependencies and next actions |
-| Find and assess roles | `career-job-search` | Source-backed vacancies and requirement/evidence assessments |
+| Find and assess roles | `career-job-search` | Collection runs, vacancies with original conditions and an explained fit result |
 | Understand an employer | `career-company-research` | Business, products, markets, scale and hiring dossier |
-| Build or tailor a CV | `career-cv-tailor` | Versioned source/PDF/text, coverage and review handoff |
+| Build or tailor a CV | `career-cv-tailor` | Before → after edit proposals, versioned source/PDF/text, requirement coverage and review handoff |
 | Make existing writing sound natural | `career-natural-writing` | Original/revised text with factual meaning preserved |
 | Write a targeted letter | `career-cover-letter` | Draft bound to an exact CV version |
-| Prepare and practice for interviews | `career-interview-prep` | Prioritized plan, exercises, real STAR stories and feedback |
+| Prepare and practice for interviews | `career-interview-prep` | Sourced vacancy brief, plan for general gaps, real STAR stories and reviewed text practice |
 | See progress and record outcomes | `career-journal-stats` | Deterministic counts and evidence-backed application history |
 
 ## Two directions, one factual history
@@ -47,7 +47,7 @@ The local export is `report/index.html` inside that workspace. Source, PDF, text
 
 The [private dashboard](docs/DASHBOARD.md) reads the existing SQLite journal and brings vacancies, CVs, preparation, companies, documents, sources and history into one searchable interface. Vacancy cards show the original pay, conditions and an explainable fit result (no score); the CV section handles master and vacancy versions with edit decisions and PDF preview; Preparation covers vacancy briefs, general gaps and text practice. Interface actions become requests that `ajh inbox apply` applies to the local journal with version checks. Open a record to inspect its evidence and nested fields. Vacancies show country, city and remote scope separately; ambiguous geography remains unknown and the original location stays visible. Filters and open records live in the address, so a view can be bookmarked or shared. Reach a server copy through an SSH tunnel or the optional [authenticating HTTPS gateway](docs/DASHBOARD.md#public-https-address-with-authentication).
 
-The interface supports Russian and English, desktop and mobile, and needs no frontend build or external CDN. It only reads: changes still go through the CLI and agent workflows. Run it locally or use the included Docker configuration with a private SSH tunnel. Keep candidate data outside the image and public repository.
+The interface supports Russian and English, desktop and mobile, and needs no frontend build or external CDN. It never edits the journal directly: a decision, a vacancy link, a campaign or a practice answer is saved as a request, and authored or researched work becomes a task for an agent session that is marked done only after a finished activity. Run it locally or use the included Docker configuration with a private SSH tunnel or the authenticating gateway. Keep candidate data outside the image and public repository.
 
 ## How the pieces fit
 
@@ -57,11 +57,13 @@ The **public checkout** contains reusable Python, documentation, synthetic fixtu
 
 An existing **Codex or Claude session** does research, writing and judgment. Repository-local skill discovery is enabled normally, and each specialist can work independently. Employer-facing authorship and complex judgments use Astra (`gpt-6-astra`) in Codex or Opus (`claude-opus-5`) in Claude; independent content review uses a separate flagship session. Simple collection can use Luna. Missing required models produce a blocked handoff.
 
-The **CLI** hashes and preserves inputs, collects supported sources, applies explicit evidence rules, renders documents and computes journal statistics. It has no embedded model API, automatic application sender or background scheduler.
+The **CLI** hashes and preserves inputs, collects supported sources, applies explicit evidence rules, renders documents, applies interface requests and computes journal statistics. It has no embedded model API, automatic application sender or background scheduler.
 
 ## Sources and trustworthy progress
 
-Six read-only adapters support Greenhouse, Lever, Ashby, HH, corporate pages with static JSON-LD and the public LinkedIn Salaries JSON dataset. The salary index adds leads with original pay wording and the provider's monthly USD figures; LinkedIn pages are never requested by that adapter, and discovered availability stays unknown. Original snapshots support offline replay. Collection records empty results, partial coverage, cooldowns and errors separately; a blocked page does not become “no vacancies.”
+Six read-only adapters support Greenhouse, Lever, Ashby, HH, corporate pages with static JSON-LD and the public LinkedIn Salaries JSON dataset. The salary index adds leads with original pay wording and the provider's monthly USD figures; LinkedIn pages are never requested by that adapter, and discovered availability stays unknown. Original snapshots support offline replay. Collection records empty results, partial coverage, cooldowns and errors separately; a blocked page does not become “no vacancies.” Each run reports new and changed vacancies, possible duplicates and source errors. Vacancies keep the original salary range, currency, period and tax basis (no invented monthly figure), format, employment, language, where the work is allowed (remote without a country list stays unknown) and separate publication, discovery and verification dates. A single posting can be added by public link or pasted text. Search campaigns compare vacancies with your preferences without changing the qualification assessment.
+
+The fit result is one of *insufficient data*, *has questions*, *does not meet a mandatory condition* or *fits verified requirements* — never a percentage or a hiring probability. Each requirement shows its evidence and a route: edit the CV, prepare, clarify or use as a decision basis. A missing word in the CV is not treated as missing experience, and an assessment is marked for update when the vacancy, facts or constraints change.
 
 Availability, suitability, document readiness, demonstrated learning and actual submission are separate states. A technically valid PDF is not a reviewed CV. A ready package is not a sent application. Company size includes its metric, date, organizational scope and source; missing evidence remains unknown.
 
@@ -76,12 +78,12 @@ See [source behavior and official API references](docs/SOURCES.md), [data contra
 | [Agent workflows](docs/AGENT_WORKFLOWS.md) | Eight independent roles, activity JSON and typed handoffs |
 | [CLI](docs/CLI.md) | Commands, output, identities, contributors and exit behavior |
 | [Changelog](CHANGELOG.md) | What changed in each release and why |
-| [Dashboard and deployment](docs/DASHBOARD.md) | Browser interface, SQLite reads, Docker, tunnel or authenticated HTTPS access and updates |
-| [Configuration](docs/CONFIGURATION.md) | Environment, source defaults, budgets and policy |
-| [Data model](docs/DATA_MODEL.md) | Facts, records, immutable artifacts and version relationships |
-| [CV profiles](docs/CV_PROFILES.md) | Two tracks, evidence coverage, role levels and acceptance |
+| [Dashboard and deployment](docs/DASHBOARD.md) | Browser interface, request queue, Docker, tunnel or authenticated HTTPS access and updates |
+| [Configuration](docs/CONFIGURATION.md) | Environment, sources, search campaigns, candidate constraints and policy |
+| [Data model](docs/DATA_MODEL.md) | Facts, records, vacancy conditions, fit results, requests and versions |
+| [CV profiles](docs/CV_PROFILES.md) | Two master tracks, vacancy versions, edit decisions, coverage and acceptance |
 | [Sources](docs/SOURCES.md) | Providers, access, replay, limits and failure interpretation |
-| [Interview preparation](docs/PREPARATION.md) | Gap types, exercises, STAR and demonstrated progress |
+| [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
 | [Operations](docs/OPERATIONS.md) | Review, diagnostics, migration, backup and restoration |
 | [Privacy](docs/PRIVACY.md) | Worktree, staged/history and release checks |
@@ -94,6 +96,8 @@ Every guide has a full Russian counterpart in [docs/ru](docs/ru/GETTING_STARTED.
 ## Current limits
 
 Semantic evidence matching, company-level interpretation, authorship, page inspection and progress assessment require real agent/user work. The initial CLI rules are intentionally conservative and do not replace that judgment. Browser/search fallback is manual; arbitrary JavaScript career sites are not automatically scraped.
+
+Interface requests take effect only after `ajh inbox apply` on the machine that owns the journal. Practice is text-only (no voice or video), the CRM module is only specified, and no new source adapters were added beyond the six listed above.
 
 The PDF renderer supports simple single-column Markdown. Model provenance is recorded and structurally checked, not independently proven by a model provider. Source configuration is trusted private input; network restrictions are not a complete sandbox. Local storage does not automatically encrypt backups or authorize sending personal data to hosted services.
 
