@@ -1,0 +1,21 @@
+{
+  "target_level": "lead",
+  "queries": [
+    {
+      "name": "AI product",
+      "query": "title:(product | cpo) + (ai | genai | llm | agent)",
+      "include": true
+    },
+    {
+      "name": "Engineering + AI",
+      "query": "title:(engineering | engineer | cto) + (ai | ml | llm)"
+    },
+    {
+      "name": "Payments without crypto",
+      "query": "(payment | fintech) + title:(product | head | director) - crypto",
+      "include": true
+    }
+  ],
+  "exclude_title": ["customer success"],
+  "vocabulary": {"payments": ["open banking"]}
+}

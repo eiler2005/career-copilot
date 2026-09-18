@@ -262,3 +262,18 @@ button:disabled{cursor:not-allowed;opacity:.5}
 .markdown h3,.markdown h4{font-family:var(--display);font-weight:500}
 .notice{border-left:3px solid var(--orange)}
 @media(max-width:650px){.view-title{font-size:24px}.plan{padding:20px 17px}.tab{padding:11px 12px;font-size:10px}.pipeline-board{grid-template-columns:repeat(7,240px)}}
+
+/* Profile relevance: tier line on cards, switch, saved queries */
+.vc-relevance{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;font-size:12px;margin:0 0 8px;padding-left:10px;border-left:3px solid var(--line)}
+.vc-relevance.tier-strong{border-left-color:var(--green)}.vc-relevance.tier-possible{border-left-color:var(--blue)}.vc-relevance.tier-weak{border-left-color:#b89a2c}.vc-relevance.tier-off_profile{border-left-color:var(--orange)}
+.vc-relevance-why{color:var(--muted);overflow-wrap:anywhere}
+.opportunity .vc-relevance{margin:8px 0 0}
+.relevance-switch{margin-top:10px}
+.query-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px}
+.query-label{font:10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.query-chip{border:1px solid var(--line);background:#fff;padding:5px 10px;font:11px/1.3 var(--mono)}
+.query-chip:hover{border-color:var(--blue);color:var(--blue)}
+.query-chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.query-hint{font:10px/1.5 var(--mono);color:var(--muted)}
+.relevance-panel .fit-head{justify-content:flex-start;gap:12px}
+.relevance-panel h4{font-size:14px;margin:16px 0 8px}

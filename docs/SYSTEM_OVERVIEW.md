@@ -11,6 +11,7 @@ The main path is **collect → understand the card → decide the fit → fix or
 | Module | What the user gets | Interface | CLI | Code | Records |
 | --- | --- | --- | --- | --- | --- |
 | Collection and sources | New and changed vacancies, duplicates, source errors, vacancies added by link or text | Sources: collection, add form, source cards | `discover`, `collection runs`, `vacancy add` | `sources.py`, `intake.py`, `vacancy_fields.py`, `core.py` (`observe_vacancy_detailed`) | `vacancies`, `observations`, `source_health`, `collection_runs` |
+| Profile relevance | Which vacancies fit the profile and why: function, level, CV domains, keyword queries; tiers strong/possible/weak/off profile | Relevance switch, saved queries, card line, Fit tab | `relevance list/explain/search/profile/set` | `relevance.py` | computed `display.relevance`; `collection_runs.relevance` |
 | Search campaigns | What the user looks for, compared per criterion | Sources: campaigns; Fit tab | `campaigns list/set/match` | `campaigns.py` | `settings.json → campaigns` |
 | Vacancy cards | Original pay, format, employment, language, allowed geography, dates, status | Vacancies list, market switcher, Vacancy tab | `maintenance reextract-conditions` | `vacancy_fields.py`, `descriptions.py`, `availability.py`, `dashboard.py` | `vacancies.conditions` |
 | Availability | Open / closed / unknown with reason and evidence | Check buttons, reminders | `availability check/import` | `availability.py` | `vacancies.availability_check` |
@@ -37,6 +38,7 @@ src/job_search_agent/
                     (Adapter registry: endpoint + parse; see SOURCE_ARCHITECTURE.md)
   intake.py         add one vacancy from a public link or pasted text
   vacancy_fields.py salary, format, employment, language, geography and dates with origin
+  relevance.py      profile screen: function, level, CV domains, keyword queries, tiers
   campaigns.py      search campaigns and per-criterion preference matching
   matching.py       evidence-rules-v2: requirement rows, constraints, outcome, input digests
   workflow.py       evaluate, learning plans, CV rendering, prepare, review

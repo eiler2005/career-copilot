@@ -314,6 +314,21 @@ def parser() -> argparse.ArgumentParser:
         "source", type=Path
     )
     search.add_parser("match").add_argument("vacancy_id")
+    screen = commands.add_parser(
+        "relevance", help="Profile relevance of vacancies: function, level, domains, queries"
+    ).add_subparsers(dest="relevance_command", required=True)
+    screening = screen.add_parser("list", help="Vacancies with their relevance tier")
+    screening.add_argument("--tier", choices=("strong", "possible", "weak", "off_profile"))
+    screening.add_argument("--relevant", action="store_true", help="Only strong and possible")
+    screening.add_argument("--limit", type=int, default=50)
+    screen.add_parser("explain", help="Why one vacancy has its tier").add_argument("vacancy_id")
+    finding = screen.add_parser("search", help="Vacancies matching a keyword query")
+    finding.add_argument("query", help='For example "(engineer | инженер) + (ai | ии) - crypto"')
+    finding.add_argument("--limit", type=int, default=50)
+    screen.add_parser("profile", help="Resolved roles, levels and candidate domains")
+    screen.add_parser(
+        "set", help="Replace settings.json relevance from a JSON object"
+    ).add_argument("source", type=Path)
     runs = commands.add_parser("collection").add_subparsers(
         dest="collection_command", required=True
     )
@@ -581,6 +596,77 @@ def run(args) -> dict | list:
             return campaigns.matches(
                 store.settings, vacancy, store.get("companies", vacancy.get("company_id")) or {}
             )
+        if args.command == "relevance":
+            from . import relevance
+
+            settings = store.settings
+            if args.relevance_command == "set":
+                value = read_json(args.source)
+                relevance.validate(value)
+                store.event(
+                    "relevance_updated",
+                    ["relevance"],
+                    {"before": settings.get("relevance"), "after": value},
+                )
+                atomic_write(store.home / "settings.json", encode({**settings, "relevance": value}))
+                return value
+            resolved = relevance.profile(settings, store.facts)
+            if args.relevance_command == "profile":
+                return {
+                    **{key: value for key, value in resolved.items() if key != "queries"},
+                    "queries": [
+                        {key: item[key] for key in ("id", "name", "query", "include")}
+                        for item in resolved["queries"]
+                    ],
+                }
+            if args.relevance_command == "explain":
+                vacancy = store.get("vacancies", args.vacancy_id)
+                if not vacancy:
+                    raise ValueError("Vacancy not found")
+                result = relevance.screen(vacancy, resolved)
+                return {
+                    "id": vacancy["id"],
+                    "title": vacancy.get("title"),
+                    **result,
+                    "summary": relevance.explain(result),
+                }
+            rows = []
+            parsed = (
+                relevance.parse_query(args.query) if args.relevance_command == "search" else None
+            )
+            for vacancy in store.all("vacancies"):
+                result = relevance.screen(vacancy, resolved)
+                if parsed is not None:
+                    hit = relevance.match_query(
+                        parsed,
+                        relevance.norm(vacancy.get("title")),
+                        relevance.vacancy_text(vacancy),
+                    )
+                    if not hit["matched"]:
+                        continue
+                    result["query_terms"] = hit["terms"]
+                elif (args.tier and result["tier"] != args.tier) or (
+                    args.relevant and not result["relevant"]
+                ):
+                    continue
+                rows.append(
+                    {
+                        "id": vacancy["id"],
+                        "title": vacancy.get("title"),
+                        "company_id": vacancy.get("company_id"),
+                        "tier": result["tier"],
+                        "score": result["score"],
+                        "domains": [item["id"] for item in result["domains"]],
+                        **(
+                            {"query_terms": result["query_terms"]}
+                            if "query_terms" in result
+                            else {}
+                        ),
+                        "why": relevance.explain(result),
+                    }
+                )
+            rows.sort(key=lambda row: (-row["score"], row["title"] or ""))
+            return rows[: max(1, args.limit)]
         if args.command == "collection":
             runs = sorted(store.all("collection_runs"), key=lambda item: item["started_at"])
             return runs[-max(1, args.limit) :]

@@ -17,7 +17,7 @@ from urllib.parse import quote, urlsplit
 
 import httpx
 
-from . import source_adapters, vacancy_fields
+from . import relevance, source_adapters, vacancy_fields
 from .core import Store, canonical_url, digest, now, safe_id
 
 
@@ -368,7 +368,23 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
     if source_id and not sources:
         raise ValueError("Unknown or disabled source")
     results = []
-    run = {"new": [], "changed": [], "unchanged": 0, "errors": []}
+    run = {
+        "new": [],
+        "changed": [],
+        "unchanged": 0,
+        "errors": [],
+        "relevance": {},
+        "screened_out": 0,
+    }
+    try:
+        facts = store.facts
+    except (OSError, ValueError):
+        facts = None
+    try:
+        screen_profile = relevance.profile(settings, facts)
+    except ValueError:
+        # An invalid relevance section never stops collection; the dashboard shows the error.
+        screen_profile = None
     started = now()
     remaining = int(settings.get("max_requests_per_run", 20))
     for source in sources:
@@ -377,6 +393,7 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
         health = {**old_health, "id": sid, "last_attempt": now(), "count": 0}
         health.pop("failure_status", None)
         health.pop("route", None)
+        health.pop("screened_out", None)
         if not replay and old_health.get("next_attempt", "") > now():
             results.append(
                 {"id": sid, "status": "cooldown", "next_attempt": old_health["next_attempt"]}
@@ -541,7 +558,17 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                     if not source.get("include_title")
                     or re.search(source["include_title"], job["title"], re.IGNORECASE)
                 ]
+                kept = []
                 for value in selected_jobs:
+                    tier = (
+                        relevance.screen(value, screen_profile)["tier"] if screen_profile else None
+                    )
+                    if tier == "off_profile" and source.get("skip_off_profile"):
+                        # The snapshot keeps the original; the card is only not added.
+                        health["screened_out"] = health.get("screened_out", 0) + 1
+                        run["screened_out"] += 1
+                        continue
+                    kept.append(value)
                     known = (
                         _company_by_name(store, value["company_name"])
                         if value.get("company_name")
@@ -580,11 +607,13 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                     )
                     if observed["status"] == "new":
                         run["new"].append(observed["id"])
+                        if tier:
+                            run["relevance"][tier] = run["relevance"].get(tier, 0) + 1
                     elif observed["status"] == "changed":
                         run["changed"].append({"id": observed["id"], "fields": observed["fields"]})
                     else:
                         run["unchanged"] += 1
-                health["count"] += len(selected_jobs)
+                health["count"] += len(kept)
                 status = "success_nonempty" if health["count"] else "success_empty"
             except (ValueError, KeyError, TypeError, AttributeError):
                 status = "parse_changed"
@@ -705,6 +734,8 @@ def record_run(store: Store, run: dict, started: str, source_ids: list[str]) -> 
         "unchanged": run["unchanged"],
         "possible_duplicates": possible_duplicates(store, touched),
         "errors": run["errors"],
+        "relevance": run.get("relevance") or {},
+        "screened_out": run.get("screened_out", 0),
     }
     store.put("collection_runs", value, immutable=True)
     store.event(

@@ -60,7 +60,8 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 | `vacancy add --url URL [--company-id ID] [--market M] [--track T]` | Читает одну публичную страницу (ссылки hh.ru — через публичный API HH, JSON-LD JobPosting, иначе видимый текст страницы с `--company-id`), сохраняет оригинал и объединяет вакансию; сообщает `new`, `changed` или `unchanged`, возможные дубли и извлечённые условия |
 | `vacancy add --text-file PATH [--title] [--company] [--location] [--posting-url]` | Добавляет вставленный текст; распознаются строки `Title:`, `Company:`, `Location:`, `Salary:`, `URL:` |
 | `campaigns list` / `campaigns set PATH` / `campaigns match VACANCY_ID` | Показывает корректные кампании, заменяет их из JSON-списка (с проверкой и событием «до/после») или сравнивает одну вакансию |
-| `collection runs [--limit N]` | Последние итоги сбора |
+| `collection runs [--limit N]` | Последние итоги сбора, включая число новых вакансий по ступеням релевантности |
+| `relevance list [--relevant] [--tier T]` / `relevance explain ID` / `relevance search "ЗАПРОС"` / `relevance profile` / `relevance set PATH` | [Релевантность профилю](RELEVANCE.md): ступени с причинами, объяснение одной вакансии, запросы вида `title:(engineer \| инженер) + (ai \| ии)`, итоговые правила или замена `settings.json → relevance` |
 | `maintenance reextract-conditions [--apply]` | Извлекает `conditions` для существующих вакансий из сохранённых публикаций, текста вакансии или явных строк исследования; по умолчанию пробный прогон |
 
 Страница, закрытая блокировкой или входом, не читается: команда предлагает вставить текст; ограничения доступа не обходятся. `discover` теперь пишет запись `collection_runs`, а источник с ошибкой настройки (адрес вне allowlist, прокси без разрешения) получает статус `config_error`, остальные источники продолжают работу.

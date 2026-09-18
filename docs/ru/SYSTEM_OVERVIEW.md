@@ -11,6 +11,7 @@
 | Модуль | Что получает пользователь | Интерфейс | CLI | Код | Записи |
 | --- | --- | --- | --- | --- | --- |
 | Сбор и источники | Новые и изменившиеся вакансии, дубли, ошибки источников, вакансии по ссылке или тексту | Источники: сбор, форма добавления, карточки источников | `discover`, `collection runs`, `vacancy add` | `sources.py`, `intake.py`, `vacancy_fields.py`, `core.py` (`observe_vacancy_detailed`) | `vacancies`, `observations`, `source_health`, `collection_runs` |
+| Релевантность профилю | Какие вакансии подходят профилю и почему: функция, уровень, домены резюме, запросы; ступени сильное/возможное/слабое/не мой профиль | Переключатель профиля, сохранённые запросы, строка в карточке, таб «Соответствие» | `relevance list/explain/search/profile/set` | `relevance.py` | вычисляемое `display.relevance`; `collection_runs.relevance` |
 | Кампании поиска | Что ищет пользователь, сравнение по каждому критерию | Источники: кампании; вкладка «Соответствие» | `campaigns list/set/match` | `campaigns.py` | `settings.json → campaigns` |
 | Карточки вакансий | Исходная вилка, формат, занятость, язык, где можно работать, даты, статус | Список вакансий, переключатель рынка, вкладка «Вакансия» | `maintenance reextract-conditions` | `vacancy_fields.py`, `descriptions.py`, `availability.py`, `dashboard.py` | `vacancies.conditions` |
 | Доступность | Открыта / закрыта / неизвестно с причиной и признаком | Кнопки проверки, напоминания | `availability check/import` | `availability.py` | `vacancies.availability_check` |
@@ -37,6 +38,7 @@ src/job_search_agent/
                     (реестр Adapter: endpoint + parse; см. SOURCE_ARCHITECTURE.md)
   intake.py         добавление одной вакансии по публичной ссылке или тексту
   vacancy_fields.py зарплата, формат, занятость, язык, география и даты с источником
+  relevance.py      отбор по профилю: функция, уровень, домены резюме, запросы, ступени
   campaigns.py      кампании поиска и сравнение предпочтений по критериям
   matching.py       evidence-rules-v2: строки требований, ограничения, результат, дайджесты входов
   workflow.py       evaluate, планы обучения, рендер CV, prepare, review

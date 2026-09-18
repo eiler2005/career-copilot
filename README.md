@@ -6,12 +6,12 @@
 
 **Turn a private career history into a focused job search, credible CVs and better-prepared interviews.** Career Copilot gives Codex and Claude eight independent skills backed by a local evidence journal, versioned documents and a readable browser overview.
 
-The main path is **collect vacancies → read clear cards → decide the fit with an explanation → fix or tailor the CV → prepare**, for a specific employer or for general gaps. You can also start with any single result: research an employer, find roles, tailor a CV, improve a paragraph, write a letter, practice an interview or understand what is stalled. A coordinator connects stages when your request needs several of them.
+The main path is **collect vacancies → keep the ones that fit your profile → read clear cards → decide the fit with an explanation → fix or tailor the CV → prepare**, for a specific employer or for general gaps. You can also start with any single result: research an employer, find roles, tailor a CV, improve a paragraph, write a letter, practice an interview or understand what is stalled. A coordinator connects stages when your request needs several of them.
 
 | You want to… | Skill | Concrete result |
 | --- | --- | --- |
 | Move a search through several stages | `career-copilot` | Linked work, dependencies and next actions |
-| Find and assess roles | `career-job-search` | Collection runs, vacancies with original conditions and an explained fit result |
+| Find and assess roles | `career-job-search` | Collection runs, a profile screen that says why each vacancy is or is not yours, keyword queries such as `engineer + ai`, original conditions and an explained fit result |
 | Understand an employer | `career-company-research` | Business, products, markets, scale and hiring dossier |
 | Build or tailor a CV | `career-cv-tailor` | Before → after edit proposals, versioned source/PDF/text, requirement coverage and review handoff |
 | Make existing writing sound natural | `career-natural-writing` | Original/revised text with factual meaning preserved |
@@ -83,6 +83,7 @@ See the [system overview](docs/SYSTEM_OVERVIEW.md) for every module, container a
 | [Data model](docs/DATA_MODEL.md) | Facts, records, vacancy conditions, fit results, requests and versions |
 | [CV profiles](docs/CV_PROFILES.md) | Two master tracks, vacancy versions, edit decisions, coverage and acceptance |
 | [Sources](docs/SOURCES.md) | Providers, access, replay, limits and failure interpretation |
+| [Profile relevance](docs/RELEVANCE.md) | Which vacancies fit the profile and why: function, level, CV domains, keyword queries, tiers and tuning |
 | [Source architecture](docs/SOURCE_ARCHITECTURE.md) | Collection pipeline, source families, direct/proxy/reserve routes, adapter contract and how to add a provider |
 | [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
 | [System overview](docs/SYSTEM_OVERVIEW.md) | All modules with their code and records, request lifecycle, runtime topology, containers, release and rollback |

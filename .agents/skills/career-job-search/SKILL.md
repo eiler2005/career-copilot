@@ -9,7 +9,7 @@ Read [shared activity and role contracts](../../../docs/AGENT_WORKFLOWS.md#caree
 
 ## Scope and decisions
 
-Use discover or compatible offline replay, preserve source bytes and inspect each source status even if exit code is zero. Annotate track, role family, management/IC scope, original employer level, eligibility, language and source-linked requirements before evaluate. A skill tag is a suggestion, not proof. Complex fit judgments require the environment flagship.
+Use discover or compatible offline replay, preserve source bytes and inspect each source status even if exit code is zero. Screen by profile first: `ajh relevance list --relevant` (strong and possible), `ajh relevance explain ID` for the reasons and `ajh relevance search "QUERY"` for keyword requests such as `title:(engineer | инженер) + (ai | ии)`; spend annotation and evaluation on relevant vacancies, report weak and off-profile counts rather than hiding them, and propose `settings.json → relevance` changes when the lists show misses ([profile relevance](../../../docs/RELEVANCE.md)). Relevance is a screen, not a fit judgment. Annotate track, role family, management/IC scope, original employer level, eligibility, language and source-linked requirements before evaluate. A skill tag is a suggestion, not proof. Complex fit judgments require the environment flagship.
 
 ## Inputs, outputs and handoff
 

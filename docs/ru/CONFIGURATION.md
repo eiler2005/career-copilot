@@ -81,6 +81,7 @@
 | `enabled` | True, если не задано | Участие в поиске |
 | `company_name`, `market` | Необязательны; рынок `unknown` | Исходное имя компании и рынок |
 | `include_title` | Необязательное regex | Фильтр названия без учёта регистра после сохранения снимка |
+| `skip_off_profile` | False | Не добавлять карточки, которые [отбор по профилю](RELEVANCE.md) помечает `off_profile`; снимок их сохраняет, `source_health.screened_out` считает |
 | `max_pages` | 3; диапазон 1–20 | Ограничение страниц для провайдеров с пагинацией |
 | `request_gap_seconds` | 4; диапазон 4–30 | Пауза между запросами к хосту |
 | `interval_seconds` | 3600; минимум 4 (Remotive 21600) | Время следующей допустимой попытки; действуют минимумы провайдеров |
@@ -137,6 +138,10 @@ uv run ajh --home /absolute/private/career-workspace discover --source linkedins
 | `languages` | Коды ISO языков, на которых работает кандидат; требуемый язык вне списка — вопрос, а не отказ |
 
 Изменение `candidate` помечает затронутые оценки как требующие обновления.
+
+## Релевантность профилю
+
+`settings.json → relevance` настраивает отбор, который решает, какие вакансии подходят профилю кандидата: `target_level` (`top`, `lead`, `any`), дополнительные `roles` для треков, `levels`, `exclude_title`, явные `domains`, дополнительный `vocabulary` для доменов, сохранённые `queries` (`{name, query, include}`) и `extend_defaults`. Без этого раздела отбор использует встроенные слова, `policy.tracks` и домены, выведенные из тегов фактов и `policy.interests`. Проверку уровня также определяют `policy.russia_director_only` и `policy.bigtech_company_ids`. Заменить раздел — `ajh relevance set PATH`. Все правила, синтаксис запросов и настройка — в [релевантности профилю](RELEVANCE.md#настройка).
 
 ## Кампании поиска
 

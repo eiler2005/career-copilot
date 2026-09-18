@@ -27,7 +27,7 @@ flowchart LR
     N["card · conditions<br/>salary · geography"]
   end
   subgraph Journal["Journal (core.py)"]
-    F["include_title filter"]
+    F["include_title filter<br/>profile relevance screen"]
     K["Company resolution<br/>by id, name, alias"]
     O["observe_vacancy_detailed<br/>new · changed · unchanged"]
     H["source_health"]
@@ -74,11 +74,11 @@ An adapter is marked `aggregate=True` when the employer comes from each item. Fo
 6. **Classify the answer.** Over 5 MB → `response_too_large`. 429 → `rate_limited` with Retry-After and growing cooldown. 401/407 → `auth_required`. 403/999 or a challenge page → `blocked`. Other non-200 → `http_error` or `redirect_requires_review`. Timeout → `timeout`; other transport failure → `network_error`.
 7. **Save the original bytes** as a snapshot before parsing, so the page can be replayed offline with `--replay`.
 8. **Parse** with the adapter. A schema mismatch raises and becomes `parse_changed`; it is never treated as an empty result.
-9. **Filter** by `include_title` (a search filter, not a fit judgment). `observed_total` counts cards before the filter, `count` after.
+9. **Filter** by `include_title` (a search filter, not a fit judgment), then screen each card for [profile relevance](RELEVANCE.md); a source with `skip_off_profile` does not add `off_profile` cards. `observed_total` counts cards before the filter, `count` the cards added.
 10. **Resolve the company.** Configured company for boards; for aggregates, an existing company with the same name or alias, otherwise a new one with unknown size and description.
 11. **Observe.** `observe_vacancy_detailed` deduplicates by provider id and canonical URL, keeps the most complete text (`full > page_text > excerpt > card`), and reports `new`, `changed` (with fields) or `unchanged`.
 12. **Paginate** while a full page came back and pages remain; stopping at the page limit marks `partial`.
-13. **Record health** (`source_health`: status, failure status, HTTP status, count, route, last success, next attempt) and, at the end, one `collection_runs` record with new, changed, possible duplicates across sources and errors.
+13. **Record health** (`source_health`: status, failure status, HTTP status, count, route, screened-out count, last success, next attempt) and, at the end, one `collection_runs` record with new vacancies (and their relevance tiers), changed, possible duplicates across sources and errors.
 
 ## Network routes and the proxy
 

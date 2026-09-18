@@ -18,11 +18,12 @@
     name: ["Название", "Name"], title: ["Название", "Title"], id: ["Идентификатор", "ID"], company_id: ["Компания", "Company"], vacancy_id: ["Вакансия", "Vacancy"], about: ["О компании", "About"], description: ["Описание", "Description"], summary: ["Кратко", "Summary"], business_areas: ["Направления бизнеса", "Business areas"], products: ["Продукты", "Products"], markets: ["Рынки", "Markets"], customer_segments: ["Клиенты", "Customer segments"], size: ["Масштаб", "Scale"], metric: ["Метрика", "Metric"], value: ["Значение", "Value"], as_of: ["На дату", "As of"], scope: ["Область данных", "Scope"], source_url: ["Источник", "Source URL"], confidence: ["Уверенность", "Confidence"], reliability: ["Надёжность", "Reliability"], profile_sources: ["Источники профиля", "Profile sources"], url: ["Ссылка", "URL"], urls: ["Ссылки", "URLs"], sources: ["Источники", "Sources"], location: ["Локация в источнике", "Original location"], country: ["Страна", "Country"], city: ["Город", "City"], market: ["Рынок", "Market"], remote: ["Удалённая работа", "Remote work"], work_mode: ["Формат работы", "Work mode"], availability: ["Доступность вакансии", "Hiring availability"], status: ["Статус", "Status"], status_checked_on: ["Дата проверки статуса", "Status checked on"], role_family: ["Семейство роли", "Role family"], role_type: ["Тип роли", "Role type"], level: ["Уровень", "Level"], raw: ["Исходное значение", "Original value"], source: ["Источник", "Source"], requirements: ["Требования", "Requirements"], text: ["Текст", "Text"], mandatory: ["Обязательное", "Mandatory"], evidence_fact_ids: ["Подтверждающие факты", "Evidence facts"], evidence_reviewed: ["Доказательства проверены", "Evidence reviewed"], gap_type: ["Тип пробела", "Gap type"], tag: ["Тема", "Tag"], tags: ["Темы", "Tags"], decision: ["Решение", "Decision"], track: ["Направление", "Track"], tracks: ["Направления", "Tracks"], target_tracks: ["Целевые направления", "Target tracks"], next_action: ["Следующее действие", "Next action"], next_step: ["Следующий шаг", "Next step"], reason: ["Основание", "Reason"], language_gate: ["Проверка языка", "Language gate"], eligibility_gate: ["Допуск к работе", "Eligibility gate"], role_family_gate: ["Соответствие роли", "Role family gate"], role_family_gates: ["Соответствие роли по направлениям", "Role family gates"], seniority: ["Соответствие уровня", "Seniority"], minimum_years: ["Минимальный опыт, лет", "Minimum years"], authorization: ["Разрешение на работу", "Work authorization"], license: ["Лицензия", "License"], versions: ["Версии", "Versions"], current_version: ["Текущая версия", "Current version"], version_id: ["Версия", "Version"], files: ["Файлы", "Files"], artifacts: ["Материалы", "Artifacts"], reviews: ["Проверки", "Reviews"], review_status: ["Статус проверки", "Review status"], application_status: ["Статус отклика", "Application status"], pdf: ["PDF", "PDF"], markdown: ["Markdown", "Markdown"], source_path: ["Исходный файл", "Source file"], path: ["Файл", "File"], sha256: ["Контрольная сумма", "SHA-256"], bytes: ["Размер, байт", "Bytes"], author: ["Автор", "Author"], contributors: ["Участники", "Contributors"], actor: ["Исполнитель", "Actor"], model: ["Модель", "Model"], provider: ["Провайдер", "Provider"], skill: ["Навык", "Skill"], operation: ["Операция", "Operation"], started_at: ["Начало", "Started"], finished_at: ["Завершение", "Finished"], created_at: ["Создано", "Created"], updated_at: ["Обновлено", "Updated"], at: ["Дата", "Date"], date: ["Дата", "Date"], type: ["Тип", "Type"], note: ["Примечание", "Note"], notes: ["Примечания", "Notes"], details: ["Подробности", "Details"], inputs: ["Входные данные", "Inputs"], outputs: ["Результаты", "Outputs"], records: ["Записи", "Records"], result: ["Результат", "Result"], outcome: ["Итог", "Outcome"], objectives: ["Цели", "Objectives"], exercise: ["Упражнение", "Exercise"], findings: ["Выводы", "Findings"], feedback: ["Обратная связь", "Feedback"], evidence: ["Доказательства", "Evidence"], weeks: ["Недельный план", "Weekly plan"], week: ["Неделя", "Week"], hours_per_week: ["Часов в неделю", "Hours per week"], hours: ["Часы", "Hours"], gaps: ["Пробелы", "Gaps"], tasks: ["Задачи", "Tasks"], last_success: ["Последний успех", "Last success"], last_attempt: ["Последняя попытка", "Last attempt"], next_attempt: ["Следующая попытка", "Next attempt"], count: ["Количество", "Count"], error: ["Ошибка", "Error"], http_status: ["HTTP-статус", "HTTP status"], hiring: ["Найм", "Hiring"], hiring_info: ["Сведения о найме", "Hiring information"], salary: ["Вознаграждение", "Compensation"], compensation: ["Вознаграждение", "Compensation"], employees: ["Сотрудники", "Employees"], headcount: ["Численность", "Headcount"], revenue: ["Выручка", "Revenue"], currency: ["Валюта", "Currency"], period: ["Период", "Period"], interview_plans: ["Планы интервью", "Interview plans"], interview_practices: ["Практика интервью", "Interview practice"], interview_feedback: ["Обратная связь по интервью", "Interview feedback"], interview_progress: ["Прогресс подготовки", "Interview progress"], packages: ["Пакеты документов", "Document packages"], learning: ["Планы подготовки", "Learning plans"], source_health: ["Состояние источников", "Source health"], events: ["События", "Events"], assessments: ["Оценки", "Assessments"], current_assessments: ["Текущие оценки", "Current assessments"], company_dossiers: ["Досье компаний", "Company dossiers"], cover_letters: ["Сопроводительные письма", "Cover letters"], text_revisions: ["Редакции текста", "Text revisions"], submissions: ["Отправки", "Submissions"], employer_responses: ["Ответы работодателей", "Employer responses"], activity_events: ["События активностей", "Activity events"], observations: ["Наблюдения источников", "Source observations"]
   };
   const enums = {
+    strong: ["Сильное совпадение", "Strong match"], possible: ["Возможное", "Possible"], weak: ["Слабое", "Weak"], off_profile: ["Не мой профиль", "Off profile"],
     unknown: ["Неизвестно", "Unknown"], active: ["Активна", "Active"], open: ["Открыта", "Open"], closed: ["Закрыта", "Closed"], archived: ["В архиве", "Archived"], priority: ["Приоритет", "Priority"], needs_clarification: ["Нужно уточнить", "Needs clarification"], not_suitable: ["Не подходит", "Not suitable"], watch: ["Наблюдать", "Watch"], pending: ["Ожидает", "Pending"], pending_review: ["Ожидает проверки", "Pending review"], approved: ["Одобрено", "Approved"], ready: ["Готово", "Ready"], drafted: ["Черновик", "Drafted"], draft: ["Черновик", "Draft"], submitted: ["Отправлено", "Submitted"], running: ["В работе", "Running"], in_progress: ["В работе", "In progress"], completed: ["Завершено", "Completed"], failed: ["Ошибка", "Failed"], blocked: ["Заблокировано", "Blocked"], healthy: ["Доступен", "Healthy"], ok: ["Доступен", "OK"], success: ["Успешно", "Success"], partial: ["Частично", "Partial"], cooldown: ["Пауза запросов", "Cooldown"], pass: ["Пройдено", "Pass"], fail: ["Не пройдено", "Fail"], product: ["Продуктовое", "Product"], "technical-leadership": ["Техническое лидерство", "Technical leadership"], remote: ["Удалённо", "Remote"], hybrid: ["Гибрид", "Hybrid"], onsite: ["Офис", "On-site"], verified: ["Подтверждено", "Verified"], self_reported: ["Со слов кандидата", "Self-reported"], conflicting: ["Противоречие", "Conflicting"], employees: ["сотрудников", "employees"], headcount: ["сотрудников", "employees"], general: ["Общий план", "General plan"]
   };
   const extraCopy = {
-    ru: {availabilityFilter: "Доступность", filters: "Фильтры", showUnknown: "Показать вакансии →", journalUpdated: "Журнал изменён", loadedAt: "загружено", refreshing: "Обновляем…", refreshFailed: "Не удалось обновить. Показаны ранее загруженные данные.", copyLink: "Скопировать ссылку", linkCopied: "Ссылка скопирована", recordMissing: "Запись по ссылке не найдена в текущем журнале.", decisionNote: "Решение", searchHint: "Нажмите / для поиска"},
-    en: {availabilityFilter: "Availability", filters: "Filters", showUnknown: "Show vacancies →", journalUpdated: "Journal changed", loadedAt: "loaded", refreshing: "Refreshing…", refreshFailed: "Refresh failed. Showing previously loaded data.", copyLink: "Copy link", linkCopied: "Link copied", recordMissing: "The linked record is not in the current journal.", decisionNote: "Decision", searchHint: "Press / to search"}
+    ru: {searchQueryPlaceholder: "Поиск или запрос: title:(engineer | инженер) + (ai | ии) - crypto", byRelevance: "По релевантности", relevanceLabel: "Профиль", relevanceRelevant: "Подходят", relevanceAll: "Все", savedQueries: "Запросы", queryHint: "+ — все группы · | — любой вариант · -слово — исключить · title: — только в названии", relevanceSettingsError: "Настройка relevance не применяется", relevanceTitle: "Релевантность профилю", relevanceMissing: "Релевантность не рассчитана.", relevanceScore: "Балл", relevanceDomains: "Домены профиля", inTitle: "в названии", inText: "в тексте", relevanceRules: "Отбор по профилю: функция и уровень в названии, домены из ваших фактов и интересов, сохранённые запросы. Это не оценка квалификации — её даёт матрица требований выше по процессу. Правила — settings.json → relevance.", relevantOfTotal: "подходят профилю · всего", relevance_excluded_function: "в названии исключённая функция", relevance_policy_exclusion: "исключение из политики", relevance_no_track_function: "в названии нет продуктовой или инженерной функции", relevance_track_function: "функция", relevance_query_included: "включено запросом", relevance_level_below: "уровень ниже цели", relevance_level_unknown: "уровень в названии не указан", relevance_level_company_specific: "уровень бигтеха сверяется по грейдам работодателя", relevance_level_below_market_rule: "для РФ нужна позиция уровня директора", relevance_level_target: "целевой уровень", relevance_domain_overlap: "домены профиля", relevance_no_domain_overlap: "в полном тексте нет доменов профиля", relevance_no_text: "описания нет — домены проверены только по названию", relevance_domain_title_only: "домен профиля в руководящей позиции", availabilityFilter: "Доступность", filters: "Фильтры", showUnknown: "Показать вакансии →", journalUpdated: "Журнал изменён", loadedAt: "загружено", refreshing: "Обновляем…", refreshFailed: "Не удалось обновить. Показаны ранее загруженные данные.", copyLink: "Скопировать ссылку", linkCopied: "Ссылка скопирована", recordMissing: "Запись по ссылке не найдена в текущем журнале.", decisionNote: "Решение", searchHint: "Нажмите / для поиска"},
+    en: {searchQueryPlaceholder: "Search or query: title:(engineer | developer) + (ai | ml) - crypto", byRelevance: "By relevance", relevanceLabel: "Profile", relevanceRelevant: "Relevant", relevanceAll: "All", savedQueries: "Queries", queryHint: "+ all groups · | any alternative · -word exclude · title: title only", relevanceSettingsError: "The relevance setting is ignored", relevanceTitle: "Profile relevance", relevanceMissing: "Relevance was not computed.", relevanceScore: "Score", relevanceDomains: "Profile domains", inTitle: "in the title", inText: "in the text", relevanceRules: "Profile screen: function and level in the title, domains from your facts and interests, saved queries. It is not a qualification judgment — the requirement matrix does that later. Rules live in settings.json → relevance.", relevantOfTotal: "fit the profile · total", relevance_excluded_function: "the title names an excluded function", relevance_policy_exclusion: "policy exclusion", relevance_no_track_function: "the title names no product or engineering function", relevance_track_function: "function", relevance_query_included: "included by query", relevance_level_below: "below the target level", relevance_level_unknown: "the title states no level", relevance_level_company_specific: "big-tech level is mapped per employer", relevance_level_below_market_rule: "Russian roles need a director-level title", relevance_level_target: "target level", relevance_domain_overlap: "profile domains", relevance_no_domain_overlap: "no profile domain in the full text", relevance_no_text: "no description — domains checked in the title only", relevance_domain_title_only: "profile domain in a leadership title", availabilityFilter: "Availability", filters: "Filters", showUnknown: "Show vacancies →", journalUpdated: "Journal changed", loadedAt: "loaded", refreshing: "Refreshing…", refreshFailed: "Refresh failed. Showing previously loaded data.", copyLink: "Copy link", linkCopied: "Link copied", recordMissing: "The linked record is not in the current journal.", decisionNote: "Decision", searchHint: "Press / to search"}
   };
   Object.keys(copy).forEach((lang) => Object.assign(copy[lang], extraCopy[lang]));
   // Canonical English country names from the server projection → ISO 3166 codes for localized display.
@@ -65,7 +66,8 @@
   const CV_KINDS = new Set(["cv_edits", "cv_edit_decisions", "cv_imports"]);
   const records = (section) => section === "pipeline" ? (state.data?.vacancies || []).filter((record) => record.kind === "vacancies") : section === "resume" ? (state.data?.documents || []).filter((record) => record.kind === "packages" || CV_KINDS.has(record.kind)) : section === "documents" ? (state.data?.documents || []).filter((record) => !CV_KINDS.has(record.kind)) : state.data?.[section] || [];
   const primaryRecords = (section) => ["companies", "vacancies", "activities"].includes(section) ? records(section).filter((record) => record.kind === section) : section === "documents" ? records(section).filter((record) => record.kind !== "legacy_files") : section === "resume" ? records(section).filter((record) => record.kind === "packages") : section === "preparations" ? records(section).filter((record) => ["learning", "interview_plans", "track_plans", "preparation_briefs", "preparation_overviews"].includes(record.kind)) : records(section);
-  const defaultFilters = (section) => ["companies", "vacancies", "activities"].includes(section) ? {kind: section} : {};
+  // Vacancies and the pipeline open on vacancies that fit the profile; "all" is one click away.
+  const defaultFilters = (section) => section === "vacancies" ? {kind: section, relevance: "relevant"} : section === "pipeline" ? {relevance: "relevant"} : ["companies", "activities"].includes(section) ? {kind: section} : {};
   const unwrap = (record) => record.payload && typeof record.payload === "object" && !Array.isArray(record.payload) ? record.payload : record;
   const normalize = (record, section) => ({...record, id: String(record.id ?? unwrap(record).id ?? ""), kind: record.kind || kinds[section] || section, payload: unwrap(record)});
   const allRecords = () => state.all || sections.filter((section) => section !== "pipeline").flatMap((section) => records(section));
@@ -107,7 +109,7 @@
   const geographyValue = (value, key) => value === "unknown" ? t("unknown") : key === "country" ? countryName(value) : translated(value);
   const recordsWord = (count) => { const form = new Intl.PluralRules(state.lang).select(count); return state.lang === "ru" ? ({one: "запись", few: "записи"}[form] || "записей") : (form === "one" ? "record" : "records"); };
   const isToken = (value) => typeof value === "string" && /^[\w-]{1,40}$/.test(value.trim());
-  const badge = (value) => { const tone = /^(active|open|completed|healthy|ok|approved|ready|verified|success|pass|passed|enabled|current|done|applied|match|fits_verified|accept|written)$/.test(value) ? "good" : /^(blocked|failed|needs_clarification|pending_review|partial|cooldown|fail|rejected|timeout|needs_check|never_checked|conflicting|expired_copy|unverified|conflict|mismatch|config_error|not_interested|has_questions|not_fit_mandatory|gap|insufficient_data|reject|invalid|awaiting_facts|awaiting_content_review|awaiting_visual_review)$/.test(value) ? "attention" : /^(priority|running|in_progress|product|technical-leadership|follow_up|todo|queued|queued_for_agent|pending)$/.test(value) ? "blue" : ""; return el("span", `badge ${tone}`, translated(value)); };
+  const badge = (value) => { const tone = /^(strong|active|open|completed|healthy|ok|approved|ready|verified|success|pass|passed|enabled|current|done|applied|match|fits_verified|accept|written)$/.test(value) ? "good" : /^(blocked|failed|needs_clarification|pending_review|partial|cooldown|fail|rejected|timeout|needs_check|never_checked|conflicting|expired_copy|unverified|conflict|mismatch|config_error|not_interested|has_questions|not_fit_mandatory|gap|insufficient_data|reject|invalid|awaiting_facts|awaiting_content_review|awaiting_visual_review|off_profile)$/.test(value) ? "attention" : /^(possible|priority|running|in_progress|product|technical-leadership|follow_up|todo|queued|queued_for_agent|pending)$/.test(value) ? "blue" : ""; return el("span", `badge ${tone}`, translated(value)); };
   function safeUrl(value) { try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.href : null; } catch (_) { return null; } }
   function externalLink(value, text) { const url = safeUrl(value); if (!url) return null; const link = el("a", "", text || value); link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; return link; }
   function artifactLink(value) { const clean = String(value).replace(/^\.\//, ""); const target = state.artifacts?.has(clean) ? clean : state.artifactAliases?.get(clean); if (!target || !state.artifacts?.has(target)) return null; const link = el("a", "", value); link.href = "/api/artifacts/" + target.split("/").map(encodeURIComponent).join("/"); if (/\.(md|txt)$/i.test(target)) link.addEventListener("click", (event) => { event.preventDefault(); openDocument(target); }); return link; }
@@ -124,8 +126,8 @@
   function syncHash() { const hash = hashFor(state.section); if (location.hash !== hash) history.replaceState(null, "", hash); }
   function applyHash() {
     const raw = location.hash.slice(1), split = raw.indexOf("?"), name = split < 0 ? raw : raw.slice(0, split), params = new URLSearchParams(split < 0 ? "" : raw.slice(split + 1));
-    state.section = sections.includes(name) ? name : "overview"; state.query = params.get("q") || ""; state.sort = params.get("sort") === "name" ? "name" : "newest"; state.page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
-    state.filters = defaultFilters(state.section); state.detailTab = ["vacancy", "fit", "company", "resume", "prep"].includes(params.get("tab")) ? params.get("tab") : "vacancy"; ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type", "freshness", "market"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
+    state.section = sections.includes(name) ? name : "overview"; state.query = params.get("q") || ""; state.sort = ["name", "relevance"].includes(params.get("sort")) ? params.get("sort") : "newest"; state.page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
+    state.filters = defaultFilters(state.section); state.detailTab = ["vacancy", "fit", "company", "resume", "prep"].includes(params.get("tab")) ? params.get("tab") : "vacancy"; ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type", "freshness", "market", "relevance"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
     return params.get("record");
   }
   function navigate(section, preset) { if (!sections.includes(section)) section = "overview"; if (state.section !== section || preset) { state.query = ""; state.filters = {...defaultFilters(section), ...(preset || {})}; state.page = 1; state.sort = "newest"; } state.section = section; const hash = hashFor(section, false); if (location.hash !== hash) history.pushState(null, "", hash); render(); $("main").focus({preventScroll: true}); window.scrollTo(0, 0); }
@@ -139,7 +141,7 @@
     $("language").setAttribute("aria-label", state.lang === "ru" ? "Switch to English" : "Переключить на русский");
     $("close-detail").setAttribute("aria-label", t("close")); $("close-document").setAttribute("aria-label", t("close"));
     $("connection").textContent = state.data ? t("connected") : "";
-    $("navigation").replaceChildren(...sections.map((section, index) => { const link = el("a", `nav-link${section === state.section ? " active" : ""}`); link.href = `#${section}`; link.append(el("span", "nav-icon", icons[index]), el("span", "", t(section))); if (section !== "overview" && state.data) link.append(el("span", "nav-count", String(primaryRecords(section).length).padStart(2, "0"))); if (section === state.section) link.setAttribute("aria-current", "page"); return link; }));
+    $("navigation").replaceChildren(...sections.map((section, index) => { const link = el("a", `nav-link${section === state.section ? " active" : ""}`); link.href = `#${section}`; link.append(el("span", "nav-icon", icons[index]), el("span", "", t(section))); if (section !== "overview" && state.data) link.append(el("span", "nav-count", String(sectionCount(section)).padStart(2, "0"))); if (section === state.section) link.setAttribute("aria-current", "page"); return link; }));
     const title = el("div"); title.append(el("div", "eyebrow", `${t("privacy")} / ${t(state.section)}`), el("h1", "", state.section === "overview" ? t("overviewTitle") : t(state.section)), el("p", "", t(`${state.section}Desc`)));
     $("page-heading").replaceChildren(title, el("span", "page-index", String(sections.indexOf(state.section) + 1).padStart(2, "0")));
     document.title = state.section === "overview" ? "Career Copilot" : `${t(state.section)} · Career Copilot`;
@@ -156,22 +158,25 @@
   function sectionPanel(title, section) { const panel = el("section", "panel"), header = el("div", "panel-header"); header.append(el("h2", "", t(title)), button(t("viewAll"), "text-button", () => navigate(section))); panel.append(header); return panel; }
   function renderOverview() {
     const stats = el("div", "stats-grid");
-    [["companies", "companyNote"], ["vacancies", "vacancyNote"], ["documents", "documentNote"], ["activities", "activityNote"]].forEach(([section, note]) => { const stat = button("", "stat", () => navigate(section)); const value = el("div", "stat-value"); value.append(el("strong", "", primaryRecords(section).length.toLocaleString(state.lang)), el("span", "", "↗")); stat.append(el("span", "stat-label", t(section)), value, el("div", "stat-note", t(note))); stats.append(stat); });
+    [["companies", "companyNote"], ["vacancies", "vacancyNote"], ["documents", "documentNote"], ["activities", "activityNote"]].forEach(([section, note]) => { const stat = button("", "stat", () => navigate(section)); const value = el("div", "stat-value"); value.append(el("strong", "", sectionCount(section).toLocaleString(state.lang)), el("span", "", "↗")); stat.append(el("span", "stat-label", t(section)), value, el("div", "stat-note", section === "vacancies" ? `${t("relevantOfTotal")} ${primaryRecords(section).length.toLocaleString(state.lang)}` : t(note))); stats.append(stat); });
     const grid = el("div", "overview-grid"), latest = sectionPanel("recentVacancies", "vacancies");
     const seen = (record) => scalar(record.payload.first_seen || record.payload.created_at || dateValue(record));
-    const recent = primaryRecords("vacancies").filter((record) => !INACTIVE.has(record.payload.availability) && record.payload.review_status !== "rejected").sort((a, b) => seen(b).localeCompare(seen(a)) || b.id.localeCompare(a.id)).slice(0, 8);
+    // Fresh vacancies that fit the profile: strong matches first, then possible ones, newest first within a tier.
+    const tierOf = (record) => TIER_ORDER[relevanceOf(record)?.tier] ?? 1;
+    const recent = primaryRecords("vacancies").filter((record) => !INACTIVE.has(record.payload.availability) && record.payload.review_status !== "rejected" && isRelevant(record)).sort((a, b) => tierOf(a) - tierOf(b) || seen(b).localeCompare(seen(a)) || b.id.localeCompare(a.id)).slice(0, 8);
     if (!recent.length) latest.append(emptyState("noRecords", "noRecordsDesc", true));
     recent.forEach((record) => {
       const row = el("article", "opportunity"), head = el("div", "opportunity-head");
       head.append(employerLine(record), badge(status(record)));
       row.append(head, button(recordTitle(record), "record-title", () => openRecord(record)));
+      const relevanceRow = relevanceLine(record); if (relevanceRow) row.append(relevanceRow);
       const text = record.display?.description?.excerpt; if (text) row.append(el("p", "record-summary vacancy-description short", text));
       const bottom = el("div", "opportunity-bottom"); bottom.append(ageBadge(record), vacancyActions(record, {details: false}));
       row.append(bottom); latest.append(row);
     });
-    const rail = el("div", "overview-rail"), focus = el("section", "focus-panel"); const unknown = primaryRecords("vacancies").filter(needsCheck).length;
+    const rail = el("div", "overview-rail"), focus = el("section", "focus-panel"); const unknown = primaryRecords("vacancies").filter((record) => needsCheck(record) && isRelevant(record)).length;
     focus.append(el("div", "eyebrow", t("focus")), el("h2", "", t("focusTitle")), el("p", "", t("focusDesc")), el("div", "focus-divider"), el("span", "focus-number", String(unknown).padStart(2, "0")), el("p", "", state.lang === "ru" ? `${plural(unknown, ["вакансия требует", "вакансии требуют", "вакансий требуют", "", ""])} проверки доступности` : t("unknownAvailability")));
-    if (unknown) { const links = el("div", "focus-actions"); links.append(button(t("showUnknown"), "focus-link", () => navigate("vacancies", {availability: "needs_check"}))); if (canCheck()) links.append(checkButton(() => primaryRecords("vacancies").filter(needsCheck).map((record) => record.id), `${t("checkAll")} (${unknown})`, "focus-link")); focus.append(links); }
+    if (unknown) { const links = el("div", "focus-actions"); links.append(button(t("showUnknown"), "focus-link", () => navigate("vacancies", {availability: "needs_check"}))); if (canCheck()) links.append(checkButton(() => primaryRecords("vacancies").filter((record) => needsCheck(record) && isRelevant(record)).map((record) => record.id), `${t("checkAll")} (${unknown})`, "focus-link")); focus.append(links); }
     const due = groupedReminders(primaryRecords("vacancies")), remindersBox = sectionPanel("remindersTitle", "pipeline");
     if (due.length) due.slice(0, 4).forEach((item) => remindersBox.append(reminderRow(item))); else remindersBox.append(emptyState("noReminders", "noRemindersDesc", true));
     const actions = sectionPanel("nextSteps", "vacancies");
@@ -194,8 +199,8 @@
   }
   function renderToolbar() {
     if (["preparations", "resume"].includes(state.section)) { $("toolbar").replaceChildren(trackSwitch()); return; }
-    const bar = el("div", `toolbar${state.filtersOpen ? " filters-open" : ""}`), searchRow = el("div", "search-row"), searchBox = el("div", "search-box"), search = el("input"); search.type = "search"; search.id = "record-search"; search.placeholder = t("search"); search.setAttribute("aria-label", t("search")); search.setAttribute("aria-keyshortcuts", "/"); search.title = t("searchHint"); search.autocomplete = "off"; search.value = state.query; search.addEventListener("input", () => { state.query = search.value; state.page = 1; renderResults(); }); search.addEventListener("keydown", (event) => { if (event.key === "Escape" && search.value) { event.preventDefault(); search.value = ""; state.query = ""; state.page = 1; renderResults(); } }); searchBox.append(el("span", "search-symbol", "⌕"), search);
-    const sort = el("select", "sort-control"); sort.setAttribute("aria-label", state.lang === "ru" ? "Сортировка" : "Sort"); [["newest", "newest"], ["name", "alphabetical"]].forEach(([value, key]) => { const option = el("option", "", t(key)); option.value = value; sort.append(option); }); sort.value = state.sort; sort.addEventListener("change", () => { state.sort = sort.value; state.page = 1; renderResults(); });
+    const bar = el("div", `toolbar${state.filtersOpen ? " filters-open" : ""}`), searchRow = el("div", "search-row"), searchBox = el("div", "search-box"), search = el("input"); search.type = "search"; search.id = "record-search"; search.placeholder = ["vacancies", "pipeline"].includes(state.section) ? t("searchQueryPlaceholder") : t("search"); search.setAttribute("aria-label", t("search")); search.setAttribute("aria-keyshortcuts", "/"); search.title = t("searchHint"); search.autocomplete = "off"; search.value = state.query; search.addEventListener("input", () => { state.query = search.value; state.page = 1; renderResults(); }); search.addEventListener("keydown", (event) => { if (event.key === "Escape" && search.value) { event.preventDefault(); search.value = ""; state.query = ""; state.page = 1; renderResults(); } }); searchBox.append(el("span", "search-symbol", "⌕"), search);
+    const sort = el("select", "sort-control"); sort.setAttribute("aria-label", state.lang === "ru" ? "Сортировка" : "Sort"); [["newest", "newest"], ["name", "alphabetical"], ...(["vacancies", "pipeline"].includes(state.section) ? [["relevance", "byRelevance"]] : [])].forEach(([value, key]) => { const option = el("option", "", t(key)); option.value = value; sort.append(option); }); sort.value = state.sort; sort.addEventListener("change", () => { state.sort = sort.value; state.page = 1; renderResults(); });
     const count = activeFilterCount(), toggle = button(count ? `${t("filters")} · ${count}` : t("filters"), "filters-toggle", () => { state.filtersOpen = !state.filtersOpen; bar.classList.toggle("filters-open", state.filtersOpen); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); }); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); toggle.setAttribute("aria-controls", "filter-row");
     searchRow.append(searchBox, sort, toggle); bar.append(searchRow);
     if (state.section === "vacancies") {
@@ -207,6 +212,7 @@
       });
       bar.append(markets);
     }
+    if (["vacancies", "pipeline"].includes(state.section)) bar.append(relevanceSwitch(), queryHelp());
     const row = el("div", "filter-row"), filterKeys = state.section === "vacancies" ? ["kind", "availability", "freshness", "review", "track", "country", "city", "remote"] : state.section === "pipeline" || state.section === "resume" ? ["track"] : state.section === "companies" ? ["kind", "country", "city", "status", "track"] : state.section === "history" ? ["type"] : state.section === "sources" ? [] : state.section === "preparations" ? ["kind", "track"] : ["kind", "status", "track"]; row.id = "filter-row";
     filterKeys.forEach((key) => {
       const wrapper = el("label", "filter-control"), select = el("select"); select.id = `filter-${key}`; wrapper.append(el("span", "", key === "kind" ? label("type") : key === "availability" ? t("availabilityFilter") : key === "review" ? label("review_status") : key === "type" ? t("eventType") : key === "freshness" ? t("freshnessFilter") : t(key)));
@@ -221,11 +227,13 @@
     const reset = button(t("reset"), "reset-button", resetFilters); reset.disabled = !filtersActive(); row.append(reset); if (filterKeys.length) bar.append(row); else { sort.hidden = true; toggle.hidden = true; } $("toolbar").replaceChildren(bar);
   }
   function resetFilters() { state.query = ""; state.filters = defaultFilters(state.section); state.page = 1; renderToolbar(); renderResults(); $("record-search")?.focus(); }
-  function filterValues(record, key) { if (key === "kind") return [record.kind]; if (key === "market") return [record.kind === "vacancies" ? marketOf(record) : "unknown"]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "freshness") return [record.kind === "vacancies" ? freshness(record) : "never"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.display?.availability || record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
+  function filterValues(record, key) { if (key === "kind") return [record.kind]; if (key === "relevance") { const result = relevanceOf(record); return result ? (result.relevant ? [result.tier, "relevant"] : [result.tier]) : ["relevant"]; } if (key === "market") return [record.kind === "vacancies" ? marketOf(record) : "unknown"]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "freshness") return [record.kind === "vacancies" ? freshness(record) : "never"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.display?.availability || record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
   function renderResults() {
-    const query = state.query.trim().toLocaleLowerCase(state.lang);
-    const filtered = records(state.section).filter((record) => (!query || `${recordTitle(record)} ${companyName(record)} ${JSON.stringify(record.payload)}`.toLocaleLowerCase(state.lang).includes(query)) && Object.entries(state.filters).every(([key, value]) => !value || filterValues(record, key).includes(value)));
-    filtered.sort(state.sort === "name" ? (a, b) => recordTitle(a).localeCompare(recordTitle(b), state.lang) : (a, b) => dateValue(b).localeCompare(dateValue(a)) || recordTitle(a).localeCompare(recordTitle(b), state.lang));
+    const query = state.query.trim().toLocaleLowerCase(state.lang), keywordQuery = ["vacancies", "pipeline"].includes(state.section) ? parseKeywordQuery(state.query) : null;
+    const matchesSearch = (record) => !query || (keywordQuery ? matchKeywordQuery(keywordQuery, normText(`${record.payload.title || ""} ${recordTitle(record)}`), recordText(record)).matched : `${recordTitle(record)} ${companyName(record)} ${JSON.stringify(record.payload)}`.toLocaleLowerCase(state.lang).includes(query));
+    const filtered = records(state.section).filter((record) => matchesSearch(record) && Object.entries(state.filters).every(([key, value]) => !value || filterValues(record, key).includes(value)));
+    const newest = (a, b) => dateValue(b).localeCompare(dateValue(a)) || recordTitle(a).localeCompare(recordTitle(b), state.lang);
+    filtered.sort(state.sort === "name" ? (a, b) => recordTitle(a).localeCompare(recordTitle(b), state.lang) : state.sort === "relevance" ? (a, b) => (relevanceOf(b)?.score ?? -1) - (relevanceOf(a)?.score ?? -1) || newest(a, b) : newest);
     const totalPages = Math.max(1, Math.ceil(filtered.length / state.pageSize)); state.page = Math.min(state.page, totalPages);
     const active = filtersActive(), reset = document.querySelector(".reset-button"); if (reset) reset.disabled = !active;
     $("results-heading").hidden = ["preparations", "resume"].includes(state.section);
@@ -910,6 +918,87 @@
     const employment = conditionValue(record, "employment"); if (knownCondition(employment)) add(translated(employment)); else add(`${t("employmentLabel")}: ${t("unknownShort")}`, true);
     return row;
   }
+  // Profile relevance, computed by the server: function and level in the title, candidate domains, saved queries.
+  const relevanceOf = (record) => record.kind === "vacancies" ? record.display?.relevance || null : null;
+  const isRelevant = (record) => { const result = relevanceOf(record); return !result || result.relevant; };
+  const TIER_ORDER = {strong: 0, possible: 1, weak: 2, off_profile: 3};
+  const WORD = "[\\p{L}\\p{N}_]", termCache = new Map();
+  const normText = (value) => String(value ?? "").normalize("NFKC").toLowerCase().replace(/ё/g, "е").replace(/[/_\-–—·•|()[\],;:!?"'«»]+/g, " ").replace(/\s+/g, " ").trim();
+  function termPattern(term) {
+    if (!termCache.has(term)) { const clean = normText(term); termCache.set(term, new RegExp(`(?<!${WORD})${clean.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}${clean.length <= 3 ? `(?!${WORD})` : ""}`, "u")); }
+    return termCache.get(term);
+  }
+  const foundTerms = (text, terms) => terms.filter((term) => term && termPattern(term).test(text));
+  // Same grammar as `ajh relevance search`: + joins groups, | alternatives, -word excludes, title: limits a group to the title.
+  function parseKeywordQuery(raw) {
+    const query = String(raw || "").trim();
+    if (!query || query.length > 300 || !/[+|]|(^|\s)-\S|title:/i.test(query)) return null;
+    const parts = query.split(/(?:^|\s)-(?=\s*\S)/);
+    const group = (chunk) => { let text = chunk.trim(), field = "any"; if (text.toLowerCase().startsWith("title:")) { field = "title"; text = text.slice(6); } const terms = text.replace(/[()]/g, " ").split(/[|,]/).map(normText).filter(Boolean); return terms.length ? {field, terms} : null; };
+    const allOf = parts[0].split("+").map(group).filter(Boolean), noneOf = parts.slice(1).map(group).filter(Boolean);
+    return allOf.length ? {allOf, noneOf} : null;
+  }
+  function matchKeywordQuery(parsed, title, text) {
+    const terms = [], where = (item) => item.field === "title" ? title : `${title} ${text}`;
+    for (const item of parsed.allOf) { const hit = foundTerms(where(item), item.terms)[0]; if (!hit) return {matched: false, terms}; terms.push(hit); }
+    const blocked = parsed.noneOf.flatMap((item) => foundTerms(where(item), item.terms));
+    return {matched: !blocked.length, terms, blocked};
+  }
+  const recordText = (record) => normText([typeof record.payload.text === "string" ? record.payload.text : "", ...(Array.isArray(record.payload.requirements) ? record.payload.requirements.map((item) => item?.text || "") : []), record.display?.description?.excerpt || ""].join(" ")).slice(0, 40000);
+  const DOMAIN_LABELS = {ai: ["AI", "AI"], payments: ["Платежи и финтех", "Payments and fintech"], platforms: ["Платформы", "Platforms"], "developer-tools": ["API и инструменты разработчиков", "APIs and developer tools"], commercialisation: ["Коммерциализация", "Commercialisation"], "engineering-management": ["Руководство разработкой", "Engineering management"], industrial: ["Промышленные технологии", "Industrial technology"]};
+  const domainLabel = (id) => DOMAIN_LABELS[id]?.[state.lang === "ru" ? 0 : 1] || id;
+  function reasonText(reason) {
+    const base = t(`relevance_${reason.code}`), words = (reason.terms || []).join(", ");
+    if (reason.code === "track_function") return `${base}: ${(reason.tracks || []).map(translated).join(", ")}`;
+    if (reason.code === "domain_overlap") return `${base}: ${(reason.domains || []).map(domainLabel).join(", ")}`;
+    if (reason.code === "query_included") return `${base} «${reason.query}»`;
+    return words ? `${base} (${words})` : base;
+  }
+  function relevanceSummary(result) {
+    if (result.tier === "off_profile") return result.reasons[0] ? reasonText(result.reasons[0]) : "";
+    const parts = [];
+    if (result.tracks.length) parts.push(result.tracks.map(translated).join(", "));
+    const level = result.reasons.find((reason) => reason.code.startsWith("level_")); if (level) parts.push(reasonText(level));
+    if (result.domains.length) parts.push(result.domains.map((item) => domainLabel(item.id)).join(", "));
+    else { const none = result.reasons.find((reason) => ["no_domain_overlap", "no_text"].includes(reason.code)); if (none) parts.push(reasonText(none)); }
+    const matched = (result.queries || []).filter((item) => item.matched).map((item) => `«${item.name}»`); if (matched.length) parts.push(`${t("savedQueries")}: ${matched.join(", ")}`);
+    return parts.join(" · ");
+  }
+  function relevanceLine(record) {
+    const result = relevanceOf(record); if (!result) return null;
+    const line = el("div", `vc-relevance tier-${result.tier}`);
+    line.append(el("span", "vc-fit-label", `${t("relevanceLabel")}:`), badge(result.tier), el("span", "vc-relevance-why", relevanceSummary(result)));
+    return line;
+  }
+  function relevancePanel(record) {
+    const result = relevanceOf(record), section = el("section", "detail-section first relevance-panel");
+    section.append(el("h3", "", t("relevanceTitle")));
+    if (!result) { section.append(el("p", "muted", state.data?.relevance_error ? `${t("relevanceSettingsError")}: ${state.data.relevance_error}` : t("relevanceMissing"))); return section; }
+    const head = el("div", "fit-head"); head.append(badge(result.tier), el("span", "mono muted", `${t("relevanceScore")}: ${result.score}`)); section.append(head);
+    const reasons = el("ul", "criteria-list"); result.reasons.forEach((reason) => reasons.append(el("li", "", reasonText(reason)))); section.append(reasons);
+    if (result.domains.length) { const rows = el("ul", "criteria-list"); result.domains.forEach((item) => { const row = el("li"); row.append(el("span", "criterion-name", domainLabel(item.id)), el("span", "muted", item.in_title.length ? `${t("inTitle")}: ${item.in_title.join(", ")}` : `${t("inText")}: ${item.in_text.join(", ")}`)); rows.append(row); }); section.append(el("h4", "", t("relevanceDomains")), rows); }
+    if ((result.queries || []).length) { const rows = el("ul", "criteria-list"); result.queries.forEach((item) => { const row = el("li"); row.append(badge(item.matched ? "match" : "mismatch"), el("span", "criterion-name", item.name), el("span", "mono muted", item.query)); rows.append(row); }); section.append(el("h4", "", t("savedQueries")), rows); }
+    section.append(el("p", "muted small-note", t("relevanceRules")));
+    return section;
+  }
+  function relevanceSwitch() {
+    const group = el("div", "segmented relevance-switch"), vacancies = primaryRecords("vacancies"); group.setAttribute("role", "group"); group.setAttribute("aria-label", t("relevanceLabel"));
+    const count = (value) => vacancies.filter((record) => !value || filterValues(record, "relevance").includes(value)).length;
+    [["relevant", "relevanceRelevant"], ["strong", "strong"], ["possible", "possible"], ["weak", "weak"], ["off_profile", "off_profile"], ["", "relevanceAll"]].forEach(([value, key]) => {
+      const active = (state.filters.relevance || "") === value;
+      const segment = button(`${["", "relevant"].includes(value) ? t(key) : translated(key)} · ${count(value)}`, `segment${active ? " active" : ""}`, () => { state.filters.relevance = value; state.page = 1; renderToolbar(); renderResults(); });
+      segment.setAttribute("aria-pressed", String(active)); group.append(segment);
+    });
+    return group;
+  }
+  function queryHelp() {
+    const row = el("div", "query-row"), saved = state.data?.relevance_queries || [];
+    if (saved.length) { row.append(el("span", "query-label", t("savedQueries"))); saved.forEach((item) => { const chip = button(item.name, `query-chip${state.query === item.query ? " active" : ""}`, () => { state.query = state.query === item.query ? "" : item.query; state.page = 1; renderToolbar(); renderResults(); }); chip.title = item.query; row.append(chip); }); }
+    row.append(el("span", "query-hint", t("queryHint")));
+    if (state.data?.relevance_error) row.append(el("span", "badge attention", `${t("relevanceSettingsError")}: ${state.data.relevance_error}`));
+    return row;
+  }
+  const sectionCount = (section) => ["vacancies", "pipeline"].includes(section) ? primaryRecords("vacancies").filter(isRelevant).length : primaryRecords(section).length;
   function fitLine(record) {
     const fit = fitSummary(record), line = el("div", "vc-fit");
     line.append(el("span", "vc-fit-label", `${t("fitLabel")}:`), badge(fit.status));
@@ -931,6 +1020,7 @@
     head.append(titleBox, salaryBlock(record)); card.append(head, conditionChips(record));
     card.append(el("p", "vc-line", `${t("whereAllowed")}: ${allowedGeographyText(record)} · ${t("languageLabel")}: ${languageText(record)}`));
     const text = record.display?.description?.excerpt; if (text) card.append(el("p", "record-summary vacancy-description", text));
+    const relevanceRow = relevanceLine(record); if (relevanceRow) card.append(relevanceRow);
     card.append(fitLine(record));
     const next = scalar(record.payload.next_action); if (next) card.append(el("p", "vc-line vc-next", `${t("nextStep")}: ${tx(next)}`));
     const statusRow = el("div", "card-age"); statusRow.append(badge(status(record)), ageBadge(record));
@@ -1087,7 +1177,7 @@
     return section;
   }
   function fitTab(record) {
-    const fragment = document.createDocumentFragment(), fit = fitSummary(record), section = el("section", "detail-section first");
+    const fragment = document.createDocumentFragment(), fit = fitSummary(record), section = el("section", "detail-section");
     section.append(el("h3", "", t("fitTitle")));
     if (!fit.assessment) section.append(el("p", "muted", t("fitNotAssessedHelp")));
     fit.all.forEach((assessment) => section.append(assessmentView(record, assessment)));
@@ -1095,7 +1185,7 @@
     form.append(track, requestButton(t("requestEvaluation"), "quiet-button", () => ({type: "evaluate", payload: {vacancy_id: record.id, track: track.value}})), requestButton(t("requestAnnotation"), "quiet-button", () => ({type: "task", payload: {task_type: "annotate_requirements", related: {vacancy_id: record.id, track: track.value}}}), t("taskQueued")));
     section.append(form, el("p", "muted small-note", t("fitRules")));
     const work = workList(relatedWork(record.id, ["evaluate", "annotate_requirements", "clarification_answer"])); if (work) section.append(work);
-    fragment.append(section, campaignsPanel(record));
+    fragment.append(relevancePanel(record), section, campaignsPanel(record));
     return fragment;
   }
   function assessmentView(record, assessment) {

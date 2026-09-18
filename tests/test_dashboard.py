@@ -930,3 +930,35 @@ def test_vacancies_carry_dates_campaign_matches_and_collection_runs(tmp_path: Pa
         "run-1"
     ]
     assert len(vacancy["version"]) == 16
+
+
+def test_vacancies_carry_profile_relevance_in_lists_and_single_records(tmp_path):
+    home = make_workspace(tmp_path)
+    (home / "settings.json").write_text(
+        json.dumps({"policy": {"tracks": ["product"], "interests": ["payments"]}}),
+        encoding="utf-8",
+    )
+    with sqlite3.connect(home / "journal.sqlite") as connection:
+        connection.execute(
+            "INSERT INTO records VALUES (?, ?, ?)",
+            (
+                "vacancies",
+                "role-2",
+                json.dumps(
+                    {"id": "role-2", "title": "Head of Product, Payments", "urls": []},
+                ),
+            ),
+        )
+    with running_server(home, tmp_path) as base:
+        data = json.loads(request(base + "/api/workspace")[2])
+        tiers = {item["id"]: item["display"]["relevance"]["tier"] for item in data["vacancies"]}
+        assert tiers == {"role-1": "off_profile", "role-2": "strong"}
+        assert data["relevance_error"] is None and data["relevance_queries"] == []
+        single = json.loads(request(base + "/api/records/vacancies/role-2")[2])
+        assert single["display"]["relevance"]["domains"][0]["id"] == "payments"
+    (home / "settings.json").write_text(json.dumps({"relevance": {"target_level": "x"}}))
+    (tmp_path / "second").mkdir()
+    with running_server(home, tmp_path / "second") as base:
+        data = json.loads(request(base + "/api/workspace")[2])
+        assert "target_level" in data["relevance_error"]
+        assert "relevance" not in data["vacancies"][0]["display"]

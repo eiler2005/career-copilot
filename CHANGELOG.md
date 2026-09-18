@@ -2,6 +2,18 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-18 — Profile relevance
+
+### Added
+- A profile screen for every vacancy ([profile relevance](docs/RELEVANCE.md), `relevance.py`): the title's function (product or technical leadership), its level against the target (director-level for Russian roles under `russia_director_only`; employer-specific for big-tech titles), the candidate's domains derived from fact tags and interests (AI, payments, platforms, APIs, commercialisation, engineering management, industrial) in the title and text, excluded functions (sales, marketing, design, office, retail …) and saved keyword queries. Each vacancy gets a tier — strong, possible, weak or off profile — with the words that decided it.
+- Keyword queries with one grammar in the dashboard search box, `ajh relevance search` and saved queries: `+` for all groups, `|` for alternatives, `-word` to exclude, `title:` to look in the title only — for example `title:(engineer | инженер) + (ai | ии) - crypto`. A saved query with `include` can bring in roles the track words miss, but never overrides the level.
+- `ajh relevance list | explain | search | profile | set`; `settings.json → relevance` for target level, extra words, domains, vocabulary and queries.
+- Collection counts new vacancies per tier in `collection_runs.relevance`; a source with `skip_off_profile` does not add off-profile cards (the snapshot keeps them).
+
+### Changed
+- Vacancies and the pipeline open on **Relevant** (strong + possible) with a tier switch and saved-query buttons; cards show a "Profile" line and the Fit tab starts with the full relevance explanation. The overview's fresh vacancies, availability count and vacancy statistic count only relevant vacancies, so an office manager or a sales role no longer appears there.
+- `career-job-search` screens by profile before annotating and evaluating.
+
 ## 2026-09-16 — Bento interface redesign
 
 ### Changed

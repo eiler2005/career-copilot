@@ -81,6 +81,7 @@ The disabled [example configuration](../examples/source-config.json) can be adap
 | `enabled` | True when omitted | Participates in discovery |
 | `company_name`, `market` | Optional; market defaults `unknown` | Initial company label and vacancy market |
 | `include_title` | Optional regex | Case-insensitive title filter after snapshot preservation |
+| `skip_off_profile` | False | Do not add cards that the [profile relevance](RELEVANCE.md) screen marks `off_profile`; the snapshot keeps them and `source_health.screened_out` counts them |
 | `max_pages` | 3; clamped 1–20 | Bounded pagination for paginated providers |
 | `request_gap_seconds` | 4; clamped 4–30 | Host/request spacing |
 | `interval_seconds` | 3600; minimum 4 (Remotive 21600) | Persisted next permitted attempt; provider minimums apply |
@@ -137,6 +138,10 @@ An optional `include_title` expression filters locally after snapshot retention.
 | `languages` | ISO language codes the candidate works in; a required language outside the list is a question, not a rejection |
 
 Changing `candidate` marks affected assessments as needing an update.
+
+## Profile relevance
+
+`settings.json → relevance` tunes the screen that decides which vacancies fit the candidate's profile: `target_level` (`top`, `lead`, `any`), extra `roles` per track, `levels`, `exclude_title`, explicit `domains`, extra `vocabulary` per domain, saved `queries` (`{name, query, include}`) and `extend_defaults`. Without the section the screen uses built-in words, `policy.tracks`, and domains derived from fact tags and `policy.interests`. `policy.russia_director_only` and `policy.bigtech_company_ids` also shape the level check. Replace the section with `ajh relevance set PATH`. Full rules, query grammar and tuning: [profile relevance](RELEVANCE.md#configuration).
 
 ## Search campaigns
 

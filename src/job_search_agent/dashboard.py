@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, campaigns, cv, descriptions, inbox, matching
+from . import availability, campaigns, cv, descriptions, inbox, matching, relevance
 from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
@@ -649,11 +649,13 @@ class Journal:
         registered = {item["path"] for item in artifacts}
         self._cv_states(grouped["documents"], legacy)
         _topic_statuses(grouped["preparations"])
+        screen_profile = self.relevance_profile(settings)
         for record in grouped["vacancies"]:
             if record["kind"] == "vacancies":
                 _availability_display(record, checks.get(record["id"]))
                 self._describe(record, legacy, registered)
                 self._conditions(record, settings, companies)
+                self._relevance(record, screen_profile)
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -668,6 +670,11 @@ class Journal:
             "pending_requests": self.pending_requests(grouped["work"]),
             "campaigns": self.campaigns(settings),
             "campaigns_error": campaigns.problem(settings),
+            "relevance_queries": [
+                {key: item[key] for key in ("id", "name", "query", "include")}
+                for item in (screen_profile or {}).get("queries", [])
+            ],
+            "relevance_error": relevance.problem(settings),
             "capabilities": {
                 "availability_check": self.state_dir is not None,
                 "requests": self.state_dir is not None,
@@ -773,6 +780,27 @@ class Journal:
             recorded = pointer.get("checked_inputs") or payload.get("inputs")
             current = matching.input_hashes(vacancy, company, facts, settings)
             record["display"]["stale"] = matching.stale_parts(recorded, current)
+
+    @staticmethod
+    def _relevance(record: dict, screen_profile: dict | None) -> None:
+        """Profile relevance of one vacancy; the description excerpt counts as its text."""
+        if screen_profile is None:
+            return
+        excerpt = (record["display"].get("description") or {}).get("excerpt") or ""
+        record["display"]["relevance"] = relevance.screen(
+            record["payload"], screen_profile, excerpt
+        )
+
+    def relevance_profile(self, settings: dict) -> dict | None:
+        """Resolved relevance screen, or None while the settings section is invalid."""
+        try:
+            facts = json.loads((self.home / "facts.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            facts = None
+        try:
+            return relevance.profile(settings, facts)
+        except ValueError:
+            return None
 
     @staticmethod
     def campaigns(settings: dict) -> list[dict]:
@@ -1134,12 +1162,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 company = journal.record(
                     connection, "companies", record["payload"].get("company_id") or ""
                 )
+            settings = journal.settings()
             journal._describe(record, legacy, registered)
             journal._conditions(
-                record,
-                journal.settings(),
-                {company["id"]: company["payload"]} if company else {},
+                record, settings, {company["id"]: company["payload"]} if company else {}
             )
+            journal._relevance(record, journal.relevance_profile(settings))
         self._json(record, head_only)
 
     def _artifact(self, path: str, head_only: bool) -> None:

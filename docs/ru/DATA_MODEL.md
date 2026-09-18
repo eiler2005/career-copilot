@@ -46,7 +46,7 @@ SQLite хранит актуальные сущности и сохранённ�
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | План → реальная практика → обратная связь → решение о прогрессе |
 | `employer_responses` | Полученные ответы с доказательствами и ссылкой на зарегистрированную отправку |
 | `submissions` | Подтверждённая пользователем отправка с точной версией |
-| `collection_runs` | Один прогон сбора: `new` — ID новых вакансий, `changed` — ID с именами полей, `unchanged` — число без изменений, `possible_duplicates` (автоматически не сливаются) и `errors` источников со статусом, HTTP-кодом, причиной и последним успехом |
+| `collection_runs` | Один прогон сбора: `new` — ID новых вакансий, `changed` — ID с именами полей, `unchanged` — число без изменений, `possible_duplicates` (автоматически не сливаются), `errors` источников со статусом, HTTP-кодом, причиной и последним успехом, `relevance` — новые вакансии по ступеням и `screened_out` — карточки вне профиля, не добавленные источниками с `skip_off_profile` |
 | `preparation_overviews` | Общий обзор подготовки по обоим трекам от агента: темы с меткой доказанности, недельный план, банк вопросов, истории и советы по резюме (см. [подготовку](PREPARATION.md#модуль-подготовка-два-входа-и-цикл-практики)) |
 | `preparation_briefs`, `track_plans`, `practice_sessions`, `practice_attempts`, `practice_reviews` | Памятки к вакансиям с происхождением; планы по общим пробелам или базовые; вопросы практики (связь с планом через `plan_id`, `plan_kind` и `topic_id`), ответы (артефакты) со ссылками на повтор и уточнение и разборы (см. [подготовку](PREPARATION.md#модуль-подготовка-два-входа-и-цикл-практики)) |
 | `cv_edits`, `cv_edit_decisions`, `cv_imports` | Предложенные правки точной версии резюме; неизменяемые решения пользователя с `sequence`; структура импортированного резюме и задача извлечения фактов (см. [CV-профили](CV_PROFILES.md)) |
@@ -121,6 +121,10 @@ SQLite хранит актуальные сущности и сохранённ�
 Требование содержит стабильный `id`, `text`, `source`, `mandatory`, необязательный `tag`, `evidence_fact_ids`, `evidence_reviewed`, `gap_type`. Поля `minimum_years`, `authorization`, `license` обозначают структурный пробел. `language_gate`, `eligibility_gate`, `role_family_gates[TRACK]` фиксируют самостоятельные pass/fail/неизвестно решения.
 
 `record companies PATH` и `record vacancies PATH` **заменяют запись целиком**. Прочитайте текущую карточку и явно объедините изменения в приватном JSON. ID и одно новое поле не являются частичным обновлением и приведут к потере остальных полей.
+
+### Релевантность профилю (вычисляется, не хранится)
+
+Интерфейс добавляет каждой вакансии `display.relevance`: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (только для порядка), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` и `text_checked`. Значение пересчитывается при каждой загрузке из названия, сохранённого текста, фактов и `settings.json → relevance` и никогда не записывается в карточку вакансии. См. [релевантность профилю](RELEVANCE.md).
 
 ## Оценки и документы
 

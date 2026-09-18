@@ -155,3 +155,14 @@ def test_bento_shell_keeps_navigation_in_the_masthead_without_external_fonts():
     )
     for external in ("@import", "@font-face", "fonts.googleapis", "url(http"):
         assert external not in styles
+
+
+def test_vacancy_lists_open_on_the_profile_and_share_the_query_grammar():
+    script = app_js()
+    assert 'section === "vacancies" ? {kind: section, relevance: "relevant"}' in script
+    assert 'section === "pipeline" ? {relevance: "relevant"}' in script
+    # The dashboard parses the same query grammar as `ajh relevance search`.
+    for part in ('field = "title"', 'split("+")', "(?:^|\\s)-(?=\\s*\\S)"):
+        assert part in script
+    # Overview shows only vacancies that fit the profile.
+    assert "isRelevant(record)).sort((a, b) => tierOf(a) - tierOf(b)" in script

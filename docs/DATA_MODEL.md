@@ -46,7 +46,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `interview_plans`, `interview_practices`, `interview_feedback`, `interview_progress` | Plan → actual practice → feedback → explicit progress decision |
 | `employer_responses` | Evidence-backed received replies linked to a registered submission |
 | `submissions` | User-confirmed external action tied to exact package/version |
-| `collection_runs` | One discovery run: `new` vacancy IDs, `changed` IDs with field names, `unchanged` count, `possible_duplicates` (never merged automatically) and source `errors` with status, HTTP code, reason and last success |
+| `collection_runs` | One discovery run: `new` vacancy IDs, `changed` IDs with field names, `unchanged` count, `possible_duplicates` (never merged automatically), source `errors` with status, HTTP code, reason and last success, `relevance` (new vacancies per tier) and `screened_out` (off-profile cards not added by sources with `skip_off_profile`) |
 | `preparation_overviews` | Unified agent-authored review of both tracks with evidence-labelled themes, a weekly plan, question bank, stories and CV advice (see [preparation](PREPARATION.md#preparation-module-two-entries-and-a-practice-cycle)) |
 | `preparation_briefs`, `track_plans`, `practice_sessions`, `practice_attempts`, `practice_reviews` | Vacancy briefs with provenance; plans for general gaps or baseline; practice questions (linked to a plan by `plan_id`, `plan_kind` and `topic_id`), answers (artifacts) with retry/follow-up links and reviews (see [preparation](PREPARATION.md#preparation-module-two-entries-and-a-practice-cycle)) |
 | `cv_edits`, `cv_edit_decisions`, `cv_imports` | Proposed CV edits for an exact version; immutable user decisions with `sequence`; imported CV structure with its fact-extraction task (see [CV profiles](CV_PROFILES.md)) |
@@ -121,6 +121,10 @@ The dashboard preserves these fields under each API record's `payload`. Its sepa
 Requirements use stable `id`, `text`, `source`, `mandatory`, optional `tag`, `evidence_fact_ids`, `evidence_reviewed` and `gap_type`. Structural fields such as `minimum_years`, `authorization` and `license` override a generic learning gap. Gates `language_gate`, `eligibility_gate` and `role_family_gates[TRACK]` use explicit pass/fail/unknown judgments.
 
 `record companies PATH` and `record vacancies PATH` are **whole-record replacement**. Read the current record and merge deliberately in a private working JSON; submitting only an ID and one changed field loses other fields.
+
+### Profile relevance (computed, not stored)
+
+The dashboard adds `display.relevance` to each vacancy: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (ordering only), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` and `text_checked`. It is recomputed from the title, stored text, facts and `settings.json → relevance` on every load and never written into the vacancy record. See [profile relevance](RELEVANCE.md).
 
 ## Assessments and document versions
 

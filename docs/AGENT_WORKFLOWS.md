@@ -101,7 +101,7 @@ The CLI validates structure and references, not the truth of authored prose. A t
 
 **Inputs:** configured allowed sources, budgets, track, candidate facts and company-specific level policy.
 
-**Work:** discover/replay supported sources; preserve original bytes and source health. Annotate target track, role family, management/IC scope, employer level, eligibility, language and requirements with citations. Distinguish skill-tag suggestions from reviewed evidence. Use the flagship for complex fit judgments.
+**Work:** discover/replay supported sources; preserve original bytes and source health. Screen by [profile relevance](RELEVANCE.md) (`ajh relevance list --relevant`, `explain`, `search`) and work on relevant vacancies first; report weak and off-profile counts. Annotate target track, role family, management/IC scope, employer level, eligibility, language and requirements with citations. Distinguish skill-tag suggestions from reviewed evidence. Use the flagship for complex fit judgments.
 
 **Result:** deduplicated cards, source observations, evidence-rule evaluations, missing information and a ranked next-action explanation. Record a completed search with zero relevant findings when the actual checked coverage supports that result; preserve blocked/partial routes separately.
 
