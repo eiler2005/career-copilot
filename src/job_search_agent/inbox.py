@@ -39,6 +39,7 @@ TASK_TYPES = frozenset(
         "prepare_vacancy_brief",
         "track_plan_materials",
         "review_practice",
+        "review_relevance",
     }
 )
 TASK_SKILLS = {
@@ -50,6 +51,7 @@ TASK_SKILLS = {
     "prepare_vacancy_brief": "career-interview-prep",
     "track_plan_materials": "career-interview-prep",
     "review_practice": "career-interview-prep",
+    "review_relevance": "career-job-search",
 }
 RELATED_KEYS = frozenset(
     {

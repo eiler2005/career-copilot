@@ -36,6 +36,7 @@ RESULT_KINDS = {
     "preparation_brief": "preparation_briefs",
     "practice_review": "practice_reviews",
     "preparation_overview": "preparation_overviews",
+    "relevance_review": "relevance_reviews",
 }
 
 
@@ -262,6 +263,12 @@ def validate_record(
         from . import preparation
 
         data = preparation.validate_overview(store, data)
+    elif kind == "relevance_review":
+        from . import relevance
+
+        if activity["actor"]["model"] not in FLAGSHIPS.values() or not activity["actor"]["session"]:
+            raise ValueError("Relevance review requires actual flagship actor and session")
+        data = relevance.validate_review(store, data)
     elif kind == "practice_review":
         from . import preparation
 

@@ -2,6 +2,16 @@
 
 Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
 
+## 2026-09-18 — Relevance thermometer, review by meaning and field queries
+
+### Added
+- A 0–100 **thermometer** for every vacancy: function (30), level (25), the candidate's domains (25) and how many CV facts back them (20); tiers are score bands (strong ≥ 70, possible ≥ 50), and hard rules cap an off-profile title at 20 and a below-target level or a text without the candidate's domains at 49. Cards show the thermometer; the Fit tab shows the four parts.
+- **Review by meaning**: a `relevance_review` activity result from a flagship agent records a verdict, a score in the verdict band, a summary and fit/gap/risk reasons per vacancy. A current review decides the tier and score over the rules; it goes stale when the vacancy text or the candidate's facts change. `ajh relevance pending` lists what waits for review; the Fit tab's **Review by meaning** queues a `review_relevance` task.
+- **Query fields**: `title:`, `company:`, `location:` (including work mode and allowed countries) and `text:` with Russian aliases `должность:`, `компания:`, `где:`/`локация:`, `стек:`/`текст:` — for example `компания:(сбер | т-банк) + должность:(директор | head) + где:(москва | remote) + стек:llm`. Several plain words in the dashboard search must all appear.
+
+### Changed
+- Russian titles that head a whole function («руководитель разработки / департамента / управления / центра …») count as head level; lead titles at employers in `bigtech_company_ids` are mapped per employer, not downgraded by the Russian director-only rule; banking "products" (loans, cards, lending) are no longer read as product management (`ignore_in_title`).
+
 ## 2026-09-18 — Profile relevance
 
 ### Added

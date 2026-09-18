@@ -561,7 +561,13 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
                 kept = []
                 for value in selected_jobs:
                     tier = (
-                        relevance.screen(value, screen_profile)["tier"] if screen_profile else None
+                        relevance.screen(
+                            value,
+                            screen_profile,
+                            company=value.get("company_name") or source.get("company_name") or "",
+                        )["tier"]
+                        if screen_profile
+                        else None
                     )
                     if tier == "off_profile" and source.get("skip_off_profile"):
                         # The snapshot keeps the original; the card is only not added.

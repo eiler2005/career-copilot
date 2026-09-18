@@ -655,7 +655,7 @@ class Journal:
                 _availability_display(record, checks.get(record["id"]))
                 self._describe(record, legacy, registered)
                 self._conditions(record, settings, companies)
-                self._relevance(record, screen_profile)
+                self._relevance(record, screen_profile, companies)
         counts = {name: len(records) for name, records in grouped.items()}
         return {
             "meta": {
@@ -672,7 +672,7 @@ class Journal:
             "campaigns_error": campaigns.problem(settings),
             "relevance_queries": [
                 {key: item[key] for key in ("id", "name", "query", "include")}
-                for item in (screen_profile or {}).get("queries", [])
+                for item in (screen_profile or {}).get("resolved", {}).get("queries", [])
             ],
             "relevance_error": relevance.problem(settings),
             "capabilities": {
@@ -782,25 +782,49 @@ class Journal:
             record["display"]["stale"] = matching.stale_parts(recorded, current)
 
     @staticmethod
-    def _relevance(record: dict, screen_profile: dict | None) -> None:
-        """Profile relevance of one vacancy; the description excerpt counts as its text."""
-        if screen_profile is None:
+    def _relevance(record: dict, context: dict | None, companies: dict) -> None:
+        """Profile relevance of one vacancy, with a current semantic review taking precedence.
+
+        The description excerpt counts as text; the company name, aliases and the display
+        location feed saved queries with those fields.
+        """
+        if context is None:
             return
-        excerpt = (record["display"].get("description") or {}).get("excerpt") or ""
-        record["display"]["relevance"] = relevance.screen(
-            record["payload"], screen_profile, excerpt
+        payload, display = record["payload"], record["display"]
+        excerpt = (display.get("description") or {}).get("excerpt") or ""
+        location = " ".join(
+            str(value) for value in (display.get("location") or {}).values() if value
+        )
+        result = relevance.screen(
+            payload,
+            context["resolved"],
+            excerpt,
+            company=relevance.company_terms(companies.get(payload.get("company_id"))),
+            location=location,
+        )
+        display["relevance"] = relevance.combine(
+            result, context["reviews"].get(record["id"]), payload, context["facts_sha"]
         )
 
     def relevance_profile(self, settings: dict) -> dict | None:
-        """Resolved relevance screen, or None while the settings section is invalid."""
+        """Resolved screen, semantic reviews and facts version; None while settings are invalid."""
         try:
             facts = json.loads((self.home / "facts.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             facts = None
         try:
-            return relevance.profile(settings, facts)
+            resolved = relevance.profile(settings, facts)
         except ValueError:
             return None
+        with self.snapshot() as connection:
+            reviews = relevance.latest_reviews(
+                [item["payload"] for item in self.records(connection, "relevance_reviews")]
+            )
+        return {
+            "resolved": resolved,
+            "reviews": reviews,
+            "facts_sha": relevance.facts_version(facts),
+        }
 
     @staticmethod
     def campaigns(settings: dict) -> list[dict]:
@@ -1167,7 +1191,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
             journal._conditions(
                 record, settings, {company["id"]: company["payload"]} if company else {}
             )
-            journal._relevance(record, journal.relevance_profile(settings))
+            journal._relevance(
+                record,
+                journal.relevance_profile(settings),
+                {company["id"]: company["payload"]} if company else {},
+            )
         self._json(record, head_only)
 
     def _artifact(self, path: str, head_only: bool) -> None:

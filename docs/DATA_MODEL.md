@@ -47,6 +47,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `employer_responses` | Evidence-backed received replies linked to a registered submission |
 | `submissions` | User-confirmed external action tied to exact package/version |
 | `collection_runs` | One discovery run: `new` vacancy IDs, `changed` IDs with field names, `unchanged` count, `possible_duplicates` (never merged automatically), source `errors` with status, HTTP code, reason and last success, `relevance` (new vacancies per tier) and `screened_out` (off-profile cards not added by sources with `skip_off_profile`) |
+| `relevance_reviews` | Reviews by meaning from a flagship agent: per vacancy a verdict, a 0–100 score in the verdict band, track, summary, fit/gap/risk reasons and fact IDs, with digests of the vacancy input and the facts for staleness |
 | `preparation_overviews` | Unified agent-authored review of both tracks with evidence-labelled themes, a weekly plan, question bank, stories and CV advice (see [preparation](PREPARATION.md#preparation-module-two-entries-and-a-practice-cycle)) |
 | `preparation_briefs`, `track_plans`, `practice_sessions`, `practice_attempts`, `practice_reviews` | Vacancy briefs with provenance; plans for general gaps or baseline; practice questions (linked to a plan by `plan_id`, `plan_kind` and `topic_id`), answers (artifacts) with retry/follow-up links and reviews (see [preparation](PREPARATION.md#preparation-module-two-entries-and-a-practice-cycle)) |
 | `cv_edits`, `cv_edit_decisions`, `cv_imports` | Proposed CV edits for an exact version; immutable user decisions with `sequence`; imported CV structure with its fact-extraction task (see [CV profiles](CV_PROFILES.md)) |
@@ -124,7 +125,7 @@ Requirements use stable `id`, `text`, `source`, `mandatory`, optional `tag`, `ev
 
 ### Profile relevance (computed, not stored)
 
-The dashboard adds `display.relevance` to each vacancy: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (ordering only), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` and `text_checked`. It is recomputed from the title, stored text, facts and `settings.json → relevance` on every load and never written into the vacancy record. See [profile relevance](RELEVANCE.md).
+The dashboard adds `display.relevance` to each vacancy: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (0–100 thermometer), `parts` (`role`, `level`, `domains`, `evidence`), `method` (`rules` or `agent`), `rules` (the rule tier and score when an agent review decides), `review` (the latest agent review with `stale`), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text, facts}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` and `text_checked`. The rule part is recomputed from the title, stored text, company, location, facts and `settings.json → relevance` on every load and never written into the vacancy record; agent reviews live in `relevance_reviews`. See [profile relevance](RELEVANCE.md).
 
 ## Assessments and document versions
 

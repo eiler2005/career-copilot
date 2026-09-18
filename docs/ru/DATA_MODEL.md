@@ -47,6 +47,7 @@ SQLite хранит актуальные сущности и сохранённ�
 | `employer_responses` | Полученные ответы с доказательствами и ссылкой на зарегистрированную отправку |
 | `submissions` | Подтверждённая пользователем отправка с точной версией |
 | `collection_runs` | Один прогон сбора: `new` — ID новых вакансий, `changed` — ID с именами полей, `unchanged` — число без изменений, `possible_duplicates` (автоматически не сливаются), `errors` источников со статусом, HTTP-кодом, причиной и последним успехом, `relevance` — новые вакансии по ступеням и `screened_out` — карточки вне профиля, не добавленные источниками с `skip_off_profile` |
+| `relevance_reviews` | Оценки по смыслу от флагманского агента: для каждой вакансии вердикт, балл 0–100 в диапазоне вердикта, трек, сводка, причины fit/gap/risk и id фактов, с хэшами прочитанной вакансии и фактов для устаревания |
 | `preparation_overviews` | Общий обзор подготовки по обоим трекам от агента: темы с меткой доказанности, недельный план, банк вопросов, истории и советы по резюме (см. [подготовку](PREPARATION.md#модуль-подготовка-два-входа-и-цикл-практики)) |
 | `preparation_briefs`, `track_plans`, `practice_sessions`, `practice_attempts`, `practice_reviews` | Памятки к вакансиям с происхождением; планы по общим пробелам или базовые; вопросы практики (связь с планом через `plan_id`, `plan_kind` и `topic_id`), ответы (артефакты) со ссылками на повтор и уточнение и разборы (см. [подготовку](PREPARATION.md#модуль-подготовка-два-входа-и-цикл-практики)) |
 | `cv_edits`, `cv_edit_decisions`, `cv_imports` | Предложенные правки точной версии резюме; неизменяемые решения пользователя с `sequence`; структура импортированного резюме и задача извлечения фактов (см. [CV-профили](CV_PROFILES.md)) |
@@ -124,7 +125,7 @@ SQLite хранит актуальные сущности и сохранённ�
 
 ### Релевантность профилю (вычисляется, не хранится)
 
-Интерфейс добавляет каждой вакансии `display.relevance`: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (только для порядка), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` и `text_checked`. Значение пересчитывается при каждой загрузке из названия, сохранённого текста, фактов и `settings.json → relevance` и никогда не записывается в карточку вакансии. См. [релевантность профилю](RELEVANCE.md).
+Интерфейс добавляет каждой вакансии `display.relevance`: `tier` (`strong`, `possible`, `weak`, `off_profile`), `relevant`, `score` (термометр 0–100), `parts` (`role`, `level`, `domains`, `evidence`), `method` (`rules` или `agent`), `rules` (ступень и балл правил, когда решает оценка агента), `review` (последняя оценка агента с признаком `stale`), `tracks`, `level` (`top`, `lead`, `below`, `company_specific`, `unknown`), `domains[{id, in_title, in_text, facts}]`, `queries[{id, name, query, include, matched, terms}]`, `reasons[{code, terms|tracks|domains|query}]` и `text_checked`. Часть правил пересчитывается при каждой загрузке из названия, сохранённого текста, компании, локации, фактов и `settings.json → relevance` и никогда не записывается в карточку вакансии; оценки агента хранятся в `relevance_reviews`. См. [релевантность профилю](RELEVANCE.md).
 
 ## Оценки и документы
 

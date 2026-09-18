@@ -277,3 +277,22 @@ button:disabled{cursor:not-allowed;opacity:.5}
 .query-hint{font:10px/1.5 var(--mono);color:var(--muted)}
 .relevance-panel .fit-head{justify-content:flex-start;gap:12px}
 .relevance-panel h4{font-size:14px;margin:16px 0 8px}
+
+/* Relevance thermometer and the agent's review by meaning */
+.thermo{display:inline-flex;align-items:center;gap:7px;font:10px/1 var(--mono);color:var(--muted)}
+.thermo-bar{position:relative;display:inline-block;width:78px;height:6px;background:#e3e5ea;overflow:hidden}
+.thermo.large .thermo-bar{width:160px;height:8px}
+.thermo-fill{position:absolute;inset:0 auto 0 0;background:var(--muted)}
+.tier-strong .thermo-fill{background:var(--green)}.tier-possible .thermo-fill{background:var(--blue)}.tier-weak .thermo-fill{background:#b89a2c}.tier-off_profile .thermo-fill{background:var(--orange)}
+.thermo-value{font-weight:600;color:var(--ink);min-width:18px}
+.thermo.large .thermo-value{font:300 26px/1 var(--display);letter-spacing:-.02em}
+.thermo-method{text-transform:uppercase;letter-spacing:.1em}
+.thermo-parts{display:flex;flex-direction:column;gap:8px;max-width:520px}
+.thermo-part{display:grid;grid-template-columns:170px minmax(0,1fr) 52px;align-items:center;gap:12px;font-size:12px}
+.thermo-part .thermo-bar{width:100%}.thermo-part .thermo-fill{background:var(--blue)}
+.semantic-review{background:var(--sage-2);border-left:3px solid var(--green);padding:14px 18px;margin:14px 0}
+.semantic-review.is-stale{background:#f7ebdf;border-left-color:var(--orange)}
+.semantic-review .eyebrow{color:var(--green);margin-bottom:8px}.semantic-review.is-stale .eyebrow{color:#8b470e}
+.semantic-review p{margin:0 0 8px;font-size:14px;line-height:1.55}
+.semantic-review .criteria-list li{align-items:center}
+@media(max-width:650px){.thermo-part{grid-template-columns:110px minmax(0,1fr) 44px}.thermo-bar{width:56px}}

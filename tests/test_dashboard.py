@@ -949,10 +949,51 @@ def test_vacancies_carry_profile_relevance_in_lists_and_single_records(tmp_path)
                 ),
             ),
         )
+    from job_search_agent import relevance
+
+    # One verified payments fact backs the payments domain; the review below was made with it.
+    facts = {"facts": [{"id": "f1", "tags": ["payments"], "verification": "verified"}]}
+    (home / "facts.json").write_text(json.dumps(facts), encoding="utf-8")
+    reviewed = {"id": "role-1", "title": "Example role", "location": "Moscow, Russia", "urls": []}
+    with sqlite3.connect(home / "journal.sqlite") as connection:
+        connection.execute(
+            "UPDATE records SET payload=? WHERE kind='vacancies' AND id='role-1'",
+            (json.dumps(reviewed),),
+        )
+        connection.execute(
+            "INSERT INTO records VALUES (?, ?, ?)",
+            (
+                "relevance_reviews",
+                "review-1",
+                json.dumps(
+                    {
+                        "id": "review-1",
+                        "created_at": "2026-09-18T10:00:00+00:00",
+                        "actor": {"model": "claude-opus-5"},
+                        "facts_sha256": relevance.facts_version(facts),
+                        "reviews": [
+                            {
+                                "vacancy_id": "role-1",
+                                "verdict": "possible",
+                                "score": 58,
+                                "track": "product",
+                                "summary": "Unclear role; worth reading the posting.",
+                                "reasons": [{"kind": "gap", "text": "No description"}],
+                                "fact_ids": [],
+                                "input_sha256": relevance.review_input(reviewed),
+                            }
+                        ],
+                    }
+                ),
+            ),
+        )
     with running_server(home, tmp_path) as base:
         data = json.loads(request(base + "/api/workspace")[2])
         tiers = {item["id"]: item["display"]["relevance"]["tier"] for item in data["vacancies"]}
-        assert tiers == {"role-1": "off_profile", "role-2": "strong"}
+        assert tiers == {"role-1": "possible", "role-2": "strong"}
+        role = next(item for item in data["vacancies"] if item["id"] == "role-1")
+        assert role["display"]["relevance"]["method"] == "agent"
+        assert role["display"]["relevance"]["rules"]["tier"] == "off_profile"
         assert data["relevance_error"] is None and data["relevance_queries"] == []
         single = json.loads(request(base + "/api/records/vacancies/role-2")[2])
         assert single["display"]["relevance"]["domains"][0]["id"] == "payments"

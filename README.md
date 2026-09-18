@@ -11,7 +11,7 @@ The main path is **collect vacancies → keep the ones that fit your profile →
 | You want to… | Skill | Concrete result |
 | --- | --- | --- |
 | Move a search through several stages | `career-copilot` | Linked work, dependencies and next actions |
-| Find and assess roles | `career-job-search` | Collection runs, a profile screen that says why each vacancy is or is not yours, keyword queries such as `engineer + ai`, original conditions and an explained fit result |
+| Find and assess roles | `career-job-search` | Collection runs, a profile screen with a 0–100 thermometer and an agent review by meaning, keyword queries with fields such as `company:acme + title:director + location:remote + ai`, original conditions and an explained fit result |
 | Understand an employer | `career-company-research` | Business, products, markets, scale and hiring dossier |
 | Build or tailor a CV | `career-cv-tailor` | Before → after edit proposals, versioned source/PDF/text, requirement coverage and review handoff |
 | Make existing writing sound natural | `career-natural-writing` | Original/revised text with factual meaning preserved |
@@ -83,7 +83,7 @@ See the [system overview](docs/SYSTEM_OVERVIEW.md) for every module, container a
 | [Data model](docs/DATA_MODEL.md) | Facts, records, vacancy conditions, fit results, requests and versions |
 | [CV profiles](docs/CV_PROFILES.md) | Two master tracks, vacancy versions, edit decisions, coverage and acceptance |
 | [Sources](docs/SOURCES.md) | Providers, access, replay, limits and failure interpretation |
-| [Profile relevance](docs/RELEVANCE.md) | Which vacancies fit the profile and why: function, level, CV domains, keyword queries, tiers and tuning |
+| [Profile relevance](docs/RELEVANCE.md) | Which vacancies fit the profile and why: the 0–100 thermometer, the agent's review by meaning, keyword queries with fields, tiers and tuning |
 | [Source architecture](docs/SOURCE_ARCHITECTURE.md) | Collection pipeline, source families, direct/proxy/reserve routes, adapter contract and how to add a provider |
 | [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
 | [System overview](docs/SYSTEM_OVERVIEW.md) | All modules with their code and records, request lifecycle, runtime topology, containers, release and rollback |

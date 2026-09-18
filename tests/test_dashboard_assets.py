@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from job_search_agent import relevance
+
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "src" / "job_search_agent" / "web_assets"
 
@@ -161,8 +163,13 @@ def test_vacancy_lists_open_on_the_profile_and_share_the_query_grammar():
     script = app_js()
     assert 'section === "vacancies" ? {kind: section, relevance: "relevant"}' in script
     assert 'section === "pipeline" ? {relevance: "relevant"}' in script
-    # The dashboard parses the same query grammar as `ajh relevance search`.
-    for part in ('field = "title"', 'split("+")', "(?:^|\\s)-(?=\\s*\\S)"):
+    # The dashboard parses the same query grammar and field aliases as `ajh relevance search`.
+    for part in ('split("+")', "(?:^|\\s)-(?=\\s*\\S)"):
         assert part in script
+    fields = relevance.FIELD_ALIASES
+    for alias, field in fields.items():
+        assert f'"{alias}": "{field}"' in script or f'{alias}: "{field}"' in script, alias
+    # Scores are shown as a thermometer with the method, and an agent review can be requested.
+    assert "function thermometer(result" in script and 'task_type: "review_relevance"' in script
     # Overview shows only vacancies that fit the profile.
     assert "isRelevant(record)).sort((a, b) => tierOf(a) - tierOf(b)" in script

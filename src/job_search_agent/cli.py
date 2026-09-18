@@ -326,6 +326,11 @@ def parser() -> argparse.ArgumentParser:
     finding.add_argument("query", help='For example "(engineer | инженер) + (ai | ии) - crypto"')
     finding.add_argument("--limit", type=int, default=50)
     screen.add_parser("profile", help="Resolved roles, levels and candidate domains")
+    waiting = screen.add_parser(
+        "pending", help="Vacancies without a current semantic review, with text for the agent"
+    )
+    waiting.add_argument("--limit", type=int, default=40)
+    waiting.add_argument("--all", action="store_true", help="Include off-profile vacancies")
     screen.add_parser(
         "set", help="Replace settings.json relevance from a JSON object"
     ).add_argument("source", type=Path)
@@ -610,7 +615,8 @@ def run(args) -> dict | list:
                 )
                 atomic_write(store.home / "settings.json", encode({**settings, "relevance": value}))
                 return value
-            resolved = relevance.profile(settings, store.facts)
+            facts = store.facts
+            resolved = relevance.profile(settings, facts)
             if args.relevance_command == "profile":
                 return {
                     **{key: value for key, value in resolved.items() if key != "queries"},
@@ -619,32 +625,70 @@ def run(args) -> dict | list:
                         for item in resolved["queries"]
                     ],
                 }
+            facts_sha = relevance.facts_version(facts)
+            reviews = relevance.latest_reviews(store.all("relevance_reviews"))
+            companies = {item["id"]: item for item in store.all("companies")}
+            vacancies = store.all("vacancies")
+
+            def company_of(vacancy: dict) -> str:
+                return relevance.company_terms(companies.get(vacancy.get("company_id")))
+
+            results = {
+                vacancy["id"]: relevance.combine(
+                    relevance.screen(vacancy, resolved, company=company_of(vacancy)),
+                    reviews.get(vacancy["id"]),
+                    vacancy,
+                    facts_sha,
+                )
+                for vacancy in vacancies
+            }
             if args.relevance_command == "explain":
                 vacancy = store.get("vacancies", args.vacancy_id)
                 if not vacancy:
                     raise ValueError("Vacancy not found")
-                result = relevance.screen(vacancy, resolved)
+                result = results[vacancy["id"]]
                 return {
                     "id": vacancy["id"],
                     "title": vacancy.get("title"),
                     **result,
                     "summary": relevance.explain(result),
                 }
-            rows = []
+            if args.relevance_command == "pending":
+                rows = relevance.pending(vacancies, results, include_off_profile=args.all)
+                return [
+                    {
+                        "id": vacancy["id"],
+                        "title": vacancy.get("title"),
+                        "company": (companies.get(vacancy.get("company_id")) or {}).get("name")
+                        or vacancy.get("company_name"),
+                        "location": vacancy.get("location"),
+                        "market": vacancy.get("market"),
+                        "rules": {
+                            key: results[vacancy["id"]][key]
+                            for key in ("tier", "score", "parts", "level", "tracks")
+                        },
+                        "review_stale": bool(
+                            (results[vacancy["id"]].get("review") or {}).get("stale")
+                        ),
+                        "text": (vacancy.get("text") or "")[:1200]
+                        if isinstance(vacancy.get("text"), str)
+                        else "",
+                    }
+                    for vacancy in rows[: max(1, args.limit)]
+                ]
             parsed = (
                 relevance.parse_query(args.query) if args.relevance_command == "search" else None
             )
-            for vacancy in store.all("vacancies"):
-                result = relevance.screen(vacancy, resolved)
+            rows = []
+            for vacancy in vacancies:
+                result = results[vacancy["id"]]
                 if parsed is not None:
                     hit = relevance.match_query(
-                        parsed,
-                        relevance.norm(vacancy.get("title")),
-                        relevance.vacancy_text(vacancy),
+                        parsed, relevance.search_fields(vacancy, company=company_of(vacancy))
                     )
                     if not hit["matched"]:
                         continue
-                    result["query_terms"] = hit["terms"]
+                    result = {**result, "query_terms": hit["terms"]}
                 elif (args.tier and result["tier"] != args.tier) or (
                     args.relevant and not result["relevant"]
                 ):
@@ -656,6 +700,7 @@ def run(args) -> dict | list:
                         "company_id": vacancy.get("company_id"),
                         "tier": result["tier"],
                         "score": result["score"],
+                        "method": result["method"],
                         "domains": [item["id"] for item in result["domains"]],
                         **(
                             {"query_terms": result["query_terms"]}
