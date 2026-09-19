@@ -1,6 +1,12 @@
 # Changelog
 
-Notable changes to Career Copilot. Dates are release dates; there are no published version tags yet.
+Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1` and `dashboard-design-v2` mark visual releases, while package versions are tracked separately.
+
+## 2026-09-19 — Dashboard design v2
+
+- Dashboard design v2 is the default visual layer. The footer selector and `?design=v1` / `?design=v2` query support provide immediate, persistent switching while leaving hash routes and journal data unchanged; v1 remains available for visual rollback.
+- Visual rollback is independent from rolling back the application image: select v1 in the footer or URL while keeping the running release, and roll back the image separately only when application behavior also needs to change. No journal migration or server redeploy is required for design switching.
+- Release references are `dashboard-design-v1` for the preserved v1 baseline and `dashboard-design-v2` for this release.
 
 ## 2026-09-18 — Relevance thermometer, review by meaning and field queries
 

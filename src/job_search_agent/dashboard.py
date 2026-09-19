@@ -1125,7 +1125,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._plan_pdf(path, head_only)
             elif path in {"/", "/index.html"}:
                 self._static("index.html", head_only)
-            elif path in {"/assets/styles.css", "/assets/app.js"}:
+            elif path in {
+                "/assets/styles.css",
+                "/assets/styles-v2.css",
+                "/assets/design.js",
+                "/assets/app.js",
+            }:
                 self._static(path.removeprefix("/assets/"), head_only)
             else:
                 self._error(HTTPStatus.NOT_FOUND)

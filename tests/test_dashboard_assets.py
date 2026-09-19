@@ -1,5 +1,6 @@
 """Static contracts for the browser assets and the optional public gateway."""
 
+import json
 import re
 import shutil
 import subprocess
@@ -44,10 +45,110 @@ def test_script_is_syntactically_valid_javascript():
     node = shutil.which("node")
     if node is None:
         pytest.skip("Node.js is not installed")
+    for script in ("app.js", "design.js"):
+        result = subprocess.run(
+            [node, "--check", str(ASSETS / script)], capture_output=True, text=True, check=False
+        )
+        assert result.returncode == 0, result.stderr
+
+
+def test_design_selector_precedence_persistence_and_url_updates():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is not installed")
+    harness = r"""
+const fs = require("fs");
+const vm = require("vm");
+const source = fs.readFileSync(process.argv[1], "utf8");
+
+function run(options) {
+  const state = {stored: options.saved, writes: [], replaced: null};
+  const stylesheet = {disabled: false};
+  const select = {
+    value: "",
+    listeners: {},
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+  };
+  const document = {
+    documentElement: {dataset: {}},
+    getElementById(id) { return id === "design-v2" ? stylesheet : select; },
+    addEventListener(name, callback) { this.listeners[name] = callback; },
+    listeners: {}
+  };
+  const context = {
+    URL,
+    location: {href: options.href},
+    history: {state: "history-state", replaceState(state, title, url) { state; title; this.last = url; }},
+    document,
+    localStorage: {
+      getItem() {
+        if (options.getThrows) throw new Error("unavailable");
+        return state.stored;
+      },
+      setItem(key, value) {
+        key;
+        if (options.setThrows) throw new Error("unavailable");
+        state.stored = value;
+        state.writes.push(value);
+      }
+    }
+  };
+  vm.runInNewContext(source, context);
+  document.listeners.DOMContentLoaded();
+  if (options.change) {
+    select.value = options.change;
+    select.listeners.change();
+  }
+  state.dataset = document.documentElement.dataset.design;
+  state.disabled = stylesheet.disabled;
+  state.selected = select.value;
+  state.replaced = context.history.last || null;
+  return state;
+}
+
+process.stdout.write(JSON.stringify({
+  default: run({href: "https://example.test/dashboard?filter=ai#role"}),
+  saved: run({href: "https://example.test/dashboard", saved: "v1"}),
+  override: run({href: "https://example.test/dashboard?design=v2", saved: "v1"}),
+  invalid: run({href: "https://example.test/dashboard?design=legacy", saved: "v1"}),
+  invalidFallback: run({href: "https://example.test/dashboard?design=legacy", saved: "legacy"}),
+  storageFailure: run({href: "https://example.test/dashboard", getThrows: true, setThrows: true}),
+  changed: run({
+    href: "https://example.test/dashboard?filter=ai&design=v2#role",
+    saved: "v2",
+    change: "v1"
+  })
+}));
+"""
     result = subprocess.run(
-        [node, "--check", str(ASSETS / "app.js")], capture_output=True, text=True, check=False
+        [node, "-e", harness, str(ASSETS / "design.js")],
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
+    scenarios = json.loads(result.stdout)
+    assert scenarios["default"] == {
+        "stored": "v2",
+        "writes": ["v2"],
+        "replaced": None,
+        "dataset": "v2",
+        "disabled": False,
+        "selected": "v2",
+    }
+    assert scenarios["saved"]["dataset"] == "v1"
+    assert scenarios["saved"]["disabled"] is True
+    assert scenarios["override"]["dataset"] == "v2"
+    assert scenarios["override"]["writes"] == ["v2"]
+    assert scenarios["invalid"]["dataset"] == "v1"
+    assert scenarios["invalidFallback"]["dataset"] == "v2"
+    assert scenarios["storageFailure"]["dataset"] == "v2"
+    assert scenarios["storageFailure"]["disabled"] is False
+    assert scenarios["changed"]["dataset"] == "v1"
+    assert scenarios["changed"]["disabled"] is True
+    assert scenarios["changed"]["replaced"] == (
+        "https://example.test/dashboard?filter=ai&design=v1#role"
+    )
 
 
 def test_styles_keep_mobile_filters_collapsible_and_respect_reduced_motion():
@@ -145,18 +246,14 @@ def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice
     )
 
 
-def test_bento_shell_keeps_navigation_in_the_masthead_without_external_fonts():
+def test_workspace_keeps_navigation_in_the_masthead_without_external_fonts():
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
-    styles = (ASSETS / "styles.css").read_text(encoding="utf-8")
     assert '<header class="masthead">' in page and 'id="navigation" class="masthead-nav"' in page
     assert "sidebar" not in page
-    # Tiles share hairline borders instead of floating cards with gaps.
-    assert (
-        ".records-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)"
-        in styles
-    )
-    for external in ("@import", "@font-face", "fonts.googleapis", "url(http"):
-        assert external not in styles
+    for stylesheet in ("styles.css", "styles-v2.css"):
+        styles = (ASSETS / stylesheet).read_text(encoding="utf-8")
+        for external in ("@import", "@font-face", "fonts.googleapis", "url(http"):
+            assert external not in styles
 
 
 def test_vacancy_lists_open_on_the_profile_and_share_the_query_grammar():

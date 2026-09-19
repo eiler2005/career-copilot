@@ -75,6 +75,10 @@ def running_server(home: Path, tmp_path: Path):
     assets.mkdir()
     (assets / "index.html").write_text("<!doctype html><title>Dashboard</title>", encoding="utf-8")
     (assets / "styles.css").write_text("body{}", encoding="utf-8")
+    (assets / "styles-v2.css").write_text("body{color: navy}", encoding="utf-8")
+    (assets / "design.js").write_text(
+        'document.documentElement.dataset.design = "v2";', encoding="utf-8"
+    )
     (assets / "app.js").write_text("void 0", encoding="utf-8")
     server = DashboardServer(("127.0.0.1", 0), Journal.open(home), assets)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -91,6 +95,35 @@ def request(url: str, host: str | None = None):
     target = Request(url, headers={"Host": host}) if host else url
     with urlopen(target, timeout=5) as response:
         return response.status, response.headers, response.read()
+
+
+def head_request(url: str):
+    with urlopen(Request(url, method="HEAD"), timeout=5) as response:
+        return response.status, response.headers, response.read()
+
+
+def test_dashboard_serves_only_allowlisted_assets_with_matching_get_and_head_metadata(
+    tmp_path: Path,
+):
+    home = make_workspace(tmp_path)
+    with running_server(home, tmp_path) as base:
+        for asset, content_type in (
+            ("styles.css", "text/css; charset=utf-8"),
+            ("styles-v2.css", "text/css; charset=utf-8"),
+            ("design.js", "text/javascript; charset=utf-8"),
+            ("app.js", "text/javascript; charset=utf-8"),
+        ):
+            status, headers, body = request(f"{base}/assets/{asset}")
+            head_status, head_headers, head_body = head_request(f"{base}/assets/{asset}")
+            assert status == head_status == 200
+            assert body and head_body == b""
+            assert headers["Content-Type"] == head_headers["Content-Type"] == content_type
+            assert (
+                int(headers["Content-Length"]) == int(head_headers["Content-Length"]) == len(body)
+            )
+        with pytest.raises(HTTPError) as error:
+            request(base + "/assets/secret.txt")
+        assert error.value.code == 404
 
 
 def test_location_display_is_conservative_about_ambiguous_cities():
