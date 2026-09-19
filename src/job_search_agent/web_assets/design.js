@@ -4,21 +4,26 @@
 // routes, loaded records and pending form inputs stay in place.
 (() => {
   const storageKey = "career-copilot-design";
-  const valid = (value) => value === "v1" || value === "v2" || value === "v3";
+  const valid = (value) => value === "v1" || value === "v2" || value === "v3" || value === "v4";
   const stylesheetV2 = document.getElementById("design-v2");
   const stylesheetV3 = document.getElementById("design-v3");
+  const stylesheetV4 = document.getElementById("design-v4");
   const designOnly = () => document.querySelectorAll("[data-design-only]");
   let saved;
   try { saved = localStorage.getItem(storageKey); } catch (_) { /* Storage is optional. */ }
   const requested = new URL(location.href).searchParams.get("design");
-  let version = valid(requested) ? requested : valid(saved) ? saved : "v3";
+  let version = valid(requested) ? requested : valid(saved) ? saved : "v4";
 
   function apply(value) {
-    version = valid(value) ? value : "v3";
+    version = valid(value) ? value : "v4";
     stylesheetV2.disabled = version === "v1";
-    stylesheetV3.disabled = version !== "v3";
+    stylesheetV3.disabled = version === "v1" || version === "v2";
+    stylesheetV4.disabled = version !== "v4";
     document.documentElement.dataset.design = version;
-    designOnly().forEach((node) => { node.hidden = node.dataset.designOnly !== version; });
+    designOnly().forEach((node) => {
+      const marker = node.dataset.designOnly;
+      node.hidden = marker !== version && !(version === "v4" && marker === "v3");
+    });
     try { localStorage.setItem(storageKey, version); } catch (_) { /* Keep the current-page choice. */ }
   }
   apply(version);

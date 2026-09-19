@@ -1129,6 +1129,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 "/assets/styles.css",
                 "/assets/styles-v2.css",
                 "/assets/styles-v3.css",
+                "/assets/styles-v4.css",
                 "/assets/design.js",
                 "/assets/app.js",
             }:

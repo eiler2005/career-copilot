@@ -193,7 +193,7 @@
   function renderOverview() {
     const journey = el("section", "journey");
     journey.dataset.designOnly = "v3";
-    journey.hidden = document.documentElement.dataset.design !== "v3";
+    journey.hidden = !["v3", "v4"].includes(document.documentElement.dataset.design);
     const journeyHeading = el("div", "journey-heading"), journeyTitle = el("h2", "", t("journeyTitle"));
     journeyTitle.id = "journey-title";
     journey.setAttribute("aria-labelledby", "journey-title");

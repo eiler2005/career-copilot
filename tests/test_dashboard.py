@@ -77,6 +77,7 @@ def running_server(home: Path, tmp_path: Path):
     (assets / "styles.css").write_text("body{}", encoding="utf-8")
     (assets / "styles-v2.css").write_text("body{color: navy}", encoding="utf-8")
     (assets / "styles-v3.css").write_text("body{color: ink}", encoding="utf-8")
+    (assets / "styles-v4.css").write_text("body{color: black}", encoding="utf-8")
     (assets / "design.js").write_text(
         'document.documentElement.dataset.design = "v2";', encoding="utf-8"
     )
@@ -112,6 +113,7 @@ def test_dashboard_serves_only_allowlisted_assets_with_matching_get_and_head_met
             ("styles.css", "text/css; charset=utf-8"),
             ("styles-v2.css", "text/css; charset=utf-8"),
             ("styles-v3.css", "text/css; charset=utf-8"),
+            ("styles-v4.css", "text/css; charset=utf-8"),
             ("design.js", "text/javascript; charset=utf-8"),
             ("app.js", "text/javascript; charset=utf-8"),
         ):

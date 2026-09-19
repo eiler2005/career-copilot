@@ -65,6 +65,7 @@ function run(options) {
   const state = {stored: options.saved, writes: [], replaced: null};
   const stylesheetV2 = {disabled: false};
   const stylesheetV3 = {disabled: false};
+  const stylesheetV4 = {disabled: false};
   const designOnly = [
     {dataset: {designOnly: "v3"}, hidden: false},
     {dataset: {designOnly: "v2"}, hidden: false},
@@ -79,6 +80,7 @@ function run(options) {
     getElementById(id) {
       if (id === "design-v2") return stylesheetV2;
       if (id === "design-v3") return stylesheetV3;
+      if (id === "design-v4") return stylesheetV4;
       return select;
     },
     querySelectorAll(selector) { selector; return designOnly; },
@@ -112,6 +114,7 @@ function run(options) {
   state.dataset = document.documentElement.dataset.design;
   state.disabled = stylesheetV2.disabled;
   state.disabledV3 = stylesheetV3.disabled;
+  state.disabledV4 = stylesheetV4.disabled;
   state.designOnly = designOnly.map((node) => node.hidden);
   state.selected = select.value;
   state.replaced = context.history.last || null;
@@ -123,6 +126,7 @@ process.stdout.write(JSON.stringify({
   saved: run({href: "https://example.test/dashboard", saved: "v1"}),
   override: run({href: "https://example.test/dashboard?design=v2", saved: "v1"}),
   v3: run({href: "https://example.test/dashboard?design=v3", saved: "v1"}),
+  v4: run({href: "https://example.test/dashboard?design=v4", saved: "v1"}),
   invalid: run({href: "https://example.test/dashboard?design=legacy", saved: "v1"}),
   invalidFallback: run({href: "https://example.test/dashboard?design=legacy", saved: "legacy"}),
   storageFailure: run({href: "https://example.test/dashboard", getThrows: true, setThrows: true}),
@@ -142,36 +146,48 @@ process.stdout.write(JSON.stringify({
     assert result.returncode == 0, result.stderr
     scenarios = json.loads(result.stdout)
     assert scenarios["default"] == {
-        "stored": "v3",
-        "writes": ["v3"],
+        "stored": "v4",
+        "writes": ["v4"],
         "replaced": None,
-        "dataset": "v3",
+        "dataset": "v4",
         "disabled": False,
         "disabledV3": False,
+        "disabledV4": False,
         "designOnly": [False, True],
-        "selected": "v3",
+        "selected": "v4",
     }
     assert scenarios["saved"]["dataset"] == "v1"
     assert scenarios["saved"]["disabled"] is True
     assert scenarios["saved"]["disabledV3"] is True
+    assert scenarios["saved"]["disabledV4"] is True
     assert scenarios["saved"]["designOnly"] == [True, True]
     assert scenarios["override"]["dataset"] == "v2"
     assert scenarios["override"]["writes"] == ["v2"]
     assert scenarios["override"]["disabled"] is False
     assert scenarios["override"]["disabledV3"] is True
+    assert scenarios["override"]["disabledV4"] is True
     assert scenarios["override"]["designOnly"] == [True, False]
     assert scenarios["v3"]["dataset"] == "v3"
     assert scenarios["v3"]["disabled"] is False
     assert scenarios["v3"]["disabledV3"] is False
+    assert scenarios["v3"]["disabledV4"] is True
+    assert scenarios["v4"]["dataset"] == "v4"
+    assert scenarios["v4"]["disabled"] is False
+    assert scenarios["v4"]["disabledV3"] is False
+    assert scenarios["v4"]["disabledV4"] is False
+    assert scenarios["v4"]["designOnly"] == [False, True]
     assert scenarios["invalid"]["dataset"] == "v1"
-    assert scenarios["invalidFallback"]["dataset"] == "v3"
+    assert scenarios["invalidFallback"]["dataset"] == "v4"
     assert scenarios["invalidFallback"]["disabledV3"] is False
-    assert scenarios["storageFailure"]["dataset"] == "v3"
+    assert scenarios["invalidFallback"]["disabledV4"] is False
+    assert scenarios["storageFailure"]["dataset"] == "v4"
     assert scenarios["storageFailure"]["disabled"] is False
     assert scenarios["storageFailure"]["disabledV3"] is False
+    assert scenarios["storageFailure"]["disabledV4"] is False
     assert scenarios["changed"]["dataset"] == "v1"
     assert scenarios["changed"]["disabled"] is True
     assert scenarios["changed"]["disabledV3"] is True
+    assert scenarios["changed"]["disabledV4"] is True
     assert scenarios["changed"]["designOnly"] == [True, True]
     assert scenarios["changed"]["replaced"] == (
         "https://example.test/dashboard?filter=ai&design=v1#role"
@@ -277,8 +293,9 @@ def test_workspace_keeps_navigation_in_the_masthead_without_external_fonts():
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     assert '<header class="masthead">' in page and 'id="navigation" class="masthead-nav"' in page
     assert '<link id="design-v3" rel="stylesheet" href="/assets/styles-v3.css">' in page
+    assert '<link id="design-v4" rel="stylesheet" href="/assets/styles-v4.css">' in page
     assert re.search(
-        r'<select id="design-version">\s*<option value="v3" selected>v3</option>', page
+        r'<select id="design-version">\s*<option value="v4" selected>v4</option>', page
     )
     assert "sidebar" not in page
     for stylesheet in ("styles.css", "styles-v2.css"):

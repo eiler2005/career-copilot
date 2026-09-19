@@ -1,6 +1,13 @@
 # Changelog
 
-Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2` and `dashboard-design-v3` mark visual releases, while package versions are tracked separately.
+Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
+
+## 2026-09-19 — Dashboard design v4
+
+- Dashboard design v4 is the fallback default when no valid saved preference exists. Saved v1, v2 and v3 preferences remain selected; the footer **Design** selector and `?design=v1` / `?design=v2` / `?design=v3` / `?design=v4` provide persistent switching without changing hash routes or journal data.
+- v4 layers the preserved v1, v2 and v3 CSS overlays and adds `styles-v4.css`: a midnight navy navigation rail, warm white canvas, restrained blue accents, serif page headings, a compact metric strip and structured record panels for an executive business style.
+- The visual direction was informed by [Mercury Insights](https://mercury.com/insights), [Linear Features](https://linear.app/features) and [Pentagram — The Coterie](https://www.pentagram.com/work/the-coterie). No copied art or assets are part of the release.
+- Visual rollback remains independent of application rollback: choose v1, v2 or v3 in the footer or URL, or restore the prior visual release reference when the full application image must change. The release reference for this version is `dashboard-design-v4`; journal data and statuses are unchanged.
 
 ## 2026-09-19 — Dashboard design v3
 
