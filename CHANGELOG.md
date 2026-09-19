@@ -12,6 +12,12 @@ Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1
 ### Unchanged
 - Without `market_levels`, `near` or `top_companies` the level rules read titles as before; the one visible change is that a card of a listed big-tech employer stored under an aggregator's company ID now gets the employer-specific level too. Stored overviews with weekly plans render as before.
 
+## 2026-09-19 — Dashboard design v4 Mercury refinement
+
+- Refined v4 toward Mercury Insights with light navigation, indigo pill buttons, sans-serif headings, lavender light, a dotted header texture and translucent surfaces.
+- Added short entry transitions and hover elevation for pointer devices; reduced-motion preferences disable animation. No external assets or continuous animation are required.
+- v1–v3 remain unchanged. The original v4 release remains at `dashboard-design-v4`; this refinement is tagged `dashboard-design-v4-mercury`.
+
 ## 2026-09-19 — Dashboard design v4
 
 - Dashboard design v4 is the fallback default when no valid saved preference exists. Saved v1, v2 and v3 preferences remain selected; the footer **Design** selector and `?design=v1` / `?design=v2` / `?design=v3` / `?design=v4` provide persistent switching without changing hash routes or journal data.
