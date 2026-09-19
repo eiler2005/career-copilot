@@ -69,6 +69,72 @@ def test_big_tech_levels_are_mapped_per_employer_not_by_title_words():
     assert screen("Senior Product Manager, AI Agents", LONG)["tier"] == "weak"
 
 
+NEAR_ABROAD = {
+    **SETTINGS,
+    "relevance": {
+        "market_levels": {"intl": "near"},
+        "top_companies": ["Example Fintech"],
+    },
+}
+
+
+def test_a_near_market_accepts_one_level_below_director_and_nowhere_else():
+    text = "Payments platform for banks with AI agents." + LONG
+    for title in (
+        "Engineering Manager, Payments",
+        "Senior Engineering Manager",
+        "Staff Product Manager, Payments",
+        "Principal Product Manager, AI",
+        "Group Product Manager, Payments",
+    ):
+        result = screen(title, text, settings=NEAR_ABROAD, market="intl")
+        assert result["level"] == "near" and result["relevant"], title
+        assert {"code": "level_target", "terms": result["reasons"][1]["terms"]} in result["reasons"]
+    # Two levels below stays weak; Russia keeps the director-only rule; the default
+    # target still reads the same titles as below.
+    assert (
+        screen("Senior Product Manager, Payments", text, NEAR_ABROAD, market="intl")["tier"]
+        == "weak"
+    )
+    russian = screen("Engineering Manager, Payments", text, NEAR_ABROAD, market="ru")
+    assert russian["level"] == "below" and russian["tier"] == "weak"
+    assert screen("Engineering Manager, Payments", text, market="intl")["tier"] == "weak"
+    # Without the near market a lead word keeps its old meaning.
+    assert screen("Principal Architect, Payments", text, market="intl")["level"] == "lead"
+
+
+def test_program_roles_count_at_top_companies_abroad_matched_by_id_or_name():
+    text = "Payments infrastructure programs across teams." + LONG
+    by_name = screen(
+        "Technical Program Manager, Payments",
+        text,
+        NEAR_ABROAD,
+        market="intl",
+        company_id="aggregator-card-example-fintech",
+    )
+    assert by_name["tier"] == "weak"  # screen() without a company name cannot know it
+    resolved = relevance.profile(NEAR_ABROAD, FACTS)
+    vacancy = {
+        "title": "Program Manager",
+        "text": text,
+        "market": "intl",
+        "company_id": "aggregator-card-example-fintech",
+    }
+    result = relevance.screen(vacancy, resolved, company="Example Fintech")
+    assert result["relevant"] and result["level"] == "company_specific"
+    assert {"code": "program_role_top_company", "terms": ["program manager"]} in result["reasons"]
+    bigtech = screen(
+        "Project Manager, AI", text, NEAR_ABROAD, market="intl", company_id="example-bigtech"
+    )
+    assert bigtech["relevant"] and "technical-leadership" in bigtech["tracks"]
+    # Elsewhere a program title names no function, and Russia is excluded.
+    assert relevance.screen(vacancy, resolved, company="Other Employer")["tier"] == "off_profile"
+    russian = screen(
+        "Project Manager, AI", text, NEAR_ABROAD, market="ru", company_id="example-bigtech"
+    )
+    assert "program_role_top_company" not in [item["code"] for item in russian["reasons"]]
+
+
 def test_russian_roles_follow_the_director_only_policy():
     # "Руководитель разработки" heads the whole function: head level, not a team lead.
     head = screen(
@@ -200,6 +266,9 @@ def test_invalid_settings_are_reported_not_guessed():
         ([], "must be an object"),
         ({"levels": {"middle": []}}, "levels accepts"),
         ({"target_level": "senior"}, "target_level"),
+        ({"market_levels": {"intl": "senior"}}, "market_levels"),
+        ({"market_levels": ["intl"]}, "market_levels"),
+        ({"top_companies": "stripe"}, "must be a list"),
         ({"queries": [{"query": ""}]}, "non-empty string"),
         ({"exclude_title": "sales"}, "must be a list"),
         ({"ignore_in_title": ["(unclosed"]}, "invalid pattern"),

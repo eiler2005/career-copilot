@@ -141,7 +141,7 @@ Changing `candidate` marks affected assessments as needing an update.
 
 ## Profile relevance
 
-`settings.json → relevance` tunes the screen that decides which vacancies fit the candidate's profile: `target_level` (`top`, `lead`, `any`), extra `roles` per track, `levels`, `exclude_title`, `ignore_in_title` (phrases such as banking products removed before the function check), explicit `domains`, extra `vocabulary` per domain, saved `queries` (`{name, query, include}`) and `extend_defaults`. Without the section the screen uses built-in words, `policy.tracks`, and domains derived from fact tags and `policy.interests`. `policy.russia_director_only` and `policy.bigtech_company_ids` also shape the level check. Replace the section with `ajh relevance set PATH`. Full rules, query grammar and tuning: [profile relevance](RELEVANCE.md#configuration).
+`settings.json → relevance` tunes the screen that decides which vacancies fit the candidate's profile: `target_level` (`top`, `near`, `lead`, `any`), per-market `market_levels`, `top_companies` and `program_roles`, extra `roles` per track, `levels`, `exclude_title`, `ignore_in_title` (phrases such as banking products removed before the function check), explicit `domains`, extra `vocabulary` per domain, saved `queries` (`{name, query, include}`) and `extend_defaults`. Without the section the screen uses built-in words, `policy.tracks`, and domains derived from fact tags and `policy.interests`. `policy.russia_director_only` and `policy.bigtech_company_ids` also shape the level check. Replace the section with `ajh relevance set PATH`. Full rules, query grammar and tuning: [profile relevance](RELEVANCE.md#configuration).
 
 ## Search campaigns
 

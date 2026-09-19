@@ -105,6 +105,19 @@ DEFAULT_LEVELS = {
         "начальник департамента",
     ],
     "lead": ["руководител", "lead", "principal", "group", "начальник", "partner"],
+    # One level below director. Checked before "below" only where a market's target level is
+    # `near`, so "Engineering Manager" or "Staff Product Manager" count there and nowhere else.
+    "near": [
+        "engineering manager",
+        "senior engineering manager",
+        "software engineering manager",
+        "senior manager",
+        "group product manager",
+        "lead product manager",
+        "product lead",
+        "staff",
+        "principal",
+    ],
     "below": [
         "senior",
         "manager",
@@ -141,6 +154,21 @@ DEFAULT_LEVELS = {
         "программист",
     ],
 }
+
+# Program and project leadership titles. They count as a technical-leadership function only
+# at top companies (policy.bigtech_company_ids plus relevance.top_companies) outside Russia,
+# where the level is then mapped by the employer's own ladder.
+DEFAULT_PROGRAM_ROLES = [
+    "technical program manager",
+    "program manager",
+    "programme manager",
+    "project manager",
+    "program lead",
+    "project lead",
+    "tpm",
+]
+
+TARGET_LEVELS = ("top", "near", "lead", "any")
 
 # Phrases removed from the title before the function check, so a banking "product" (a loan
 # or a card) is not read as product management. Regular expressions on normalised text.
@@ -427,11 +455,23 @@ def validate(config: object) -> dict:
     if not isinstance(roles, dict):
         raise ValueError("relevance.roles must map a track to title words")  # noqa: TRY004
     levels = config.get("levels") or {}
-    if not isinstance(levels, dict) or not set(levels) <= {"top", "lead", "below", "individual"}:
-        raise ValueError("relevance.levels accepts top, lead, below and individual lists")
+    if not isinstance(levels, dict) or not set(levels) <= {
+        "top",
+        "near",
+        "lead",
+        "below",
+        "individual",
+    }:
+        raise ValueError("relevance.levels accepts top, near, lead, below and individual lists")
     target = config.get("target_level", "lead")
-    if target not in {"top", "lead", "any"}:
-        raise ValueError("relevance.target_level must be top, lead or any")
+    if target not in TARGET_LEVELS:
+        raise ValueError("relevance.target_level must be top, near, lead or any")
+    market_levels = config.get("market_levels") or {}
+    if not isinstance(market_levels, dict) or any(
+        not isinstance(market, str) or value not in TARGET_LEVELS
+        for market, value in market_levels.items()
+    ):
+        raise ValueError("relevance.market_levels maps a market to top, near, lead or any")
     vocabulary = config.get("vocabulary") or {}
     if not isinstance(vocabulary, dict):
         raise ValueError("relevance.vocabulary must map a domain to terms")  # noqa: TRY004
@@ -463,6 +503,9 @@ def validate(config: object) -> dict:
         },
         "levels": {key: _strings(levels.get(key), f"relevance.levels.{key}") for key in levels},
         "target_level": target,
+        "market_levels": dict(market_levels),
+        "top_companies": _strings(config.get("top_companies"), "relevance.top_companies", 100),
+        "program_roles": _strings(config.get("program_roles"), "relevance.program_roles"),
         "exclude_title": _strings(config.get("exclude_title"), "relevance.exclude_title"),
         "ignore_in_title": ignore,
         "domains": _strings(config.get("domains"), "relevance.domains", 40),
@@ -552,10 +595,20 @@ def profile(settings: dict, facts: dict | None = None) -> dict:
         "roles": {track: roles.get(track, []) for track in tracks},
         "levels": _merged(DEFAULT_LEVELS, config["levels"], extend),
         "target_level": config["target_level"],
+        "market_levels": config["market_levels"],
         "russia_top_only": bool(policy.get("russia_director_only")),
         "exclude_title": _merged(DEFAULT_EXCLUDE_TITLE, config["exclude_title"], extend),
         "exclude_text": [str(item) for item in policy.get("exclude") or [] if str(item).strip()],
-        "company_specific_levels": [str(item) for item in policy.get("bigtech_company_ids") or []],
+        # Top companies: employer-specific level ladders, and program roles abroad.
+        "company_specific_levels": list(
+            dict.fromkeys(
+                [
+                    *(str(item) for item in policy.get("bigtech_company_ids") or []),
+                    *config["top_companies"],
+                ]
+            )
+        ),
+        "program_roles": _merged(DEFAULT_PROGRAM_ROLES, config["program_roles"], extend),
         "domains": (domains := active_domains(settings, facts, config)),
         "support": domain_support(facts, domains),
         "ignore_in_title": _merged(DEFAULT_IGNORE_IN_TITLE, config["ignore_in_title"], extend),
@@ -602,10 +655,15 @@ def vacancy_text(vacancy: dict, extra: str = "") -> str:
     return norm(" ".join(parts))[:TEXT_LIMIT]
 
 
-def _level(title: str, levels: dict) -> tuple[str, list[str]]:
+def _level(title: str, levels: dict, near: bool = False) -> tuple[str, list[str]]:
+    """Title level. With ``near`` (a market that accepts one level below director) the
+    near words are read before the "below" ones, so "Engineering Manager" is not "manager"."""
     top = found(title, levels.get("top", []))
     if top:
         return "top", top
+    near_words = found(title, levels.get("near", [])) if near else []
+    if near_words:
+        return "near", near_words
     below = found(title, levels.get("below", [])) + found(
         title, levels.get("individual", []), whole=True
     )
@@ -658,24 +716,40 @@ def screen(
     tracks = {
         track: hits for track, words in resolved["roles"].items() if (hits := found(title, words))
     }
-    level, level_words = _level(title, resolved["levels"])
+    market = vacancy.get("market") or "unknown"
+    wanted = (
+        "top"
+        if (market == "ru" and resolved["russia_top_only"])
+        else resolved.get("market_levels", {}).get(market, resolved["target_level"])
+    )
+    top_company = is_top_company(vacancy.get("company_id"), company, resolved)
+    # Program and project leadership counts as a function only at top companies abroad.
+    program = (
+        found(title, resolved.get("program_roles", []))
+        if top_company and market != "ru" and "technical-leadership" in resolved["roles"]
+        else []
+    )
+    if program:
+        tracks["technical-leadership"] = list(
+            dict.fromkeys([*tracks.get("technical-leadership", []), *program])
+        )
+    level, level_words = _level(title, resolved["levels"], near=wanted in {"near", "any"})
     individual = found(title, resolved["levels"].get("individual", []), whole=True)
     if (
-        not individual
-        and vacancy.get("company_id") in resolved["company_specific_levels"]
+        (not individual or level == "near")
+        and top_company
         and (
-            level == "lead"
+            level in {"lead", "near"}
             or (level == "below" and {norm(word) for word in level_words} <= COMPANY_SPECIFIC)
         )
     ):
         # Big-tech bands are mapped per employer (policy.company_levels), not by title words,
         # and the Russian director-only rule does not override that mapping.
         level = "company_specific"
-    market = vacancy.get("market") or "unknown"
-    wanted = "top" if (market == "ru" and resolved["russia_top_only"]) else resolved["target_level"]
     level_ok = (
         level in {"top", "company_specific"}
-        or (level == "lead" and wanted in {"lead", "any"})
+        or (level == "lead" and wanted in {"near", "lead", "any"})
+        or (level == "near" and wanted in {"near", "any"})
         or wanted == "any"
     ) and level != "below"
 
@@ -702,7 +776,7 @@ def screen(
         level_points = 25
     elif level == "company_specific":
         level_points = 22
-    elif level == "lead":
+    elif level in {"lead", "near"}:
         level_points = 20 if level_ok else 10
     elif level == "unknown":
         level_points = 12
@@ -749,6 +823,8 @@ def screen(
                     "terms": [term for hits in tracks.values() for term in hits],
                 }
             )
+        if program:
+            reasons.append({"code": "program_role_top_company", "terms": program})
         for item in included_by:
             reasons.append(
                 {"code": "query_included", "query": item["query"], "terms": item["terms"]}
@@ -800,6 +876,20 @@ def screen(
     }
 
 
+def is_top_company(company_id: object, company: str, resolved: dict) -> bool:
+    """A top company by stable ID, or by name when a source stored it under another ID.
+
+    Entries of ``policy.bigtech_company_ids`` and ``relevance.top_companies`` are compared
+    with the employer name and aliases as whole words: "amazon" matches "Amazon" on a card
+    whose company ID came from an aggregator.
+    """
+    listed = resolved.get("company_specific_levels", [])
+    if company_id in listed:
+        return True
+    name = norm(company)
+    return bool(name) and bool(found(name, [norm(item) for item in listed], whole=True))
+
+
 def company_terms(company: dict | None) -> str:
     """Employer name and aliases, as queries see them."""
     if not isinstance(company, dict):
@@ -827,6 +917,7 @@ REASON_TEXT = {
     "cv_support": "CV facts back these domains",
     "level_below_market_rule": "this market requires a director-level title",
     "level_target": "the title is at the target level",
+    "program_role_top_company": "a program or project leadership role at a top company abroad",
     "domain_overlap": "the candidate's domains appear",
     "no_domain_overlap": "none of the candidate's domains appear in the full text",
     "no_text": "no description is stored, so domains are checked in the title only",

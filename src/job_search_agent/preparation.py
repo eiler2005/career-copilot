@@ -571,8 +571,25 @@ def topic_statuses(store: Store, plan: dict) -> dict[str, str]:
 # --------------------------------------------------------------------------- preparation overview
 
 STRENGTHS = frozenset({"verified", "reported", "gap", "unknown"})
+PRIORITIES = ("high", "medium", "low")
+COMMON_FAMILY = "common"
 OVERVIEW_ACTIONS = frozenset({"verify_evidence", "cv_edit", "preparation", "clarify", "none"})
 PLAN_TRACKS = frozenset({*TRACKS, "both"})
+
+
+def overview_topic_ids(overview: dict) -> list[str]:
+    """Practice topics of an overview: plan exercises, learning-area exercises, questions."""
+    ids = [
+        exercise.get("id")
+        for week in (overview.get("plan") or {}).get("weeks") or []
+        for exercise in week.get("exercises") or []
+    ]
+    ids += [
+        exercise.get("id")
+        for area in overview.get("learning") or []
+        for exercise in area.get("exercises") or []
+    ]
+    return [*ids, *(question.get("id") for question in overview.get("questions") or [])]
 
 
 def _ids(values: object, known: dict | set, name: str) -> list[str]:
@@ -591,6 +608,10 @@ def validate_overview(store: Store, data: dict) -> dict:
     Strength labels are tied to evidence: `verified` needs verified non-target facts,
     `reported` needs existing facts that are neither conflicting nor targets. Coding
     exercises are not accepted here: coding is set per vacancy with a basis.
+
+    Learning is organised either as a weekly `plan` or, without a calendar, as `learning`
+    areas: common ones and areas per `role_families` entry, each with what to learn, a
+    priority, an observable "done when" and practice exercises. At least one is required.
     """
     facts = {fact["id"]: fact for fact in store.facts["facts"]}
     vacancies = {item["id"] for item in store.all("vacancies")}
@@ -687,7 +708,9 @@ def validate_overview(store: Store, data: dict) -> dict:
 
     plan = data.get("plan") or {}
     hours = plan.get("hours_per_week")
-    if isinstance(hours, bool) or not isinstance(hours, (int, float)) or not 0 < hours <= 80:
+    if plan and (
+        isinstance(hours, bool) or not isinstance(hours, (int, float)) or not 0 < hours <= 80
+    ):
         raise ValueError("plan.hours_per_week must be between 0 and 80")
     weeks = []
     for index, week in enumerate(plan.get("weeks") or []):
@@ -717,8 +740,69 @@ def validate_overview(store: Store, data: dict) -> dict:
                 ),
             }
         )
-    if not weeks:
-        raise ValueError("plan.weeks is required")
+    families = []
+    for index, family in enumerate(data.get("role_families") or []):
+        name = f"role_families[{index}]"
+        key = safe_id(str(family.get("id") or ""))
+        if not key or key == COMMON_FAMILY or key in {item["id"] for item in families}:
+            raise ValueError(f"{name}.id must be unique and not '{COMMON_FAMILY}'")
+        if family.get("track") not in PLAN_TRACKS:
+            raise ValueError(f"{name}.track must be product, technical-leadership or both")
+        families.append(
+            {
+                "id": key,
+                "title": _text(family.get("title"), f"{name}.title", 300),
+                "track": family["track"],
+                "levels": _text(family.get("levels"), f"{name}.levels", 500, required=False),
+                "summary": _text(family.get("summary"), f"{name}.summary", 2000),
+                "interview_focus": [
+                    _text(item, f"{name}.interview_focus", 500)
+                    for item in family.get("interview_focus") or []
+                ],
+                "target_vacancy_ids": _ids(
+                    family.get("target_vacancy_ids"), vacancies, f"{name}.target_vacancy_ids"
+                ),
+            }
+        )
+    family_ids = {COMMON_FAMILY, *(item["id"] for item in families)}
+    areas = []
+    for index, area in enumerate(data.get("learning") or []):
+        name = f"learning[{index}]"
+        key = safe_id(str(area.get("id") or ""))
+        if not key or key in {item["id"] for item in areas}:
+            raise ValueError(f"{name}.id must be unique")
+        if area.get("family", COMMON_FAMILY) not in family_ids:
+            raise ValueError(f"{name}.family must be '{COMMON_FAMILY}' or a role_families id")
+        if area.get("priority", "medium") not in PRIORITIES:
+            raise ValueError(f"{name}.priority must be one of {list(PRIORITIES)}")
+        learn = [_text(item, f"{name}.learn", 500) for item in area.get("learn") or []]
+        if not learn:
+            raise ValueError(f"{name}.learn lists what to learn")
+        sources = []
+        for n, source in enumerate(area.get("sources") or []):
+            url = str((source or {}).get("url") or "")
+            if not url.startswith("https://"):
+                raise ValueError(f"{name}.sources[{n}].url must be an https link")
+            sources.append(
+                {"title": _text(source.get("title"), f"{name}.sources", 300), "url": url}
+            )
+        areas.append(
+            {
+                "id": key,
+                "family": area.get("family", COMMON_FAMILY),
+                "priority": area.get("priority", "medium"),
+                **evidence(area, name),
+                "learn": learn,
+                "done_when": _text(area.get("done_when"), f"{name}.done_when", 800),
+                "exercises": [
+                    exercise(item, f"{name}.exercises[{n}]")
+                    for n, item in enumerate(area.get("exercises") or [])
+                ],
+                "sources": sources,
+            }
+        )
+    if not weeks and not areas:
+        raise ValueError("A preparation overview needs plan.weeks or learning areas")
     stories = []
     for index, story in enumerate(data.get("stories") or []):
         fact_ids = _ids(story.get("fact_ids"), facts, f"stories[{index}].fact_ids")
@@ -766,7 +850,9 @@ def validate_overview(store: Store, data: dict) -> dict:
             evidence(item, f"common[{n}]") for n, item in enumerate(data.get("common") or [])
         ],
         "evidence_to_verify": evidence_to_verify,
-        "plan": {"hours_per_week": hours, "weeks": weeks},
+        "plan": {"hours_per_week": hours, "weeks": weeks} if weeks else None,
+        "role_families": families,
+        "learning": areas,
         "questions": [
             exercise(item, f"questions[{n}]") for n, item in enumerate(data.get("questions") or [])
         ],

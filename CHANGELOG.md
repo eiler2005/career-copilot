@@ -2,6 +2,16 @@
 
 Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
 
+## 2026-09-19 — Level rules by market and calendar-free learning
+
+### Added
+- Relevance target level `near` (director plus one level below: Engineering Manager, Senior EM, Staff, Principal, Group or Lead PM) and `relevance.market_levels` to set a target per market, for example `{"intl": "near"}`. Near words are read before "below" words only in such a market; Russia keeps `policy.russia_director_only`.
+- Program and project leadership roles (Technical Program Manager, Program/Project Manager, TPM) count as a technical-leadership function at top companies outside Russia — `policy.bigtech_company_ids` plus the new `relevance.top_companies` — with the employer's own level ladder (reason `program_role_top_company`). Top companies are also recognised by employer name when an aggregator stored the card under another company ID.
+- `preparation_overview` can organise learning without a calendar: `learning[]` areas (common or per `role_families[]` entry) with a priority, what to learn, an observable "done when" condition, practice exercises and optional https sources. The weekly `plan` becomes optional when learning areas are present. The dashboard adds a **Learning** tab and suggests the next exercise by priority; empty tabs are hidden.
+
+### Unchanged
+- Without `market_levels`, `near` or `top_companies` the level rules read titles as before; the one visible change is that a card of a listed big-tech employer stored under an aggregator's company ID now gets the employer-specific level too. Stored overviews with weekly plans render as before.
+
 ## 2026-09-19 — Dashboard design v4
 
 - Dashboard design v4 is the fallback default when no valid saved preference exists. Saved v1, v2 and v3 preferences remain selected; the footer **Design** selector and `?design=v1` / `?design=v2` / `?design=v3` / `?design=v4` provide persistent switching without changing hash routes or journal data.

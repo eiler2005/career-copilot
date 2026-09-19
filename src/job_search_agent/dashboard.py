@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, unquote, urlsplit
 
-from . import availability, campaigns, cv, descriptions, inbox, matching, relevance
+from . import availability, campaigns, cv, descriptions, inbox, matching, preparation, relevance
 from .core import atomic_write, digest, encode, safe_id, validate_home
 from .dashboard_pdf import MAX_TEXT_BYTES, TEXT_SUFFIXES, plan_pdf, redact_local_text
 
@@ -463,11 +463,7 @@ def _topic_statuses(records: list[dict]) -> None:
         if record["kind"] == "track_plans":
             topic_ids = [topic.get("id") for topic in payload.get("topics") or []]
         elif record["kind"] == "preparation_overviews":
-            topic_ids = [
-                exercise.get("id")
-                for week in (payload.get("plan") or {}).get("weeks") or []
-                for exercise in week.get("exercises") or []
-            ] + [question.get("id") for question in payload.get("questions") or []]
+            topic_ids = preparation.overview_topic_ids(payload)
         elif record["kind"] == "learning":
             topic_ids = [
                 gap.get("id") for gap in payload.get("gaps") or [] if isinstance(gap, dict)

@@ -1,5 +1,7 @@
 {
   "target_level": "lead",
+  "market_levels": {"intl": "near"},
+  "top_companies": ["example-fintech"],
   "queries": [
     {
       "name": "AI product",

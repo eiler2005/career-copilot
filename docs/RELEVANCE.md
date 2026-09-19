@@ -45,7 +45,11 @@ The rule score adds four parts:
 | `weak` | 0–49 | A level below target or under the Russian director-only rule, or a full text with none of the candidate's domains, caps the score at 49 |
 | `off_profile` | 0–20 | An excluded function in the title (sales, marketing, design, recruiting, office, accounting, a store …), a policy exclusion in the text (`policy.exclude`) or no function at all caps the score at 20 |
 
-Level details: a `below` word (senior, manager, specialist, project manager, owner) or an individual-contributor word (engineer, developer, staff, scientist — whole words, so "Director of Engineering" is not an engineer) is below target. For employers in `policy.bigtech_company_ids`, lead and senior/staff/principal titles are mapped per employer (`company_specific`) instead of being downgraded, and the Russian director-only rule does not override that mapping. A banking "product" — «продукты банка», «кредитные продукты», "lending products" — is removed from the title before the function check (`ignore_in_title`), so a pricing or lending role is not read as product management.
+Level details: a `below` word (senior, manager, specialist, project manager, owner) or an individual-contributor word (engineer, developer, staff, scientist — whole words, so "Director of Engineering" is not an engineer) is below target. For employers in `policy.bigtech_company_ids`, lead and senior/staff/principal titles are mapped per employer (`company_specific`) instead of being downgraded, and the Russian director-only rule does not override that mapping. **One level below director by market.** `relevance.market_levels` sets a target level per market, for example `{"intl": "near"}`. The `near` target accepts director-level titles plus one level below — Engineering Manager, Senior Engineering Manager, Staff, Principal, Group or Lead Product Manager, Product Lead (`levels.near`). Near words are read before `below` words only where the market's target is `near` (or `any`), so "Engineering Manager" counts abroad while the same title elsewhere, a Senior Product Manager, or a Russian role under `policy.russia_director_only` stays below target.
+
+**Program roles at top companies.** Top companies are `policy.bigtech_company_ids` plus `relevance.top_companies`. Their titles use the employer's own ladder (`company_specific`), and outside Russia program and project leadership titles — Technical Program Manager, Program/Programme Manager, Project Manager, Program/Project Lead, TPM (`relevance.program_roles`) — count as a technical-leadership function (reason `program_role_top_company`). A top company is matched by its stable ID or, when an aggregator stored the card under another ID, by the employer name and aliases as whole words ("amazon" matches "Amazon"). Elsewhere a program title names no function. A level reference such as "Meta E5" is a judgment for the review by meaning and `policy.company_levels`, not a title word.
+
+A banking "product" — «продукты банка», «кредитные продукты», "lending products" — is removed from the title before the function check (`ignore_in_title`), so a pricing or lending role is not read as product management.
 
 A missing description is not a missing domain: a card without text keeps the reason "no description — domains checked in the title only".
 
@@ -123,9 +127,12 @@ In the dashboard, a search containing `+`, `|`, ` -` or a field is a query; seve
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `target_level` | `lead` | `top` needs director-level words; `lead` also accepts lead/principal/руководитель; `any` ignores level |
+| `target_level` | `lead` | `top` needs director-level words; `near` also accepts one level below (EM, Staff, Principal, Group PM) and lead words; `lead` also accepts lead/principal/руководитель; `any` ignores level |
+| `market_levels` | none | Target level per market, e.g. `{"intl": "near"}`; the Russian director-only policy still wins for `ru` |
+| `top_companies` | none | Company IDs or names added to `policy.bigtech_company_ids` for employer-specific levels and program roles abroad |
+| `program_roles` | built-in | Extra program/project leadership title words counted at top companies outside Russia |
 | `roles` | built-in per track | Extra title words per track, e.g. `{"product": ["pm lead"]}` |
-| `levels` | built-in | Extra words for `top`, `lead`, `below` and `individual` |
+| `levels` | built-in | Extra words for `top`, `near`, `lead`, `below` and `individual` |
 | `exclude_title` | built-in list | Extra excluded functions, matched in the title |
 | `ignore_in_title` | banking products | Regular expressions removed from the title before the function check |
 | `domains` | derived | Explicit list of domain ids; replaces derivation from facts and interests |

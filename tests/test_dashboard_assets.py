@@ -272,6 +272,7 @@ def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice
         '"summary"',
         '"product"',
         '"technical-leadership"',
+        '"learning"',
         '"plan"',
         '"questions"',
         '"stories"',
@@ -282,6 +283,12 @@ def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice
     assert 'plan_kind: "preparation_overviews"' in script
     for key in ("strength_verified", "strength_reported", "strength_gap", "strength_unknown"):
         assert f'{key}: "' in script
+    # Learning areas without a calendar: common and per role family, by priority, each with
+    # what to learn, a "done when" condition and practice; tabs hide empty sections.
+    assert 'overviewTab === "learning"' in body and "role_families" in body
+    for key in ("learnWhat", "doneWhen", "learningCommon", "priority_high", "overviewTab_learning"):
+        assert f'{key}: "' in script
+    assert "const overviewTabs = (p) =>" in script and "learningAreas(p)" in script
     # The overview never presents itself as verified progress or a CV change.
     assert "overviewNote" in body
     assert (

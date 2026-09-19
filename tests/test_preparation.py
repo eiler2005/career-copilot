@@ -528,6 +528,77 @@ def test_overview_ties_strength_to_evidence_and_links_practice(store, tmp_path):
     assert shown["display"]["topic_status"] == {"w1-pitch": "attempted", "q-platform": "open"}
 
 
+def learning_overview(**updates):
+    """An overview organised by learning areas and role families instead of weeks."""
+    data = overview()["data"]
+    data.pop("plan")
+    area = {
+        "id": "cards",
+        "family": "common",
+        "priority": "high",
+        "title": "Card payments",
+        "why": "Repeated in the synthetic vacancies",
+        "strength": "gap",
+        "learn": ["Authorisation, clearing and settlement"],
+        "done_when": "Explains the card lifecycle without notes",
+        "exercises": [
+            {
+                "id": "cards-flow",
+                "text": "Design an authorisation service",
+                "type": "system_design",
+                "track": "technical-leadership",
+                "tests": "Idempotency",
+            }
+        ],
+        "sources": [{"title": "Synthetic guide", "url": "https://example.invalid/cards"}],
+    }
+    family = {
+        "id": "engineering-management",
+        "title": "Engineering management",
+        "track": "technical-leadership",
+        "levels": "Director and one level below abroad",
+        "summary": "Leads teams through managers",
+        "target_vacancy_ids": [VACANCY],
+    }
+    data.update(
+        {
+            "role_families": [family],
+            "learning": [
+                area,
+                {**area, "id": "org", "family": "engineering-management", "exercises": []},
+            ],
+            **updates,
+        }
+    )
+    return {"type": "preparation_overview", "data": data}
+
+
+def test_overview_can_teach_by_areas_and_role_families_without_a_calendar(store, tmp_path):
+    from job_search_agent.dashboard import Journal
+
+    area = learning_overview()["data"]["learning"][0]
+    bad = [
+        ({"learning": []}, "plan.weeks or learning areas"),
+        ({"learning": [{**area, "family": "unknown"}]}, "role_families id"),
+        ({"learning": [{**area, "priority": "urgent"}]}, "priority"),
+        ({"learning": [{**area, "learn": []}]}, "what to learn"),
+        ({"learning": [{**area, "sources": [{"title": "x", "url": "http://x"}]}]}, "https"),
+        ({"learning": [area, area]}, "unique"),
+        ({"role_families": [{"id": "common", "title": "x", "track": "both"}]}, "not 'common'"),
+    ]
+    for updates, message in bad:
+        with pytest.raises(ValueError, match=message):
+            run_activity(store, tmp_path, "career-interview-prep", learning_overview(**updates))
+    run_activity(store, tmp_path, "career-interview-prep", learning_overview())
+    [record] = store.all("preparation_overviews")
+    assert record["plan"] is None
+    assert [item["family"] for item in record["learning"]] == ["common", "engineering-management"]
+    assert preparation.overview_topic_ids(record) == ["cards-flow", "q-platform"]
+    data = Journal.open(store.home).workspace()
+    shown = next(item for item in data["preparations"] if item["kind"] == "preparation_overviews")
+    assert shown["display"]["topic_status"] == {"cards-flow": "open", "q-platform": "open"}
+
+
 def test_practice_requests_accept_only_known_plan_kinds(tmp_path):
     base = {
         "question": "q",
