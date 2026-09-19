@@ -1,6 +1,13 @@
 # Changelog
 
-Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1` and `dashboard-design-v2` mark visual releases, while package versions are tracked separately.
+Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2` and `dashboard-design-v3` mark visual releases, while package versions are tracked separately.
+
+## 2026-09-19 — Dashboard design v3
+
+- Dashboard design v3 is the fallback default when no valid saved preference exists. Saved v1 and v2 preferences remain selected; the footer **Design** selector now offers all three versions, and `?design=v1`, `?design=v2` or `?design=v3` persists an explicit override.
+- v3 preserves the v1 and v2 CSS overlays and adds a desktop left navigation rail, a light warm canvas, graphite, mint and lime accents, colorful stat tiles, and **Your next moves** shortcuts to roles, CV, preparation and pipeline. The shortcuts navigate to work areas; they do not represent funnel completion or progress. On mobile, navigation becomes a horizontal row.
+- The visual direction was informed by [Web Dashboard Interface / finance](https://ru.pinterest.com/pin/17732992278406858/) and [Project Management Dashboard UI](https://ru.pinterest.com/pin/146085581660074230/). No copied art or assets are part of the release.
+- Visual rollback remains independent of application rollback: use the footer or query parameter to choose v1 or v2, or restore the prior release reference `dashboard-design-v1` / `dashboard-design-v2` when the full application image must change. The release reference for this version is `dashboard-design-v3`; journal data and statuses are unchanged.
 
 ## 2026-09-19 — Dashboard design v2
 

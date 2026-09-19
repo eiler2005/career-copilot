@@ -1128,6 +1128,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             elif path in {
                 "/assets/styles.css",
                 "/assets/styles-v2.css",
+                "/assets/styles-v3.css",
                 "/assets/design.js",
                 "/assets/app.js",
             }:

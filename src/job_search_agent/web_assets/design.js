@@ -4,17 +4,21 @@
 // routes, loaded records and pending form inputs stay in place.
 (() => {
   const storageKey = "career-copilot-design";
-  const valid = (value) => value === "v1" || value === "v2";
-  const stylesheet = document.getElementById("design-v2");
+  const valid = (value) => value === "v1" || value === "v2" || value === "v3";
+  const stylesheetV2 = document.getElementById("design-v2");
+  const stylesheetV3 = document.getElementById("design-v3");
+  const designOnly = () => document.querySelectorAll("[data-design-only]");
   let saved;
   try { saved = localStorage.getItem(storageKey); } catch (_) { /* Storage is optional. */ }
   const requested = new URL(location.href).searchParams.get("design");
-  let version = valid(requested) ? requested : valid(saved) ? saved : "v2";
+  let version = valid(requested) ? requested : valid(saved) ? saved : "v3";
 
   function apply(value) {
-    version = valid(value) ? value : "v2";
-    stylesheet.disabled = version === "v1";
+    version = valid(value) ? value : "v3";
+    stylesheetV2.disabled = version === "v1";
+    stylesheetV3.disabled = version !== "v3";
     document.documentElement.dataset.design = version;
+    designOnly().forEach((node) => { node.hidden = node.dataset.designOnly !== version; });
     try { localStorage.setItem(storageKey, version); } catch (_) { /* Keep the current-page choice. */ }
   }
   apply(version);

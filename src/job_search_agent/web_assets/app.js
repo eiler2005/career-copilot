@@ -4,15 +4,28 @@
 (() => {
   const sections = ["overview", "pipeline", "vacancies", "resume", "companies", "documents", "activities", "preparations", "sources", "history"];
   const kinds = {documents: "packages", preparations: "learning", sources: "source_health", history: "events"};
-  const icons = ["◫", "⇉", "↗", "✎", "▦", "▤", "◷", "◎", "⊞", "≡"];
+  const navigationPaths = [
+    "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+    "M4 4v16 M12 4v16 M20 4v16 M4 7h4 M12 12h4 M20 17h1",
+    "M4 7h16v13H4z M8 7V4h8v3 M4 12h16 M10 12v3h4v-3",
+    "M14 3H5v18h14V8z M14 3v5h5 M8 12h8 M8 16h6",
+    "M4 21V5h10v16 M14 10h6v11 M2 21h20 M7 9h4 M7 13h4 M7 17h4 M17 14h1 M17 17h1",
+    "M9 3h11v14H9z M5 7H3v14h11v-2 M12 7h5 M12 11h5",
+    "M3 12h4l3-7 4 14 3-7h4",
+    "M3 5h7l2 2 2-2h7v14h-7l-2 2-2-2H3z M12 7v14",
+    "M5 3h14v6H5z M5 15h14v6H5z M12 9v6 M8 6h1 M8 18h1",
+    "M4 5v5h5 M4 10a8 8 0 1 1 1 8 M12 7v5l3 2"
+  ];
   const copy = {
     ru: {
       designVersion: "Дизайн",
+      journeyTitle: "Ваш маршрут", journeyNote: "От подходящей роли до следующего разговора", journeyRoles: "Выбрать роль", journeyCV: "Подготовить резюме", journeyPractice: "Подготовиться", journeyPipeline: "Следить за откликами",
       overview: "Обзор", vacancies: "Вакансии", resume: "Резюме", resumeDesc: "Два master-резюме по трекам, версии под вакансии, предложения правок с решениями, предпросмотр PDF и импорт.", companies: "Компании", documents: "Документы", activities: "Активности", preparations: "Подготовка", sources: "Источники", history: "История",
       workspace: "РАБОЧЕЕ ПРОСТРАНСТВО", privateJournal: "Личный журнал", sidebarNote: "Факты, решения и следующий шаг — в одном месте.", skip: "К содержимому", refresh: "Обновить", footer: "Основано на вашем журнале. Неизвестное остаётся неизвестным.", loading: "Открываем рабочее пространство…", connected: "ЖУРНАЛ ПОДКЛЮЧЁН", updated: "Обновлено", overviewTitle: "Ваша следующая глава.", overviewDesc: "Поиск работы как последовательная работа: от первого источника до следующего разговора.", vacanciesDesc: "Роли, требования и решения. Откройте вакансию, чтобы увидеть детали и основания оценки.", companiesDesc: "Бизнес, продукты, масштаб и найм — с сохранёнными источниками.", documentsDesc: "Пакеты, версии и проверки. Готовность документа и отправка учитываются отдельно.", activitiesDesc: "Выполненная работа, фактические участники и следующие действия.", preparationsDesc: "Планы, практика и подтверждённый прогресс подготовки к интервью.", sourcesDesc: "Состояние источников, успешные проверки и ограничения доступа.", historyDesc: "Сохранённая история решений и действий в вашем журнале.", search: "Поиск по названию, компании и содержимому…", newest: "Сначала новые", alphabetical: "По алфавиту", country: "Страна", city: "Город", remote: "Формат", status: "Статус", track: "Направление", all: "Все", unknown: "Не указано", unknownStatus: "Неизвестно", reset: "Сбросить фильтры", found: "Найдено", records: "записей", open: "Подробнее", original: "Источник ↗", originalLocation: "Локация в источнике", latestVacancies: "Последние вакансии", viewAll: "Все записи ↗", nextSteps: "Следующие действия", focus: "В ФОКУСЕ", focusTitle: "Ясность перед следующим шагом.", focusDesc: "Вакансии с неизвестной доступностью требуют проверки источника. Оценка соответствия и актуальность найма — отдельные решения.", unknownAvailability: "вакансий требуют проверки доступности", companyNote: "сохранённые профили", vacancyNote: "сохранённые роли", documentNote: "пакеты и отдельные тексты", activityNote: "записи работы", noRecords: "Здесь пока нет записей", noRecordsDesc: "Раздел заполнится, когда соответствующие записи появятся в журнале.", noResults: "Ничего не найдено", noResultsDesc: "Попробуйте другой запрос или сбросьте фильтры.", noActions: "Следующие действия не записаны", noActionsDesc: "Зафиксированные следующие шаги появятся здесь.", error: "Не удалось открыть журнал", errorDesc: "Проверьте доступность сервера и повторите загрузку.", retry: "Повторить", previous: "← Назад", next: "Далее →", page: "Страница", of: "из", detailError: "Не удалось получить свежую запись. Показана версия из загруженного обзора.", detailLoading: "Загружаем полную запись…", recordFields: "Сведения", sourceFields: "Источники и материалы", evidenceFields: "Оценка и доказательства", versionFields: "Версии и файлы", related: "Связанные записи", technical: "Исходная запись JSON", yes: "Да", no: "Нет", empty: "Нет данных", remoteLabel: "Удалённо", hybrid: "Гибрид", onsite: "Офис", close: "Закрыть", relatedCompany: "Компания", relatedVacancies: "Вакансии компании", about: "О компании", size: "Масштаб", versions: "Версии", assessed: "Оценка", availability: "Доступность", registeredFile: "Открыть файл ↗", source: "Источник", activeFilters: "с учётом фильтров", current: "Текущая", showMore: "Показать ещё", unknownRecord: "Запись", privacy: "ЛИЧНОЕ ПРОСТРАНСТВО", countriesNote: "География указана по сохранённым данным.", readyNote: "Проверки и отправки — в карточках документов.", noDate: "Дата не указана"
     },
     en: {
       designVersion: "Design",
+      journeyTitle: "Your next moves", journeyNote: "From the right role to the next conversation", journeyRoles: "Find a role", journeyCV: "Shape your CV", journeyPractice: "Get prepared", journeyPipeline: "Track applications",
       overview: "Overview", vacancies: "Vacancies", resume: "CV", resumeDesc: "Two master CVs by track, vacancy versions, proposed edits with decisions, PDF preview and import.", companies: "Companies", documents: "Documents", activities: "Activities", preparations: "Preparation", sources: "Sources", history: "History", workspace: "WORKSPACE", privateJournal: "Private journal", sidebarNote: "Facts, decisions and the next step, together.", skip: "Skip to content", refresh: "Refresh", footer: "Based on your journal. Unknowns stay unknown.", loading: "Opening your workspace…", connected: "JOURNAL CONNECTED", updated: "Updated", overviewTitle: "Your next chapter.", overviewDesc: "A deliberate job search: from the first source to your next conversation.", vacanciesDesc: "Roles, requirements and decisions. Open a vacancy to inspect its details and assessment evidence.", companiesDesc: "Business, products, scale and hiring, with retained sources.", documentsDesc: "Packages, versions and reviews. Document readiness and submission are separate.", activitiesDesc: "Recorded work, actual contributors and next actions.", preparationsDesc: "Plans, practice and demonstrated interview preparation progress.", sourcesDesc: "Source health, successful checks and access limitations.", historyDesc: "The retained history of decisions and actions in your journal.", search: "Search titles, companies and record contents…", newest: "Newest first", alphabetical: "Alphabetically", country: "Country", city: "City", remote: "Work mode", status: "Status", track: "Track", all: "All", unknown: "Not specified", unknownStatus: "Unknown", reset: "Reset filters", found: "Found", records: "records", open: "Details", original: "Source ↗", originalLocation: "Original location", latestVacancies: "Latest vacancies", viewAll: "View all ↗", nextSteps: "Next actions", focus: "IN FOCUS", focusTitle: "Clarity before the next step.", focusDesc: "Vacancies with unknown availability need a source check. Role fit and current hiring are separate decisions.", unknownAvailability: "vacancies need an availability check", companyNote: "retained profiles", vacancyNote: "retained roles", documentNote: "packages and standalone texts", activityNote: "work records", noRecords: "No records yet", noRecordsDesc: "This section will populate when records are added to the journal.", noResults: "No matching records", noResultsDesc: "Try another search or reset the filters.", noActions: "No next actions recorded", noActionsDesc: "Recorded next steps will appear here.", error: "Could not open the journal", errorDesc: "Check the server connection and try again.", retry: "Retry", previous: "← Previous", next: "Next →", page: "Page", of: "of", detailError: "Could not fetch the latest record. Showing the version from the loaded overview.", detailLoading: "Loading the full record…", recordFields: "Details", sourceFields: "Sources and materials", evidenceFields: "Assessment and evidence", versionFields: "Versions and files", related: "Related records", technical: "Original JSON record", yes: "Yes", no: "No", empty: "No data", remoteLabel: "Remote", hybrid: "Hybrid", onsite: "On-site", close: "Close", relatedCompany: "Company", relatedVacancies: "Company vacancies", about: "About", size: "Scale", versions: "Versions", assessed: "Assessment", availability: "Availability", registeredFile: "Open file ↗", source: "Source", activeFilters: "filtered", current: "Current", showMore: "Show more", unknownRecord: "Record", privacy: "PRIVATE WORKSPACE", countriesNote: "Geography follows the retained evidence.", readyNote: "Review and submission details are in document records.", noDate: "No date recorded"
     }
   };
@@ -133,6 +146,17 @@
     return params.get("record");
   }
   function navigate(section, preset) { if (!sections.includes(section)) section = "overview"; if (state.section !== section || preset) { state.query = ""; state.filters = {...defaultFilters(section), ...(preset || {})}; state.page = 1; state.sort = "newest"; } state.section = section; const hash = hashFor(section, false); if (location.hash !== hash) history.pushState(null, "", hash); render(); $("main").focus({preventScroll: true}); window.scrollTo(0, 0); }
+  function navigationIcon(index) {
+    const span = el("span", "nav-icon"), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    span.setAttribute("aria-hidden", "true");
+    for (const [name, value] of Object.entries({viewBox: "0 0 24 24", width: "19", height: "19", fill: "none", stroke: "currentColor", "stroke-width": "1.6", "stroke-linecap": "round", "stroke-linejoin": "round"})) svg.setAttribute(name, value);
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", navigationPaths[index]); svg.append(path); span.append(svg); return span;
+  }
+  function navigateFromLink(event, section) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault(); navigate(section);
+  }
   function renderChrome() {
     document.documentElement.lang = state.lang;
     document.querySelectorAll("[data-i18n]").forEach((node) => { node.textContent = t(node.dataset.i18n); });
@@ -143,7 +167,15 @@
     $("language").setAttribute("aria-label", state.lang === "ru" ? "Switch to English" : "Переключить на русский");
     $("close-detail").setAttribute("aria-label", t("close")); $("close-document").setAttribute("aria-label", t("close"));
     $("connection").textContent = state.data ? t("connected") : "";
-    $("navigation").replaceChildren(...sections.map((section, index) => { const link = el("a", `nav-link${section === state.section ? " active" : ""}`); link.href = `#${section}`; link.append(el("span", "nav-icon", icons[index]), el("span", "", t(section))); if (section !== "overview" && state.data) link.append(el("span", "nav-count", String(sectionCount(section)).padStart(2, "0"))); if (section === state.section) link.setAttribute("aria-current", "page"); return link; }));
+    $("navigation").replaceChildren(...sections.map((section, index) => {
+      const link = el("a", `nav-link${section === state.section ? " active" : ""}`);
+      link.href = `#${section}`;
+      link.addEventListener("click", (event) => navigateFromLink(event, section));
+      link.append(navigationIcon(index), el("span", "", t(section)));
+      if (section !== "overview" && state.data) link.append(el("span", "nav-count", String(sectionCount(section)).padStart(2, "0")));
+      if (section === state.section) link.setAttribute("aria-current", "page");
+      return link;
+    }));
     const title = el("div"); title.append(el("div", "eyebrow", `${t("privacy")} / ${t(state.section)}`), el("h1", "", state.section === "overview" ? t("overviewTitle") : t(state.section)), el("p", "", t(`${state.section}Desc`)));
     $("page-heading").replaceChildren(title, el("span", "page-index", String(sections.indexOf(state.section) + 1).padStart(2, "0")));
     document.title = state.section === "overview" ? "Career Copilot" : `${t(state.section)} · Career Copilot`;
@@ -159,6 +191,21 @@
   function render() { renderChrome(); if (!state.data) return; $("load-state").hidden = true; $("overview").hidden = state.section !== "overview"; $("collection").hidden = state.section === "overview"; if (state.section === "overview") renderOverview(); else { renderToolbar(); renderResults(); } }
   function sectionPanel(title, section) { const panel = el("section", "panel"), header = el("div", "panel-header"); header.append(el("h2", "", t(title)), button(t("viewAll"), "text-button", () => navigate(section))); panel.append(header); return panel; }
   function renderOverview() {
+    const journey = el("section", "journey");
+    journey.dataset.designOnly = "v3";
+    journey.hidden = document.documentElement.dataset.design !== "v3";
+    const journeyHeading = el("div", "journey-heading"), journeyTitle = el("h2", "", t("journeyTitle"));
+    journeyTitle.id = "journey-title";
+    journey.setAttribute("aria-labelledby", "journey-title");
+    journeyHeading.append(journeyTitle, el("p", "", t("journeyNote")));
+    const journeySteps = el("div", "journey-steps");
+    [["vacancies", "journeyRoles"], ["resume", "journeyCV"], ["preparations", "journeyPractice"], ["pipeline", "journeyPipeline"]].forEach(([section, label], index) => {
+      const step = button("", "journey-step", () => navigate(section));
+      const number = el("span", "journey-step-number", String(index + 1).padStart(2, "0")), arrow = el("span", "journey-step-arrow", "↗");
+      number.setAttribute("aria-hidden", "true"); arrow.setAttribute("aria-hidden", "true");
+      step.append(number, el("strong", "", t(label)), arrow); journeySteps.append(step);
+    });
+    journey.append(journeyHeading, journeySteps);
     const stats = el("div", "stats-grid");
     [["companies", "companyNote"], ["vacancies", "vacancyNote"], ["documents", "documentNote"], ["activities", "activityNote"]].forEach(([section, note]) => { const stat = button("", "stat", () => navigate(section)); const value = el("div", "stat-value"); value.append(el("strong", "", sectionCount(section).toLocaleString(state.lang)), el("span", "", "↗")); stat.append(el("span", "stat-label", t(section)), value, el("div", "stat-note", section === "vacancies" ? `${t("relevantOfTotal")} ${primaryRecords(section).length.toLocaleString(state.lang)}` : t(note))); stats.append(stat); });
     const grid = el("div", "overview-grid"), latest = sectionPanel("recentVacancies", "vacancies");
@@ -191,7 +238,7 @@
     next.forEach((record, index) => { const row = el("article", "action-item"), body = el("div"); body.append(button(scalar(record.payload.next_action), "record-title", () => openRecord(record))); if (record.kind === "vacancies") { const context = el("div", "action-context"); context.append(el("span", "", `${kindName(record.kind)} · `), vacancyReference(record, {compact: true})); body.append(context); } else body.append(el("p", "", `${kindName(record.kind)} · ${recordTitle(record)}`)); row.append(el("span", "action-number", String(index + 1).padStart(2, "0")), body); actions.append(row); });
     rail.append(focus, remindersBox, actions); grid.append(latest, rail);
     const strip = el("div", "summary-strip overview-section"); ["preparations", "sources", "history"].forEach((section) => { const item = button("", "", () => navigate(section)); item.append(el("span", "", `${t(section)} ↗`), el("strong", "mono", String(records(section).length).padStart(2, "0"))); strip.append(item); });
-    $("overview").replaceChildren(stats, grid, strip);
+    $("overview").replaceChildren(stats, journey, grid, strip);
   }
   const optionText = (key, value) => key === "freshness" ? t(`freshness_${value}`) : key === "type" ? (value.includes("_") || enums[value] ? translated(value) : label(value)) : key === "kind" ? label(value) : ["country", "city", "remote"].includes(key) ? geographyValue(value, key) : translated(value);
   function trackSwitch() {
@@ -1870,6 +1917,7 @@
   $("record-dialog").addEventListener("close", () => { state.detailToken++; state.opened = null; state.detailTab = "vacancy"; syncHash(); });
   $("record-dialog").addEventListener("click", (event) => { if (event.target === $("record-dialog")) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
   function onLocationChange() { if (location.hash === hashFor(state.section)) return; const reference = applyHash(); render(); if (reference) openLinkedRecord(reference); else if ($("record-dialog").open) $("record-dialog").close(); }
+  document.querySelector(".brand").addEventListener("click", (event) => navigateFromLink(event, "overview"));
   window.addEventListener("hashchange", onLocationChange);
   window.addEventListener("popstate", onLocationChange);
   document.addEventListener("keydown", (event) => { if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey || $("record-dialog").open) return; const target = event.target; if (target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName))) return; const search = $("record-search"); if (search && !$("collection").hidden) { event.preventDefault(); search.focus(); search.select(); } });
