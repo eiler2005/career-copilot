@@ -10,7 +10,7 @@ from pypdf import PdfReader
 
 from job_search_agent.cli import parser, run
 from job_search_agent.core import Store, init_home
-from job_search_agent.pdf_documents import bind_pdfs, extract_pdf, render_markdown
+from job_search_agent.pdf_documents import Styles, bind_pdfs, extract_pdf, render_markdown
 
 
 def reader(data):
@@ -50,6 +50,16 @@ def test_markdown_cyrillic_tables_code_links_and_page_breaks():
         document.pages[0]["/Annots"][0].get_object()["/A"]["/URI"] == "https://example.org/source"
     )
     assert document.outline
+
+
+def test_explicit_word_sized_font_scales_body_and_table_styles():
+    styles = Styles(font_size=12)
+    assert styles.body.fontSize == 12
+    assert styles.body.leading == 16.8
+    assert styles.headings[3].fontSize >= 13
+    assert render_markdown("# Readable\n\n| A | B |\n|---|---|\n| 1 | 2 |", font_size=12)
+    with pytest.raises(ValueError, match="between 8 and 18"):
+        Styles(font_size=float("inf"))
 
 
 def test_long_tables_repeat_headers_and_split_oversized_rows():
@@ -125,6 +135,16 @@ def test_binder_and_extract_preserve_order_orientation_and_bookmarks():
     assert "Landscape" in reader(selected).pages[0].extract_text()
     assert "Начало" in reader(selected).pages[1].extract_text()
     assert len(reader(selected).pages) == 3
+
+
+def test_binder_preserve_size_keeps_source_page_geometry():
+    source = render_markdown("# Source\n\nBody", wide=True)
+    source_page = reader(source).pages[0]
+    packet = bind_pdfs([("Source", source)], preserve_size=True)
+    page = reader(packet).pages[0]
+    assert float(page.mediabox.width) == float(source_page.mediabox.width)
+    assert float(page.mediabox.height) == float(source_page.mediabox.height)
+    assert "Source" in page.extract_text()
     with pytest.raises(ValueError, match="1-based"):
         extract_pdf(packet, [0])
 

@@ -28,8 +28,8 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 | `prepare ID --track TRACK` | Вакансия или `master`; трек обязателен | Версионный пакет и задание агенту |
 | `review PACKAGE_ID --report PATH` | JSON проверки точной версии | Ревью и пересчёт готовности |
 | `learn [ID] --track TRACK` | Вакансия необязательна; default product | Базовый план или план по требованиям |
-| `pdf render SOURCE --output PATH` | Markdown пространства; необязательные `--title`, `--subtitle`, `--landscape` | Оформленный PDF и неизменяемый манифест |
-| `pdf bind SOURCE ... --output PATH` | PDF пространства в нужном порядке; необязательный `--title` | Сборник A4 с нумерацией и закладками |
+| `pdf render SOURCE --output PATH` | Markdown пространства; `--title`, `--subtitle`, `--font-size 8..18` (по умолчанию 12), `--landscape` | Оформленный PDF и неизменяемый манифест |
+| `pdf bind SOURCE ... --output PATH` | PDF пространства в нужном порядке; `--title`, `--preserve-size` | Сборник A4 с нумерацией и закладками |
 | `pdf inspect SOURCE` | PDF пространства | Число страниц, SHA-256 и размер в байтах |
 | `pdf extract SOURCE --pages 1 3 --output PATH` | Явные номера страниц PDF, начиная с 1 | Выбранные страницы и манифест |
 | `report [--open]` | Текущий журнал | Приватные HTML/JSON |

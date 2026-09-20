@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import html
 import io
+import math
 import re
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -67,20 +68,36 @@ def fonts(font_path: str | None = None) -> tuple[str, str]:
 
 
 class Styles:
-    def __init__(self, font_path: str | None = None):
+    def __init__(self, font_path: str | None = None, font_size: float | None = None):
         self.font, bold = fonts(font_path)
+        legacy = font_size is None
+        if legacy:
+            font_size = 9.5
+        if (
+            not isinstance(font_size, (int, float))
+            or not math.isfinite(font_size)
+            or not 8 <= font_size <= 18
+        ):
+            raise ValueError("PDF font size must be a finite number between 8 and 18")
+        self.font_size = float(font_size)
         self.body = ParagraphStyle(
             "DocumentBody",
             fontName=self.font,
-            fontSize=9.5,
-            leading=14,
+            fontSize=self.font_size,
+            leading=14 if legacy else round(self.font_size * 1.4, 2),
             textColor=INK,
             spaceAfter=6,
             allowWidows=0,
             allowOrphans=0,
             splitLongWords=True,
         )
-        self.small = ParagraphStyle("DocumentSmall", parent=self.body, fontSize=8, leading=11)
+        small_size = 8 if legacy else max(8, self.font_size - 1)
+        self.small = ParagraphStyle(
+            "DocumentSmall",
+            parent=self.body,
+            fontSize=small_size,
+            leading=11 if legacy else round(small_size * 1.4, 2),
+        )
         self.code = ParagraphStyle(
             "DocumentCode",
             parent=self.small,
@@ -100,8 +117,14 @@ class Styles:
                 f"DocumentHeading{n}",
                 parent=self.body,
                 fontName=bold,
-                fontSize={1: 24, 2: 16, 3: 12}.get(n, 10.5),
-                leading={1: 29, 2: 21, 3: 17}.get(n, 15),
+                fontSize={1: 24, 2: 16, 3: (12 if legacy else self.font_size + 1)}.get(
+                    n, 10.5 if legacy else self.font_size + 1
+                ),
+                leading={
+                    1: 29,
+                    2: 21,
+                    3: (17 if legacy else round((self.font_size + 1) * 1.4, 2)),
+                }.get(n, 15 if legacy else round((self.font_size + 1) * 1.4, 2)),
                 textColor=INK if n == 1 else TEAL,
                 spaceBefore=15 if n > 1 else 4,
                 spaceAfter=8,
@@ -345,12 +368,13 @@ def render_markdown(
     title: str | None = None,
     subtitle: str | None = None,
     font_path: str | None = None,
+    font_size: float | None = None,
     wide: bool = False,
     source_dir: Path | None = None,
     resource_root: Path | None = None,
     resources: dict[str, str] | None = None,
 ) -> bytes:
-    styles = Styles(font_path)
+    styles = Styles(font_path, font_size)
     first = re.search(r"^#\s+(.+)$", markdown, re.MULTILINE)
     inferred = first.group(1) if first else "Document"
     display_title = title or inferred
@@ -415,9 +439,13 @@ def inspect_pdf(data: bytes) -> dict:
 
 
 def bind_pdfs(
-    documents: list[tuple[str, bytes]], *, title: str = "Documents", font_path: str | None = None
+    documents: list[tuple[str, bytes]],
+    *,
+    title: str = "Documents",
+    font_path: str | None = None,
+    preserve_size: bool = False,
 ) -> bytes:
-    """Fit originals above an A4 footer and add ordered section bookmarks."""
+    """Fit originals above an A4 footer, or preserve source geometry, and add bookmarks."""
     font, _ = fonts(font_path)
     writer = PdfWriter()
     readers = [(label, PdfReader(io.BytesIO(data))) for label, data in documents]
@@ -434,12 +462,20 @@ def bind_pdfs(
             source_height = float(page.cropbox.height)
             if source_width <= 0 or source_height <= 0:
                 raise ValueError("PDF page has invalid dimensions")
-            size = landscape(A4) if source_width > source_height else A4
+            size = (
+                (source_width, source_height)
+                if preserve_size
+                else (landscape(A4) if source_width > source_height else A4)
+            )
             width, height = size
-            area_width, area_height = width - 24 * mm, height - 30 * mm
-            scale = min(area_width / source_width, area_height / source_height)
-            x = (width - source_width * scale) / 2
-            y = 18 * mm + (area_height - source_height * scale) / 2
+            if preserve_size:
+                scale = 1
+                x = y = 0
+            else:
+                area_width, area_height = width - 24 * mm, height - 30 * mm
+                scale = min(area_width / source_width, area_height / source_height)
+                x = (width - source_width * scale) / 2
+                y = 18 * mm + (area_height - source_height * scale) / 2
             target = writer.add_blank_page(width, height)
             transform = Transformation().translate(
                 -float(page.cropbox.left), -float(page.cropbox.bottom)
@@ -452,8 +488,9 @@ def bind_pdfs(
             text = label
             while pdfmetrics.stringWidth(text, font, 7.5) > width - 70 * mm and text:
                 text = text[:-1]
-            stamp.drawString(12 * mm, 9 * mm, text)
-            stamp.drawRightString(width - 12 * mm, 9 * mm, f"{len(writer.pages)} / {total}")
+            stamp_y = 4 * mm if preserve_size else 9 * mm
+            stamp.drawString(12 * mm, stamp_y, text)
+            stamp.drawRightString(width - 12 * mm, stamp_y, f"{len(writer.pages)} / {total}")
             stamp.save()
             target.merge_page(PdfReader(overlay).pages[0])
         if len(reader.pages):
@@ -503,6 +540,7 @@ def export(store: Store, args) -> dict:
             bodies[0].decode("utf-8"),
             title=args.title,
             subtitle=args.subtitle,
+            font_size=args.font_size,
             wide=args.landscape,
             font_path=store.settings.get("pdf_font"),
             source_dir=paths[0].parent,
@@ -517,6 +555,7 @@ def export(store: Store, args) -> dict:
                 [(path.stem, body) for path, body in zip(paths, bodies)],
                 title=args.title or "Documents",
                 font_path=store.settings.get("pdf_font"),
+                preserve_size=args.preserve_size,
             )
         else:
             data = extract_pdf(bodies[0], args.pages)
@@ -532,7 +571,7 @@ def export(store: Store, args) -> dict:
         "resources": resources,
         "options": {
             key: getattr(args, key)
-            for key in ("title", "subtitle", "landscape", "pages")
+            for key in ("title", "subtitle", "landscape", "pages", "font_size", "preserve_size")
             if hasattr(args, key)
         },
         "review_status": "pending",

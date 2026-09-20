@@ -201,6 +201,9 @@ def parser() -> argparse.ArgumentParser:
     rendering.add_argument("--output", required=True)
     rendering.add_argument("--title")
     rendering.add_argument("--subtitle")
+    rendering.add_argument(
+        "--font-size", type=float, default=12.0, help="Body font size in points (8-18; default: 12)"
+    )
     rendering.add_argument("--landscape", action="store_true")
     binding = pdf.add_parser(
         "bind", help="Bind workspace PDFs in order with A4 pages and bookmarks"
@@ -208,6 +211,11 @@ def parser() -> argparse.ArgumentParser:
     binding.add_argument("sources", nargs="+", type=Path)
     binding.add_argument("--output", required=True)
     binding.add_argument("--title")
+    binding.add_argument(
+        "--preserve-size",
+        action="store_true",
+        help="Preserve source page geometry; requires a clear bottom margin",
+    )
     pdf.add_parser("inspect", help="Count pages and hash a workspace PDF").add_argument(
         "source", type=Path
     )

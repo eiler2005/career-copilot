@@ -28,8 +28,8 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 | `prepare ID --track TRACK` | Vacancy or `master`; track required | Versioned document package and agent task |
 | `review PACKAGE_ID --report PATH` | Exact-version content/visual JSON | Review record and recomputed readiness |
 | `learn [ID] --track TRACK` | Optional vacancy; track defaults to product | Baseline/requirement-based learning plan |
-| `pdf render SOURCE --output PATH` | Workspace Markdown; optional `--title`, `--subtitle`, `--landscape` | Styled PDF and immutable manifest |
-| `pdf bind SOURCE ... --output PATH` | Workspace PDFs in order; optional `--title` | A4 binder with page numbering and bookmarks |
+| `pdf render SOURCE --output PATH` | Workspace Markdown; optional `--title`, `--subtitle`, `--font-size 8..18` (default 12), `--landscape` | Styled PDF and immutable manifest |
+| `pdf bind SOURCE ... --output PATH` | Workspace PDFs in order; optional `--title`, `--preserve-size` | A4 binder with page numbering and bookmarks |
 | `pdf inspect SOURCE` | Workspace PDF | Page count, SHA-256 and byte size |
 | `pdf extract SOURCE --pages 1 3 --output PATH` | Explicit one-based PDF page numbers | Selected pages and manifest |
 | `report [--open]` | Current journal | Private HTML and JSON views |

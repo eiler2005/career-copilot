@@ -4,6 +4,10 @@
 
 Use one local PDF pipeline for study plans, preparation notes, CV rendering and reading packs. It renders Markdown, inspects PDFs, assembles ordered A4 binders and extracts selected pages. Source content and all persistent outputs stay inside the explicitly selected private workspace.
 
+The CLI `render` command uses a 12 pt body font and at least 11 pt table text by default. Use `--font-size 11` or another finite value from 8 through 18 for a different density. The Python API keeps its legacy 9.5 pt default when `render_markdown()` omits `font_size`, preserving existing CV and dashboard output. At the default size, headings remain larger.
+
+Binders keep fit-to-A4 behavior by default. Use `pdf bind ... --preserve-size` to retain source page geometry and 100% text size; the binder label is stamped in a 4 mm bottom margin, so inspect that margin before delivery. Font and geometry options are recorded in the manifest.
+
 ## Render a plan
 
 The following paths are examples; create the source inside your own workspace first. Global `--home` precedes the command, source paths may be relative to that workspace, and output paths are workspace-relative.
