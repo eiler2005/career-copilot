@@ -25,6 +25,7 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 | `discover --source ID --replay PATH` | Workspace-relative compatible snapshot | Offline historical observation; no live-status refresh |
 | `evaluate [ID] --track TRACK [--stale]` | Optional vacancy; track defaults to product; `--stale` re-runs only assessments whose inputs changed | Explainable assessments with outcome, matrix, constraints and routes |
 | `vacancy requirements ID PATH` | Validated requirement list | Replaces the vacancy's requirements with a `record_updated` event |
+| `vacancy import-telegram PATH` | Bounded public-channel JSON export, schema v1 | Original snapshot, vacancy observations, per-post bindings and idempotent import result; no network |
 | `prepare ID --track TRACK` | Vacancy or `master`; track required | Versioned document package and agent task |
 | `review PACKAGE_ID --report PATH` | Exact-version content/visual JSON | Review record and recomputed readiness |
 | `learn [ID] --track TRACK` | Optional vacancy; track defaults to product | Baseline/requirement-based learning plan |

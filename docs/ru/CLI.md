@@ -25,6 +25,7 @@ uv run ajh --home /absolute/private/career-workspace --activity-id ACTIVITY_ID e
 | `discover --source ID --replay PATH` | Совместимый снимок относительно пространства | Историческое наблюдение без сети и обновления live-статуса |
 | `evaluate [ID] --track TRACK [--stale]` | Вакансия необязательна; default product; `--stale` пересчитывает только оценки с изменившимися входами | Объяснимые оценки: результат, матрица, ограничения и маршруты |
 | `vacancy requirements ID PATH` | Проверенный список требований | Заменяет требования вакансии с событием `record_updated` |
+| `vacancy import-telegram PATH` | Ограниченный JSON-экспорт публичного канала, schema v1 | Исходный снимок, наблюдения вакансий, связи с постами и идемпотентный результат импорта; без сети |
 | `prepare ID --track TRACK` | Вакансия или `master`; трек обязателен | Версионный пакет и задание агенту |
 | `review PACKAGE_ID --report PATH` | JSON проверки точной версии | Ревью и пересчёт готовности |
 | `learn [ID] --track TRACK` | Вакансия необязательна; default product | Базовый план или план по требованиям |

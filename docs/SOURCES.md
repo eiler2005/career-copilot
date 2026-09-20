@@ -4,6 +4,8 @@
 
 Career Copilot collects published vacancies through fifteen adapters — employer ATS boards, remote-job boards, regional job boards, Russian open data and HH text search — and can replay compatible saved responses offline. Official employer boards support verification of hiring details; aggregator cards add leads and salary context. Neither route guarantees complete market coverage or that a previously observed vacancy is still open.
 
+Alongside these fifteen HTTP adapters, [Telegram collection and offline import](SOURCE_ARCHITECTURE.md#telegram-external-session-bounded-export-offline-import) uses a bounded public-channel export from an existing external session. Run `vacancy import-telegram PATH` to preserve posts and provenance in the journal; `discover` does not connect to Telegram. Imported posts are provisional leads with unknown availability, and channels are never treated as employers.
+
 ![Source collection and fallback routes](assets/sources.en.svg)
 
 ## Provider reference

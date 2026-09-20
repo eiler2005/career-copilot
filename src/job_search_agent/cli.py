@@ -322,6 +322,10 @@ def parser() -> argparse.ArgumentParser:
             "--apply", action="store_true", help="Apply changes; default is a dry run"
         )
     vacancy = commands.add_parser("vacancy").add_subparsers(dest="vacancy_command", required=True)
+    telegram_import = vacancy.add_parser(
+        "import-telegram", help="Import a bounded public-channel export offline"
+    )
+    telegram_import.add_argument("source", type=Path)
     adding = vacancy.add_parser("add", help="Add one vacancy from a public link or pasted text")
     origin = adding.add_mutually_exclusive_group(required=True)
     origin.add_argument("--url")
@@ -532,6 +536,13 @@ def run(args) -> dict | list:
             return maintenance.rename_artifacts(store, apply=args.apply)
         if args.command == "vacancy":
             from . import intake
+
+            if args.vacancy_command == "import-telegram":
+                from . import telegram
+
+                if args.source.stat().st_size > telegram.MAX_BYTES:
+                    raise ValueError("Telegram export exceeds 10 MB")
+                return telegram.import_export(store, args.source.read_bytes())
 
             if args.vacancy_command == "requirements":
                 from . import matching
