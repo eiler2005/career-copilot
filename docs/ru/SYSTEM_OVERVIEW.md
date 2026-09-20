@@ -18,6 +18,7 @@
 | Объяснимое соответствие | Результат, первая блокирующая причина, матрица требований с маршрутами, ограничения, устаревание | Вкладка «Соответствие» | `evaluate [--stale]`, `vacancy requirements` | `matching.py`, `workflow.py` (`evaluate`) | `assessments`, `current_assessments` |
 | Резюме | Два master, версии под вакансии, предложения правок и решения, состояния, предпросмотр PDF, импорт | Раздел «Резюме», вкладка «Резюме» | `prepare`, `review`, `cv status/import/decide/apply-edits` | `cv.py`, `workflow.py` (`prepare`, `record_review`) | `packages`, `cv_edits`, `cv_edit_decisions`, `cv_imports` |
 | Подготовка | Памятки к вакансиям, планы по общим пробелам, текстовая практика с разбором | Раздел и вкладка «Подготовка» | `prep plan/status`, `learn` | `preparation.py`, `workflow.py` (`learning_plan`) | `preparation_briefs`, `track_plans`, `practice_*`, `learning` |
+| PDF-документы | Markdown-планы для чтения и печати, сборники A4, проверка и извлечение страниц | Скачивание планов и просмотр документов | `pdf render/bind/inspect/extract` | `pdf_documents.py`, `dashboard_pdf.py`, `workflow.py` | Приватные PDF-артефакты и манифесты; без изменения ревью или прогресса |
 | Заявки и задачи | Действия интерфейса с проверкой версий; работа, переданная агентам | Панель «Заявки и задачи», статусы во вкладках | `inbox import/list/apply/reject`, `tasks list/next` | `inbox.py`, `activity.py`, `core.py` (`Store.patch`) | `inbox_requests`, `tasks`, `events` |
 | Работа агентов | Прослеживаемая модельная работа с исполнителем, входами и типизированными результатами | Раздел «Активности» | `activity start/show/finish` | `activity.py` | `activities`, `activity_events`, типизированные результаты |
 | Воронка и статистика | Этап каждой вакансии, напоминания, подтверждённые счётчики | Воронка, обзор | `stats`, `report` | `stats.py`, `report.py`, `web_assets/app.js` | `submissions`, `employer_responses` |
@@ -41,7 +42,8 @@ src/job_search_agent/
   relevance.py      отбор по профилю: функция, уровень, домены резюме, запросы, ступени
   campaigns.py      кампании поиска и сравнение предпочтений по критериям
   matching.py       evidence-rules-v2: строки требований, ограничения, результат, дайджесты входов
-  workflow.py       evaluate, планы обучения, рендер CV, prepare, review
+  workflow.py       evaluate, планы обучения, адаптер вёрстки пакетов, prepare, review
+  pdf_documents.py  общий Markdown/PDF-рендерер, проверка, сборники A4, извлечение страниц
   cv.py             состояния версий, предложения правок и решения, сборка черновика, импорт CV
   preparation.py    памятки к вакансиям, планы по трекам, вопросы, попытки и разборы практики
   availability.py   проверки объявлений с ограничением публичных адресов и перенаправлений
@@ -50,12 +52,14 @@ src/job_search_agent/
   maintenance.py    dedupe, rename-artifacts, reextract-conditions
   naming.py, backup.py, privacy.py, stats.py, report.py
   dashboard.py      HTTP-сервер: чтение снимка, заявки и проверки, предпросмотр PDF
-  dashboard_pdf.py  PDF планов и скрытие локальных путей
+  dashboard_pdf.py  адаптер журнала/переводов для общего PDF-рендерера; скрытие локальных путей
   web_assets/       index.html, app.js (без сборки и innerHTML), styles.css
 tests/              только синтетические данные; файл на область модулей
 .agents/skills/     восемь канонических навыков; .claude/skills/ — тонкие адаптеры
 deploy/, Dockerfile, compose.yaml, compose.public.yaml
 ```
+
+Контракты вёрстки, сборки и хранения описаны в [PDF-документах](PDF.md). Общий рендерер выполняет детерминированную локальную обработку; авторство и визуальное ревью принадлежат существующим агентским сессиям. Сложное проектирование и содержательные решения выполняет флагман (`gpt-6-astra` в Codex/OpenAI, `claude-opus-5` в Claude); простое извлечение может выполнять `gpt-5.6-luna` в OpenAI. CLI сам не выбирает и не вызывает модели.
 
 ## Жизненный цикл заявки и задачи
 

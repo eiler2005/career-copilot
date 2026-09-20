@@ -4,15 +4,8 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from xml.sax.saxutils import escape
 
 from pypdf import PdfReader
-from reportlab.lib import colors
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import mm
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate
 
 from .core import FLAGSHIPS, TRACKS, Store, digest, encode, now, read_json, safe_id
 
@@ -38,7 +31,7 @@ CURRICULUM = {
         "Mock technical leadership interview",
     ],
 }
-RENDERER_VERSION = "unicode-markdown-v3"
+RENDERER_VERSION = "styled-markdown-v4"
 HANDOFF_SCHEMA_VERSION = 2
 
 
@@ -393,68 +386,12 @@ def markdown_draft(facts: dict, track: str) -> tuple[str, list[dict]]:
 
 
 def render_pdf(markdown: str, output: Path, font_path: str | None = None) -> int:
-    candidates = [
-        font_path,
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/Library/Fonts/Arial Unicode.ttf",
-        "/System/Library/Fonts/Supplemental/Arial.ttf",
-    ]
-    font = next((p for p in candidates if p and Path(p).is_file()), None)
-    if not font:
-        raise ValueError("A Unicode TTF font is required; set pdf_font in private settings")
-    pdfmetrics.registerFont(TTFont("CVUnicode", font))
-    styles = getSampleStyleSheet()
-    body = ParagraphStyle(
-        "CVBody",
-        parent=styles["Normal"],
-        fontName="CVUnicode",
-        fontSize=9.8,
-        leading=14,
-        spaceAfter=6,
-        allowWidows=0,
-        allowOrphans=0,
-    )
-    heading = ParagraphStyle(
-        "CVHeading",
-        parent=body,
-        fontSize=12,
-        leading=17,
-        spaceBefore=10,
-        spaceAfter=6,
-        keepWithNext=True,
-        textColor=colors.HexColor("#173c51"),
-    )
-    title = ParagraphStyle("CVTitle", parent=heading, fontSize=21, leading=26)
-    flow = []
-    for block in markdown.strip().split("\n\n"):
-        for line in block.splitlines():
-            if line.startswith("# "):
-                flow.append(Paragraph(escape(line[2:]), title))
-            elif re.match(r"^#{2,6} ", line):
-                flow.append(Paragraph(escape(line.lstrip("# ")), heading))
-            else:
-                text = re.sub(r"\*\*(.+?)\*\*", r"\1", line)
-                text = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"\1", text)
-                text = re.sub(r"\[([^]]+)\]\(([^)]+)\)", r"\1 (\2)", text)
-                flow.append(Paragraph(escape(text), body))
+    """Compatibility entrypoint for versioned CV and letter packages."""
+    from .pdf_documents import render_markdown
+
+    data = render_markdown(markdown, font_path=font_path)
     output.parent.mkdir(parents=True, exist_ok=True)
-
-    def footer(canvas, document):
-        canvas.setFont("CVUnicode", 8)
-        canvas.setFillColor(colors.HexColor("#60717d"))
-        canvas.drawRightString(192 * mm, 12 * mm, str(document.page))
-
-    SimpleDocTemplate(
-        str(output),
-        pagesize=(210 * mm, 297 * mm),
-        rightMargin=18 * mm,
-        leftMargin=18 * mm,
-        topMargin=15 * mm,
-        bottomMargin=20 * mm,
-        title="Curriculum Vitae",
-        author="",
-        invariant=1,
-    ).build(flow, onFirstPage=footer, onLaterPages=footer)
+    output.write_bytes(data)
     return len(PdfReader(output).pages)
 
 

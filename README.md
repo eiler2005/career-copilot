@@ -57,7 +57,7 @@ The **public checkout** contains reusable Python, documentation, synthetic fixtu
 
 An existing **Codex or Claude session** does research, writing and judgment. Repository-local skill discovery is enabled normally, and each specialist can work independently. Employer-facing authorship and complex judgments use Astra (`gpt-6-astra`) in Codex or Opus (`claude-opus-5`) in Claude; independent content review uses a separate flagship session. Simple collection can use Luna. Missing required models produce a blocked handoff.
 
-The **CLI** hashes and preserves inputs, collects supported sources, applies explicit evidence rules, renders documents, applies interface requests and computes journal statistics. It has no embedded model API, automatic application sender or background scheduler.
+The **CLI** hashes and preserves inputs, collects supported sources, applies explicit evidence rules, renders documents, applies interface requests and computes journal statistics. Its shared [PDF tools](docs/PDF.md) turn Markdown plans into printable documents, assemble PDF binders, inspect files and extract pages. It has no embedded model API, automatic application sender or background scheduler.
 
 ## Sources and trustworthy progress
 
@@ -86,6 +86,7 @@ See the [system overview](docs/SYSTEM_OVERVIEW.md) for every module, container a
 | [Profile relevance](docs/RELEVANCE.md) | Which vacancies fit the profile and why: the 0–100 thermometer, the agent's review by meaning, keyword queries with fields, tiers and tuning |
 | [Source architecture](docs/SOURCE_ARCHITECTURE.md) | Collection pipeline, source families, direct/proxy/reserve routes, adapter contract and how to add a provider |
 | [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
+| [PDF documents](docs/PDF.md) | Render plans, assemble binders, inspect and extract pages, verify layout |
 | [System overview](docs/SYSTEM_OVERVIEW.md) | All modules with their code and records, request lifecycle, runtime topology, containers, release and rollback |
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
 | [Operations](docs/OPERATIONS.md) | Review, diagnostics, migration, backup and restoration |
@@ -102,7 +103,7 @@ Semantic evidence matching, company-level interpretation, authorship, page inspe
 
 Interface requests take effect only after `ajh inbox apply` on the machine that owns the journal. Practice is text-only (no voice or video), the CRM module is only specified. Some boards refuse automated requests from certain networks; such sources are recorded as blocked and never bypassed.
 
-The PDF renderer supports simple single-column Markdown. Model provenance is recorded and structurally checked, not independently proven by a model provider. Source configuration is trusted private input; network restrictions are not a complete sandbox. Local storage does not automatically encrypt backups or authorize sending personal data to hosted services.
+The PDF renderer supports a documented Markdown subset; arbitrary HTML/CSS and remote assets are outside its rendering contract. Model provenance is recorded and structurally checked, not independently proven by a model provider. Source configuration is trusted private input; network restrictions are not a complete sandbox. Local storage does not automatically encrypt backups or authorize sending personal data to hosted services.
 
 ## Contribute
 

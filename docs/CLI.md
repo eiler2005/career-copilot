@@ -28,6 +28,10 @@ The separate `uv run ajh-dashboard --home ABSOLUTE_WORKSPACE [--host 127.0.0.1] 
 | `prepare ID --track TRACK` | Vacancy or `master`; track required | Versioned document package and agent task |
 | `review PACKAGE_ID --report PATH` | Exact-version content/visual JSON | Review record and recomputed readiness |
 | `learn [ID] --track TRACK` | Optional vacancy; track defaults to product | Baseline/requirement-based learning plan |
+| `pdf render SOURCE --output PATH` | Workspace Markdown; optional `--title`, `--subtitle`, `--landscape` | Styled PDF and immutable manifest |
+| `pdf bind SOURCE ... --output PATH` | Workspace PDFs in order; optional `--title` | A4 binder with page numbering and bookmarks |
+| `pdf inspect SOURCE` | Workspace PDF | Page count, SHA-256 and byte size |
+| `pdf extract SOURCE --pages 1 3 --output PATH` | Explicit one-based PDF page numbers | Selected pages and manifest |
 | `report [--open]` | Current journal | Private HTML and JSON views |
 | `stats` | Current journal | Deterministic counts, separate workflow states and available telemetry |
 | `verify` | Workspace artifacts/database | Integrity result and pending review count |
@@ -82,6 +86,8 @@ A blocked or login-only page is refused with a message to paste the text instead
 | --- | --- |
 | `prep plan --track T --goal TEXT --hours N [--experience TEXT] [--vacancies IDS]` | Builds a track plan from preparation gaps (duplicates add no weight) or an explicit baseline |
 | `prep status` | Track plans with derived topic status, briefs, practice sessions, attempts and reviews |
+
+PDF inputs are absolute paths within `--home` or paths relative to it; outputs are relative to that private workspace. Reuse identical outputs or choose a new output path after changing inputs. Commands never overwrite a different immutable artifact. See [PDF documents](PDF.md) for examples, supported Markdown, binders and visual verification. Rendering a plan does not update its learning status or approve a CV.
 
 ## Dashboard requests and agent tasks
 

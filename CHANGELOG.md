@@ -2,6 +2,16 @@
 
 Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
 
+## 2026-09-20 — Shared PDF documents and reading packs
+
+### Added
+- `ajh pdf render`, `bind`, `inspect` and `extract`: styled Markdown documents, ordered A4 binders with page numbers and bookmarks, inspection and selected-page extraction inside the private workspace. Persistent outputs include immutable manifests with source and output hashes.
+- Bilingual [PDF guide](docs/PDF.md) with commands, supported Markdown, local-resource boundaries, repeatability and page-by-page visual verification.
+
+### Changed
+- Shared `pdf_documents.py` owns Markdown/PDF layout for command-line documents, CV rendering and dashboard plans, keeping package readiness and learning progress separate from mechanical compilation.
+- Architecture, system overview, preparation, CLI and README guides document the reusable PDF layer and actual model-routing responsibilities.
+
 ## 2026-09-19 — Level rules by market and calendar-free learning
 
 ### Added

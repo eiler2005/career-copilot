@@ -58,6 +58,12 @@ An assessment hashes vacancy, company, facts and policy inputs. Changed inputs r
 
 Reviews bind to an exact version and complete artifact hash dictionary. `pending` is an accurate incomplete state. Integrity verification, content approval, visual approval and external submission are distinct operations.
 
+## Shared PDF layer
+
+The [PDF pipeline](PDF.md) separates content, layout and storage. `pdf_documents.py` provides reusable Markdown rendering and PDF inspection, assembly and extraction. `workflow.py` retains package preparation and review rules; `dashboard_pdf.py` adapts journal plans and translations for browser downloads. The CLI registers persistent output inside the selected private workspace. Document rendering does not require a model call or create an authorship or review approval.
+
+ReportLab performs layout and pypdf reads and assembles pages; Markdown parsing is local. The same rendering layer serves plans and CVs, while their acceptance rules remain separate. The author owns the text, the renderer owns pagination and typography, and a reviewer inspects the actual pages. A PDF is a derived artifact: editing it cannot update a learning plan or demonstrate progress. Existing immutable package versions keep their original bytes.
+
 ## Reports, compatibility and extension
 
 HTML and exported JSON/Markdown/CSV are derived views. Editing them does not update SQLite. `report --open` generates `report/index.html` and opens a local file; no frontend build or web server is required. The report contains private data and should not be publicly hosted.

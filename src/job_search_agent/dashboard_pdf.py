@@ -250,21 +250,11 @@ def _table(rows: list[list[str]], styles: _Styles, width: float) -> Table:
 
 
 def _markdown_flowables(text: str, styles: _Styles, width: float) -> list:
-    flowables: list = []
-    for block in markdown_blocks(text):
-        if block[0] == "h":
-            flowables.append(Paragraph(_inline(block[2]), styles.h[min(block[1], 3)]))
-        elif block[0] == "p":
-            flowables.append(Paragraph(_inline(block[1]), styles.body))
-        elif block[0] in {"ul", "ol"}:
-            items = [ListItem(Paragraph(_inline(item), styles.body)) for item in block[1]]
-            kind = "1" if block[0] == "ol" else "bullet"
-            flowables.append(
-                ListFlowable(items, bulletType=kind, leftIndent=12, bulletFontName=FONT)
-            )
-        elif block[0] == "table":
-            flowables += [_table(block[1], styles, width), Spacer(1, 6)]
-    return flowables
+    from .pdf_documents import markdown_flowables
+
+    # The dashboard reads only its integrity-checked text snapshot. It does not
+    # resolve arbitrary resource paths from that text; image captions stay text.
+    return markdown_flowables(redact_local_text(text), width, images=False)
 
 
 def _value(labels: dict, value: object) -> str:

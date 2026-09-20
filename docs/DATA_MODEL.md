@@ -39,6 +39,7 @@ All of these paths belong in private storage. Artifact references inside the jou
 | `text_translations` | Russian/English renderings of one exact journal text (ID = hash of the text) and translator identity |
 | `assessments` | Vacancy + track + input hash; explicit requirement evidence and rule decision |
 | `packages` | Logical master/vacancy + track; current version and retained version list |
+| `pdf_documents` | Immutable generic PDF export: ID `pdf-` + first 20 hex characters of manifest SHA-256, operation, source/resource hashes, output path/hash/page count and `OUTPUT.pdf.manifest.json`; `review_status: pending`. Creation records `pdf_exported`; see [PDF documents](PDF.md) |
 | `events` | Concrete operation, entity IDs, details and time |
 | `source_health` | Attempt/success times, status, HTTP result, counts, network route (`direct`, `proxy`, `proxy_fallback`) and next attempt |
 | `activities`, `activity_events` | Hosted skill scope/actor/result and links to CLI events |

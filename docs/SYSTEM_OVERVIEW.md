@@ -18,6 +18,7 @@ The main path is **collect → understand the card → decide the fit → fix or
 | Explainable fit | Outcome, first blocking reason, requirement matrix with routes, constraints, staleness | Fit tab | `evaluate [--stale]`, `vacancy requirements` | `matching.py`, `workflow.py` (`evaluate`) | `assessments`, `current_assessments` |
 | CV | Two master CVs, vacancy versions, edit proposals and decisions, states, PDF preview, import | CV section, CV tab | `prepare`, `review`, `cv status/import/decide/apply-edits` | `cv.py`, `workflow.py` (`prepare`, `record_review`) | `packages`, `cv_edits`, `cv_edit_decisions`, `cv_imports` |
 | Preparation | Vacancy briefs, plans for general gaps, text practice with reviews | Preparation section, Preparation tab | `prep plan/status`, `learn` | `preparation.py`, `workflow.py` (`learning_plan`) | `preparation_briefs`, `track_plans`, `practice_*`, `learning` |
+| PDF documents | Printable Markdown plans, A4 binders, inspection and page extraction | Plan downloads and document reader | `pdf render/bind/inspect/extract` | `pdf_documents.py`, `dashboard_pdf.py`, `workflow.py` | Registered private PDF artifacts and manifests; no review or progress transition |
 | Requests and tasks | Interface actions applied with version checks; work handed to agents | Requests and tasks panel, statuses in tabs | `inbox import/list/apply/reject`, `tasks list/next` | `inbox.py`, `activity.py`, `core.py` (`Store.patch`) | `inbox_requests`, `tasks`, `events` |
 | Agent activities | Traceable model work with actor, inputs and typed results | Activities section | `activity start/show/finish` | `activity.py` | `activities`, `activity_events`, typed result kinds |
 | Pipeline and statistics | Stage per vacancy, reminders, evidence-backed counts | Pipeline, overview | `stats`, `report` | `stats.py`, `report.py`, `web_assets/app.js` | `submissions`, `employer_responses` |
@@ -41,7 +42,8 @@ src/job_search_agent/
   relevance.py      profile screen: function, level, CV domains, keyword queries, tiers
   campaigns.py      search campaigns and per-criterion preference matching
   matching.py       evidence-rules-v2: requirement rows, constraints, outcome, input digests
-  workflow.py       evaluate, learning plans, CV rendering, prepare, review
+  workflow.py       evaluate, learning plans, package rendering adapter, prepare, review
+  pdf_documents.py  shared Markdown/PDF layout, inspection, A4 binders and page extraction
   cv.py             version states, edit proposals and decisions, draft assembly, CV import
   preparation.py    vacancy briefs, track plans, practice sessions, attempts and reviews
   availability.py   posting checks with public-address and redirect limits
@@ -50,12 +52,14 @@ src/job_search_agent/
   maintenance.py    dedupe, rename-artifacts, reextract-conditions
   naming.py, backup.py, privacy.py, stats.py, report.py
   dashboard.py      HTTP server: read-only snapshot reads, request and check endpoints, PDF preview
-  dashboard_pdf.py  plan PDFs and text redaction
+  dashboard_pdf.py  journal/translation adapter for shared PDF layout; text redaction
   web_assets/       index.html, app.js (vanilla, no build, no innerHTML), styles.css
 tests/              synthetic fixtures only; one file per module area
 .agents/skills/     eight canonical skills; .claude/skills/ are thin adapters
 deploy/, Dockerfile, compose.yaml, compose.public.yaml
 ```
+
+PDF rendering, assembly and storage contracts are described in [PDF documents](PDF.md). The shared renderer performs deterministic local processing; existing agent sessions own authorship and visual review. Complex design and substantive judgments use the active flagship (`gpt-6-astra` in Codex/OpenAI, `claude-opus-5` in Claude); straightforward extraction can use `gpt-5.6-luna` in OpenAI. The CLI does not route or invoke models itself.
 
 ## Request and task lifecycle
 

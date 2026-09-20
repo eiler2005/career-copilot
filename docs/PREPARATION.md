@@ -55,6 +55,12 @@ Preparation starts from the Preparation section or from a vacancy's Preparation 
 
 **Text practice.** A practice question (`prep_create` request) records its type, what it tests and provenance. An answer (`practice_answer`) is stored as an artifact and queues `review_practice`. The review (`practice_review` result) quotes exact fragments of the answer with criterion, problem and improvement, may ask a follow-up and proposes a retry question. A follow-up answer and a retry are new attempts linked to the earlier one, so the same rubric can be compared. Practice never creates experience, never changes the CV and does not replace the `interview_progress` decision by an independent reviewer. Voice and video practice are not implemented.
 
+## Read and print the plan
+
+Keep the authored Markdown as the source and create a PDF with `ajh --home HOME pdf render learning/plan.md --output learning/pdf/plan-v1.pdf`. The shared renderer supports structured headings, tables, lists, links and local illustrations. Use `pdf bind` to assemble a reading pack from several PDFs and `pdf extract` to select practice pages. Full commands and the page-inspection workflow are in [PDF documents](PDF.md).
+
+The PDF and its manifest stay in the private workspace. Rendering preserves the plan's content; substantive changes need the appropriate author and evidence. Inspect every page for readable tables, unclipped text and clear breaks. A printed plan, reading pack or completed export does not change practice status or demonstrate a competency.
+
 ## Use the CLI and adapt the plan
 
 `learn --track product` and `learn --track technical-leadership` use current assessments. `learn VACANCY_ID --track TRACK` limits the context to one vacancy. The plan keeps topics, gaps, next actions and the interview date when available. With no annotated requirements, the output is explicitly a baseline plan, not purported employer requirements.

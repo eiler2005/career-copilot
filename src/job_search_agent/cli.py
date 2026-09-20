@@ -193,6 +193,28 @@ def parser() -> argparse.ArgumentParser:
     )
     root.add_argument("--activity-id", help="Link command events to a running activity")
     commands = root.add_subparsers(dest="command", required=True)
+    pdf = commands.add_parser("pdf", help="Private PDF rendering and print packets").add_subparsers(
+        dest="pdf_command", required=True
+    )
+    rendering = pdf.add_parser("render", help="Render workspace Markdown to a styled PDF")
+    rendering.add_argument("source", type=Path)
+    rendering.add_argument("--output", required=True)
+    rendering.add_argument("--title")
+    rendering.add_argument("--subtitle")
+    rendering.add_argument("--landscape", action="store_true")
+    binding = pdf.add_parser(
+        "bind", help="Bind workspace PDFs in order with A4 pages and bookmarks"
+    )
+    binding.add_argument("sources", nargs="+", type=Path)
+    binding.add_argument("--output", required=True)
+    binding.add_argument("--title")
+    pdf.add_parser("inspect", help="Count pages and hash a workspace PDF").add_argument(
+        "source", type=Path
+    )
+    extraction = pdf.add_parser("extract", help="Extract selected 1-based pages in the given order")
+    extraction.add_argument("source", type=Path)
+    extraction.add_argument("--pages", nargs="+", required=True, type=int)
+    extraction.add_argument("--output", required=True)
     actions = commands.add_parser("activity").add_subparsers(dest="activity_command", required=True)
     actions.add_parser("start").add_argument("--request", required=True, type=Path)
     actions.add_parser("show").add_argument("activity")
@@ -410,6 +432,10 @@ def run(args) -> dict | list:
     with Store(args.home) as store, locked(store):
         if args.activity_id:
             activity.bind(store, args.activity_id)
+        if args.command == "pdf":
+            from .pdf_documents import export
+
+            return export(store, args)
         if args.command == "activity":
             if args.activity_command == "start":
                 return activity.start(store, args.request)
