@@ -24,6 +24,10 @@ must be separate from every contributing author/editor, including a standalone l
   CAPTCHA bypass or proxy rotation after a block. Proxies require per-source opt-in.
 - Preserve official titles, client/employer/partner distinctions, chronology and evidence.
   No default two-page truncation. Targets are not results; project awards are not personal awards.
+- Every user-facing PDF follows [the PDF standard](docs/PDF.md): use 12 pt body text and
+  at least 11 pt table text, keep binder pages at source size with `--preserve-size`, and
+  inspect every delivered page. An explicit user request may override these defaults;
+  page count alone is not a reason to make content unreadable.
 - Use apply_patch for source edits; explicit Git staging only. Never bypass privacy hooks.
 - Before handoff run uv run ruff check ., uv run ruff format --check ., uv run pytest,
   uv run python scripts/check_docs.py, and ajh privacy check for worktree, index and history.

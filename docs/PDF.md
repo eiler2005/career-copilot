@@ -4,9 +4,9 @@
 
 Use one local PDF pipeline for study plans, preparation notes, CV rendering and reading packs. It renders Markdown, inspects PDFs, assembles ordered A4 binders and extracts selected pages. Source content and all persistent outputs stay inside the explicitly selected private workspace.
 
-The CLI `render` command uses a 12 pt body font and at least 11 pt table text by default. Use `--font-size 11` or another finite value from 8 through 18 for a different density. The Python API keeps its legacy 9.5 pt default when `render_markdown()` omits `font_size`, preserving existing CV and dashboard output. At the default size, headings remain larger.
+Every user-facing PDF must use 12 pt body text and at least 11 pt table text by default, including study plans, CVs, dashboard exports and reading packs. Pass `--font-size 12` explicitly in reproducible render commands. A user may request another size, but page count alone is not a reason to shrink readable content. The Python API keeps its legacy 9.5 pt default when `render_markdown()` omits `font_size`, preserving existing CV and dashboard output; new user-facing calls must pass `font_size=12` (and table styles must remain at least 11 pt). At the default size, headings remain larger.
 
-Binders keep fit-to-A4 behavior by default. Use `pdf bind ... --preserve-size` to retain source page geometry and 100% text size; the binder label is stamped in a 4 mm bottom margin, so inspect that margin before delivery. Font and geometry options are recorded in the manifest.
+Binders must retain source page geometry and 100% text size for delivery: use `pdf bind ... --preserve-size`. Fit-to-A4 remains available for compatibility and intermediate work, but is not the delivery default for a user-facing binder. The binder label is stamped in a 4 mm bottom margin, so inspect that margin before delivery. Font and geometry options are recorded in the manifest.
 
 ## Render a plan
 
@@ -15,6 +15,7 @@ The following paths are examples; create the source inside your own workspace fi
 ```sh
 uv run ajh --home /absolute/private/career-workspace pdf render learning/plan.md \
   --output learning/pdf/plan-v1.pdf \
+  --font-size 12 \
   --title "Preparation plan" --subtitle "Study, practice and review"
 uv run ajh --home /absolute/private/career-workspace pdf inspect learning/pdf/plan-v1.pdf
 uv run ajh --home /absolute/private/career-workspace verify
@@ -33,7 +34,8 @@ This is a Markdown document renderer, not a browser: HTML is printed literally; 
 ```sh
 uv run ajh --home /absolute/private/career-workspace pdf bind \
   learning/pdf/plan-v1.pdf learning/pdf/practice-v1.pdf \
-  --output learning/pdf/reading-pack-v1.pdf --title "Preparation reading pack"
+  --output learning/pdf/reading-pack-v1.pdf --title "Preparation reading pack" \
+  --preserve-size
 uv run ajh --home /absolute/private/career-workspace pdf extract \
   learning/pdf/reading-pack-v1.pdf --pages 1 3 \
   --output learning/pdf/selected-pages-v1.pdf
