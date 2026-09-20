@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from job_search_agent import telegram, telegram_export
+from job_search_agent import sources, telegram, telegram_export
 from job_search_agent.core import Store, init_home
 
 
@@ -195,3 +195,55 @@ def test_channel_excerpt_preserves_official_card_fields(store):
         assert merged[field] == official[field]
     assert merged["conditions"]["published_on"] == "2025-12-20"
     assert merged["telegram"]["text"] == message()["text"]
+
+
+def configure_channel(store, **extra):
+    settings = store.settings
+    settings["sources"] = [
+        {
+            "id": "telegram-1001",
+            "provider": "telegram",
+            "board": "fictional_jobs",
+            "name": "Example board",
+            "collection_mode": "external_export",
+            "enabled": True,
+            **extra,
+        }
+    ]
+    (store.home / "settings.json").write_text(json.dumps(settings))
+
+
+def test_registered_channel_discover_never_requests_http_or_creates_employer(store):
+    configure_channel(store)
+
+    class NoHTTP:
+        def get(self, *args, **kwargs):
+            pytest.fail("Telegram discover must not request HTTP")
+
+    result = sources.discover(store, client=NoHTTP())
+    assert result[0]["status"] == "external_export_required"
+    assert not store.all("companies")
+    assert not store.all("vacancies")
+    configure_channel(store, enabled=False, disabled_reason="User paused collection")
+    assert sources.discover(store, client=NoHTTP()) == []
+    with pytest.raises(ValueError, match="disabled"):
+        sources.discover(store, source_id="telegram-1001", client=NoHTTP())
+
+
+def test_discover_preserves_export_import_times_and_coverage(store):
+    configure_channel(store)
+    data = json.loads(payload([message()]))
+    data.update(exported_at="2026-01-03T12:00:00+00:00", coverage={"complete": False, "limit": 1})
+    imported = telegram.import_export(store, json.dumps(data).encode())
+    health = sources.discover(store)[0]
+    assert health["status"] == "external_export_required"
+    for field in ("exported_at", "imported_at", "coverage"):
+        assert health[field] == imported[field]
+    assert health["count"] == 1
+    assert "last_success" not in health
+
+
+def test_invalid_channel_registration_is_explicit_configuration_error(store):
+    configure_channel(store, collection_mode="http")
+    assert sources.discover(store)[0]["status"] == "config_error"
+    assert not store.all("companies")

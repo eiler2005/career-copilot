@@ -250,6 +250,7 @@ BASIS_CODES = {
     "Where the work may be done is not stated": "geography_not_stated",
     "Candidate languages cover the requirement": "languages_covered",
     "Requirements are not annotated from a full description": "no_requirements",
+    "The available description or requirement annotation is incomplete": "incomplete_requirements",
     "Company-specific L5+ equivalence needs evidence": "level_mapping_needed",
     "Meets this employer's documented target band": "level_meets_band",
     "Below this employer's target band": "level_below_band",
@@ -340,9 +341,11 @@ def constraints(vacancy: dict, gate: dict, track_verdict: str, candidate: dict) 
 
 
 def completeness(vacancy: dict, requirements: list, facts: list[dict], track: str) -> dict:
+    description = vacancy.get("content_scope") or ("full" if vacancy.get("text") else "unknown")
     return {
-        "description": vacancy.get("content_scope")
-        or ("full" if vacancy.get("text") else "unknown"),
+        "description": description,
+        "requirements_complete": description in {"full", "page_text"}
+        and vacancy.get("requirements_complete", True) is True,
         "requirements": len(requirements),
         "mandatory_requirements": sum(1 for item in requirements if item.get("mandatory")),
         "verified_facts_for_track": sum(
@@ -380,6 +383,9 @@ def outcome(matrix: list[dict], limits: list[dict], data: dict) -> tuple[str, st
     for item in limits:
         if item["status"] == "unknown":
             return "has_questions", f"{item['name']}: {item['basis']}", about_limit(item)
+    if not data.get("requirements_complete", True):
+        text = "The available description or requirement annotation is incomplete"
+        return "insufficient_data", text, {"type": "data", "code": basis_code(text)}
     mandatory = sum(1 for row in matrix if row["mandatory"])
     return (
         "fits_verified",

@@ -488,6 +488,34 @@ def test_configured_sources_show_health_and_never_checked_sources_without_secret
     assert set(detail["payload"]) <= {*dashboard.SOURCE_SETTING_FIELDS, "health"}
 
 
+def test_disabled_telegram_source_retains_export_coverage_and_public_configuration(tmp_path: Path):
+    home = make_workspace(tmp_path)
+    source = {
+        "id": "telegram-1001",
+        "provider": "telegram",
+        "board": "fictional_jobs",
+        "name": "Example board",
+        "collection_mode": "external_export",
+        "enabled": False,
+        "disabled_reason": "User paused collection",
+        "limit": 100,
+        "lookback_days": 90,
+    }
+    (home / "settings.json").write_text(json.dumps({"sources": [source]}))
+    health = {
+        "id": source["id"],
+        "status": "imported",
+        "coverage": {"complete": False},
+        "exported_at": "2026-01-01T12:00:00+00:00",
+        "imported_at": "2026-01-02T12:00:00+00:00",
+    }
+    add_record(home, "source_health", health)
+    with running_server(home, tmp_path) as base:
+        result = json.loads(request(base + "/api/workspace")[2])["sources"]
+    assert len(result) == 1
+    assert result[0]["payload"] == {**source, "health": health}
+
+
 def test_local_filesystem_paths_are_redacted_from_record_payloads(tmp_path: Path):
     home = make_workspace(tmp_path)
     user_root = "/Users" + "/example"  # split so the privacy scanner sees no private path

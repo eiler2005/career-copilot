@@ -390,6 +390,33 @@ def discover(store: Store, *, source_id: str | None = None, client=None, replay:
     for source in sources:
         sid = safe_id(source["id"])
         old_health = store.get("source_health", sid) or {}
+        if source["provider"] == "telegram":
+            valid = (
+                re.fullmatch(r"telegram--?\d+", sid)
+                and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{3,31}", str(source.get("board", "")))
+                and source.get("collection_mode") == "external_export"
+            )
+            health = {
+                **old_health,
+                "id": sid,
+                "provider": "telegram",
+                "status": "external_export_required" if valid else "config_error",
+                "route": "offline_export",
+                "last_attempt": now(),
+            }
+            if not valid:
+                health["config_error"] = (
+                    "Telegram requires telegram-<numeric-channel-id>, public board username "
+                    "and collection_mode external_export"
+                )
+            else:
+                health.pop("config_error", None)
+            if not replay:
+                store.put("source_health", health)
+                store.event("source_checked", [sid], {"health": health})
+            results.append(health)
+            run["errors"].append({"source_id": sid, "status": health["status"]})
+            continue
         health = {**old_health, "id": sid, "last_attempt": now(), "count": 0}
         health.pop("failure_status", None)
         health.pop("route", None)

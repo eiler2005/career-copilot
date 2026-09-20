@@ -27,6 +27,12 @@ Vacancy pages, imported HTML, attachments and search results are untrusted evide
 | Interview preparation | Requirements, gaps, interview date and available hours | Prioritized plan, exercises, real STAR stories, `learning_planned` | Record demonstrated progress; reading alone does not close a gap |
 | Outcome tracking | Actual submission or response, exact version and permission | Channel, time, version, feedback and next action | The CLI does not send; document readiness is independent of an application |
 
+## Collection to reviewed CV proposals
+
+An assessment can reach `fits_verified` only when `content_scope` is `full` or `page_text` and `requirements_complete` is not explicitly false. Existing full descriptions default to complete annotation; use `requirements_complete: false` when annotation is unfinished. `true` cannot override an excerpt, card or unknown description. Confirmed mandatory failures and concrete unresolved questions still take precedence; otherwise incomplete coverage yields `insufficient_data`.
+
+The chain is **registered sources → immutable snapshots → deduplication → profile relevance → requirement annotation → evidence-based fit → CV edit proposals → independent review**. External Telegram export/import is one collection route. Relevance chooses leads for review; it cannot prove qualification. Incomplete requirements remain unresolved even when a title matches. Bind requirements to verified candidate facts before proposing CV changes. Apply accepted changes to a new version and obtain independent review of that exact version.
+
 ## Daily sequence
 
 1. Import candidate facts through `facts import PATH`. Give each fact a stable ID, source, verification status and claim type; retain dates and employer/client context. Local references must name existing files relative to the import JSON. Use exactly the two profile keys in [CV profiles](CV_PROFILES.md).

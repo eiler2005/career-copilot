@@ -42,7 +42,10 @@ def requirement(**updates):
 
 def pass_gates(store):
     vacancy = store.get("vacancies", VACANCY)
-    store.put("vacancies", {**vacancy, "language_gate": "pass", "eligibility_gate": "pass"})
+    store.put(
+        "vacancies",
+        {**vacancy, "language_gate": "pass", "eligibility_gate": "pass", "content_scope": "full"},
+    )
 
 
 def test_reviewed_verified_evidence_fits_and_never_scores(store):
@@ -53,6 +56,30 @@ def test_reviewed_verified_evidence_fits_and_never_scores(store):
     assert result["requirements"][0]["status"] == "match"
     assert result["requirements"][0]["evidence"][0]["fact_id"] == "sample-book"
     assert not any("score" in key or "probability" in key for key in result)
+
+
+@pytest.mark.parametrize("scope", ["excerpt", "card", "salary_index_card", "unknown"])
+def test_matching_excerpt_requirements_cannot_claim_complete_fit(store, scope):
+    pass_gates(store)
+    set_requirements(store, requirement(evidence_fact_ids=["sample-book"], evidence_reviewed=True))
+    vacancy = store.get("vacancies", VACANCY)
+    store.put("vacancies", {**vacancy, "content_scope": scope, "requirements_complete": True})
+    result = evaluate(store)
+    assert result["requirements"][0]["status"] == "match"
+    assert result["outcome"] == "insufficient_data"
+
+
+def test_explicit_incomplete_annotation_blocks_fit_but_preserves_decision_gates(store):
+    pass_gates(store)
+    set_requirements(store, requirement(evidence_fact_ids=["sample-book"], evidence_reviewed=True))
+    vacancy = store.get("vacancies", VACANCY)
+    vacancy.update(content_scope="full", requirements_complete=False)
+    store.put("vacancies", vacancy)
+    assert evaluate(store)["outcome"] == "insufficient_data"
+    store.put("vacancies", {**vacancy, "eligibility_gate": "fail"})
+    assert evaluate(store)["outcome"] == "not_fit_mandatory"
+    store.put("vacancies", {**vacancy, "eligibility_gate": "unknown"})
+    assert evaluate(store)["outcome"] == "has_questions"
 
 
 def test_a_missing_cv_word_is_not_a_missing_experience(store):

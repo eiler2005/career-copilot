@@ -45,6 +45,9 @@ def parse_export(raw: bytes) -> tuple[dict, list[dict]]:
     username = channel.get("username")
     if not isinstance(username, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{3,31}", username):
         raise ValueError("Only exports of public channels with a username are supported")
+    _timestamp(data.get("exported_at"), optional=True)
+    if "coverage" in data and not isinstance(data["coverage"], dict):
+        raise ValueError("Telegram coverage must be an object")
     messages = data.get("messages")
     if not isinstance(messages, list) or len(messages) > MAX_MESSAGES:
         raise ValueError("Telegram export must contain at most 1000 messages")
@@ -150,6 +153,7 @@ def import_export(store: Store, raw: bytes) -> dict:
             "source_id": source_id,
             "snapshot": snapshot,
             "imported_at": now(),
+            "exported_at": data.get("exported_at"),
             "coverage": data.get("coverage", {"complete": False}),
             "observed_total": len(messages),
             "new": [],
@@ -263,10 +267,16 @@ def import_export(store: Store, raw: bytes) -> dict:
         store.put(
             "source_health",
             {
+                **(store.get("source_health", source_id) or {}),
                 "id": source_id,
+                "provider": "telegram",
+                "name": channel.get("title") or channel["username"],
+                "board": channel["username"],
                 "status": "imported",
                 "route": "offline_export",
                 "last_attempt": result["imported_at"],
+                "imported_at": result["imported_at"],
+                "exported_at": result["exported_at"],
                 "count": len(messages) - len(result["skipped"]),
                 "observed_total": len(messages),
                 "coverage": result["coverage"],

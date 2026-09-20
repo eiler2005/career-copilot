@@ -356,6 +356,11 @@ LOCAL_PATH = re.compile(
     r"^(?:~/|/(?:Users|home|private|var/folders|tmp|root|opt|srv|mnt|Volumes)/|[A-Za-z]:\\)"
 )
 SOURCE_SETTING_FIELDS = (
+    "name",
+    "collection_mode",
+    "disabled_reason",
+    "limit",
+    "lookback_days",
     "id",
     "company_id",
     "company_name",

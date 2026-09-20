@@ -1,5 +1,7 @@
 # Sources, collection and honest coverage
 
+Telegram channels are first-class configured sources with `collection_mode: external_export`; see [registration](CONFIGURATION.md#registered-telegram-channels). `discover` returns `external_export_required` for enabled channels while preserving prior import times and coverage. The Sources view includes the channel name/link, enabled state, disabled reason, export/import dates and bounded coverage.
+
 [English](SOURCES.md) · [Русский](ru/SOURCES.md) · [Documentation](../README.md#documentation)
 
 Career Copilot collects published vacancies through fifteen adapters — employer ATS boards, remote-job boards, regional job boards, Russian open data and HH text search — and can replay compatible saved responses offline. Official employer boards support verification of hiring details; aggregator cards add leads and salary context. Neither route guarantees complete market coverage or that a previously observed vacancy is still open.

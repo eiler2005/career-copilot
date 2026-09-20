@@ -10,6 +10,8 @@ A source is a line of private configuration, not code. The code has one collecti
 
 ## Telegram: external session, bounded export, offline import
 
+Register channels in private `sources` with `provider: telegram`, a numeric `telegram-<id>`, public username in `board` and `collection_mode: external_export`. `discover` reports `external_export_required` without HTTP or employer creation, preserving previous import evidence. Disabled sources remain visible with their reason. The dashboard separates export/import timestamps and shows bounded coverage; an import is not a live vacancy verification. See [configuration](CONFIGURATION.md#registered-telegram-channels).
+
 Telegram is a separate optional collection route, outside the HTTP adapter registry and `discover`. It uses an existing authorized session on the machine that already owns it. [telegram_export.py](../src/job_search_agent/telegram_export.py) can run as a standalone Python file on an existing private worker with Telethon installed; transfer the code and resulting private JSON, never the session or credentials. No service deployment or changes to the worker's digest jobs are needed.
 
 ```sh

@@ -65,6 +65,16 @@
 
 Для реальной таблицы нужны проверенный источник, `level.raw` и `level.source` вакансии и содержательная оценка масштаба/семейства роли. Неизвестный уровень остаётся на уточнении. Название должности — эвристика, а не доказательство обязанностей.
 
+## Зарегистрированные Telegram-каналы
+
+Пример приватной записи `sources`:
+
+```json
+{"id":"telegram-1001","provider":"telegram","board":"fictional_jobs","name":"Example board","collection_mode":"external_export","enabled":true,"limit":100,"lookback_days":90}
+```
+
+`id` содержит числовой ID канала из экспорта; `board` — публичное имя без @. `company_id` не нужен. Внешний runner переводит `limit` и `lookback_days` в `--limit` и `--since` с часовым поясом; настройка не устанавливает планировщик. Для паузы задайте `enabled: false` и `disabled_reason`: канал останется видимым. `discover` пропускает отключённые записи, для включённых возвращает `external_export_required` без HTTP. Импорт — `vacancy import-telegram`.
+
 ## Поля источника
 
 Адаптируйте отключённый [пример](../../examples/source-config.json) в приватном пространстве. Перенесите его `sources` в текущие настройки, сохранив остальные поля.

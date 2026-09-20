@@ -65,6 +65,16 @@ Company-specific level mapping example, using fictional labels:
 
 A real mapping requires a checked source, the vacancy's `level.raw` and `level.source`, and a substantive scope/role-family assessment. Unknown labels stay unresolved. Title filters are mechanical heuristics, not proof of responsibilities.
 
+## Registered Telegram channels
+
+Use this private `sources` entry:
+
+```json
+{"id":"telegram-1001","provider":"telegram","board":"fictional_jobs","name":"Example board","collection_mode":"external_export","enabled":true,"limit":100,"lookback_days":90}
+```
+
+`id` contains the numeric channel ID from the export; `board` is its public username without @. No `company_id` is needed. An external runner translates `limit` and `lookback_days` into exporter `--limit` and timezone-aware `--since`; these settings do not install a scheduler. Set `enabled: false` and `disabled_reason` to keep paused channels visible. `discover` skips disabled entries and reports `external_export_required` for enabled channels without HTTP. Import with `vacancy import-telegram`.
+
 ## Source fields
 
 The disabled [example configuration](../examples/source-config.json) can be adapted privately. Merge the `sources` value into the existing settings; do not discard unrelated settings.
