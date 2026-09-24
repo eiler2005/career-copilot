@@ -33,6 +33,8 @@ An assessment can reach `fits_verified` only when `content_scope` is `full` or `
 
 The chain is **registered sources → immutable snapshots → deduplication → profile relevance → requirement annotation → evidence-based fit → CV edit proposals → independent review**. External Telegram export/import is one collection route. Relevance chooses leads for review; it cannot prove qualification. Incomplete requirements remain unresolved even when a title matches. Bind requirements to verified candidate facts before proposing CV changes. Apply accepted changes to a new version and obtain independent review of that exact version.
 
+When a posting describes multiple role variants or alternative qualifications, preserve their OR and optional semantics; do not mark every alternative as a mandatory AND. Before evaluating, select and normalize the actual role, or record an explicit clarification blocker if the engine cannot represent the alternatives. Requirement quotes must come from the target employer's posting, never from related vacancies, aggregator commentary or AI-generated commentary.
+
 ### Completing a frozen batch
 
 For repeatable batch assessment, save a private cohort manifest before evaluation: the exact vacancy IDs, source snapshot references and hashes, assessment scope, and policy/version used. Back up the workspace, restore that backup to a fresh destination, and run `verify` there before treating the cohort as recoverable. Keep this manifest and all source material in the external private workspace.
