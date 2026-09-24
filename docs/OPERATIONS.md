@@ -70,6 +70,8 @@ Use fresh destinations outside the active workspace. A backup contains a consist
 
 A suggested retention policy is 14 daily and 8 weekly copies. This is operational guidance: the CLI neither installs cron nor rotates backups. Configure scheduling and controlled retention separately, retaining a known-good copy until its replacement is verified.
 
+For a frozen assessment batch, keep the cohort manifest beside the private journal and include it in the backup. After restore, compare its IDs and source hashes with the restored evidence, run `verify`, and regenerate the report from that restored workspace before resuming. Do not use a copied report as proof that the batch completed.
+
 Pause writers while backing up artifacts. A consistent database snapshot alone does not make concurrently changing files consistent. A local copy on the same disk does not protect against device loss; off-device encrypted backup needs its own destination, keys, scheduling and restore test. Do not describe a local directory as encrypted or remote without that setup.
 
 ## Troubleshooting and restart

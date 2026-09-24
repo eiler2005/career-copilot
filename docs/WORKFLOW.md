@@ -33,6 +33,14 @@ An assessment can reach `fits_verified` only when `content_scope` is `full` or `
 
 The chain is **registered sources → immutable snapshots → deduplication → profile relevance → requirement annotation → evidence-based fit → CV edit proposals → independent review**. External Telegram export/import is one collection route. Relevance chooses leads for review; it cannot prove qualification. Incomplete requirements remain unresolved even when a title matches. Bind requirements to verified candidate facts before proposing CV changes. Apply accepted changes to a new version and obtain independent review of that exact version.
 
+### Completing a frozen batch
+
+For repeatable batch assessment, save a private cohort manifest before evaluation: the exact vacancy IDs, source snapshot references and hashes, assessment scope, and policy/version used. Back up the workspace, restore that backup to a fresh destination, and run `verify` there before treating the cohort as recoverable. Keep this manifest and all source material in the external private workspace.
+
+Track each frozen ID to a recorded result or an explicit blocker, including records later judged off-profile. Keep source availability, profile relevance, requirement fit and document readiness as separate decisions; an unavailable source or off-profile result does not imply a fit decision. Record the actual model and session plus input/output hashes in the activity chain. If work is interrupted, preserve the original activity and start a linked continuation with the remaining scope.
+
+Treat CV changes as proposals and independently review them before presenting or applying them; assessment must not apply changes automatically. The user's decision and `cv apply-edits` create a draft, then `prepare --based-on` creates a version. Independently review that exact version before calling it ready. Check coverage for both master tracks, regenerate the report, run `verify`, and complete the integrity and private-boundary checks plus public privacy scans for `worktree`, `index` and `history` before handoff.
+
 ## Daily sequence
 
 1. Import candidate facts through `facts import PATH`. Give each fact a stable ID, source, verification status and claim type; retain dates and employer/client context. Local references must name existing files relative to the import JSON. Use exactly the two profile keys in [CV profiles](CV_PROFILES.md).
