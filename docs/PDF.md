@@ -49,7 +49,7 @@ Persistent commands register the PDF and a sibling `OUTPUT.pdf.manifest.json` th
 
 `pdf inspect` reports the existing PDF's page count, SHA-256 and byte size without rewriting it. `verify` checks registered artifact integrity. Neither command checks factual truth, readability or learning progress. The generic PDF commands do not create a CV package, author identity, review approval or a completed practice result. Employer-facing documents still follow the [package authorship and review contract](CV_PROFILES.md).
 
-The CLI is a mechanical compiler. Complex planning, architecture and substantive judgments belong to the active flagship (`gpt-6-astra` in Codex/OpenAI, `claude-opus-5` in Claude); straightforward research and extraction can use a cheaper model such as `gpt-5.6-luna`. Independent content review uses a separate flagship session from every author/editor. Record actual identities only; compilation does not imply model authorship. See [workflow](WORKFLOW.md).
+The CLI is a mechanical compiler. Complex planning, architecture and substantive judgments belong to the active flagship (`gpt-6-astra` in Codex/OpenAI, `claude-opus-5-5` in Claude); straightforward research and extraction can use a cheaper model such as `gpt-5.6-luna`. Independent content review uses a separate flagship session from every author/editor. Record actual identities only; compilation does not imply model authorship. See [workflow](WORKFLOW.md).
 
 ## Inspect the pages
 

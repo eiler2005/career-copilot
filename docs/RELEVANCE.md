@@ -55,7 +55,7 @@ A missing description is not a missing domain: a card without text keeps the rea
 
 ## Review by meaning
 
-Rules read words; an agent reads meaning. A flagship agent session (`claude-opus-5` or the Codex flagship) reads each posting against the candidate's profile and records a `relevance_review` activity result:
+Rules read words; an agent reads meaning. A flagship agent session (`claude-opus-5-5` or the Codex flagship) reads each posting against the candidate's profile and records a `relevance_review` activity result:
 
 ```json
 {

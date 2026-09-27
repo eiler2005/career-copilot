@@ -13,6 +13,8 @@ Use discover or compatible offline replay, preserve source bytes and inspect eac
 
 ## Inputs, outputs and handoff
 
+After every collection, refresh, replay or manual addition, complete the [required duplicate audit](../../../docs/WORKFLOW.md#required-duplicate-audit-after-every-search) before evaluation or handoff. Record confirmed and unresolved duplicates separately from unique new opportunities.
+
 Inputs are private sources/budgets, track, candidate facts and level policy. Use expected_result.types: [] and link discover/evaluate events. Return vacancy/assessment IDs, checked coverage, relevant and no-found results, unknowns and next action. Respect cooldown, blocks and permitted fallback routes; replay never establishes current availability. Read ../../../docs/SOURCES.md and ../../../docs/CV_PROFILES.md.
 
 ## Queued work from the dashboard
@@ -21,7 +23,7 @@ Check `ajh --home PRIVATE_HOME tasks next` for `collect`, `annotate_requirements
 
 ## Journal and execution
 
-Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.
+Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.
 
 Use global `--activity-id ID` before intervening CLI commands. Finish with `ajh --home PRIVATE_HOME activity finish ID --result PATH`, matching expected types, exact artifact hashes, completed/blocked/failed status and concrete next_action. See the shared contract for typed fields. Record only measured telemetry; otherwise null.
 

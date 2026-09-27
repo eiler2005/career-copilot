@@ -34,7 +34,7 @@
   "hours_per_week": 6,
   "model_routing": {
     "openai": "gpt-6-astra",
-    "claude": "claude-opus-5"
+    "claude": "claude-opus-5-5"
   }
 }
 ```

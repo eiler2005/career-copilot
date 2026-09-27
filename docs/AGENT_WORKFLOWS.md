@@ -13,7 +13,7 @@ Read [workflow](WORKFLOW.md), [privacy](PRIVACY.md) and the role-specific chapte
 | Work | Required executor |
 | --- | --- |
 | Straightforward extraction, source collection, compilation support | A suitable cheaper model; OpenAI default `gpt-5.6-luna`, or deterministic Python |
-| Employer-facing authorship, substantive natural editing, complex judgments | `gpt-6-astra` in Codex/OpenAI; `claude-opus-5` in Claude |
+| Employer-facing authorship, substantive natural editing, complex judgments | `gpt-6-astra` in Codex/OpenAI; `claude-opus-5-5` in Claude |
 | Independent content review | Same environment flagship, a separate session from every author/editor |
 | Hashing, rendering, journal counts and report generation | CLI; model identity remains null for mechanical work |
 

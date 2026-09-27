@@ -9,7 +9,18 @@ from pathlib import Path
 from uuid import uuid4
 
 from . import inbox
-from .core import FLAGSHIPS, TRACKS, Store, digest, encode, now, read_json, safe_id
+from .core import (
+    FLAGSHIP_ENVIRONMENTS,
+    FLAGSHIP_MODELS,
+    FLAGSHIPS,
+    TRACKS,
+    Store,
+    digest,
+    encode,
+    now,
+    read_json,
+    safe_id,
+)
 
 SCHEMA_VERSION = 1
 SKILLS = (
@@ -67,8 +78,8 @@ def actor_metadata(value: dict | None) -> dict:
     environment = result["environment"]
     if (
         environment in FLAGSHIPS
-        and result["model"] in FLAGSHIPS.values()
-        and FLAGSHIPS[environment] != result["model"]
+        and result["model"] in FLAGSHIP_MODELS
+        and FLAGSHIP_ENVIRONMENTS[result["model"]] != environment
     ):
         raise ValueError("Actor model conflicts with environment")
     return result
@@ -149,7 +160,7 @@ def start(store: Store, request_path: Path) -> dict:
         "career-cover-letter",
     }
     blocked = bool(required and (actor["model"] != required or not actor["session"])) or (
-        requires_flagship and (actor["model"] not in FLAGSHIPS.values() or not actor["session"])
+        requires_flagship and (actor["model"] not in FLAGSHIP_MODELS or not actor["session"])
     )
     value = {
         "id": key,
@@ -266,7 +277,7 @@ def validate_record(
     elif kind == "relevance_review":
         from . import relevance
 
-        if activity["actor"]["model"] not in FLAGSHIPS.values() or not activity["actor"]["session"]:
+        if activity["actor"]["model"] not in FLAGSHIP_MODELS or not activity["actor"]["session"]:
             raise ValueError("Relevance review requires actual flagship actor and session")
         data = relevance.validate_review(store, data)
     elif kind == "practice_review":
@@ -281,7 +292,7 @@ def validate_record(
         if "id" in data.get("profile", {}):
             raise ValueError("Company profile cannot replace the company ID")
     elif kind == "text_revision":
-        if activity["actor"]["model"] not in FLAGSHIPS.values() or not activity["actor"]["session"]:
+        if activity["actor"]["model"] not in FLAGSHIP_MODELS or not activity["actor"]["session"]:
             raise ValueError("Text revision requires actual flagship actor and session")
         data["before"] = artifact("before_artifact")
         data["after"] = artifact("after_artifact")
@@ -296,7 +307,7 @@ def validate_record(
             data["draft"] = artifact("draft_artifact")
             data["cv_source_sha256"] = version["sha256"]["cv_source"]
             if (
-                activity["actor"]["model"] not in FLAGSHIPS.values()
+                activity["actor"]["model"] not in FLAGSHIP_MODELS
                 or not activity["actor"]["session"]
             ):
                 raise ValueError("Cover letter requires actual flagship actor and session")

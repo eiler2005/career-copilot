@@ -143,6 +143,35 @@ def test_excerpt_never_replaces_full_text_and_status_is_reported(store):
     assert changed["status"] == "unchanged"
 
 
+@pytest.mark.parametrize("response_status", [200, 403, 503])
+def test_empty_or_failed_board_refresh_preserves_existing_vacancies(store, response_status):
+    settings = store.settings
+    settings["sources"] = [
+        {
+            "id": "board",
+            "provider": "greenhouse",
+            "board": "example",
+            "company_id": "example-systems",
+        }
+    ]
+    atomic_write(store.home / "settings.json", encode(settings))
+    vacancy = store.get("vacancies", VACANCY)
+    store.put("vacancies", {**vacancy, "availability": "open"})
+    before = store.all("vacancies")
+
+    with httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(response_status, json={"jobs": []})
+        )
+    ) as client:
+        sources.discover(store, client=client)
+
+    assert store.all("vacancies") == before
+    [run] = store.all("collection_runs")
+    assert run["new"] == [] and run["changed"] == []
+    assert bool(run["errors"]) == (response_status != 200)
+
+
 def test_collection_run_lists_new_changed_duplicates_and_errors(store):
     settings = store.settings
     settings["sources"] = [

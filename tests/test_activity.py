@@ -428,6 +428,53 @@ def test_external_writing_cannot_bypass_flagship_gate(store, tmp_path):
         )
 
 
+def test_current_and_earlier_claude_flagships_stay_valid(store, tmp_path):
+    for model in ("claude-opus-5-5", "claude-opus-5"):
+        actor = {"environment": "claude", "model": model, "session": "synthetic-author"}
+        started = activity.start(store, request(tmp_path, skill="career-cover-letter", actor=actor))
+        assert started["status"] == "running"
+    with pytest.raises(ValueError, match="conflicts with environment"):
+        activity.actor_metadata(
+            {"environment": "openai", "model": "claude-opus-5-5", "session": "synthetic"}
+        )
+    other = {"environment": "claude", "model": "claude-sonnet-5", "session": "synthetic"}
+    started = activity.start(store, request(tmp_path, skill="career-cover-letter", actor=other))
+    assert started["status"] == "blocked"
+
+
+def test_earlier_flagship_version_accepts_current_flagship_review(store, tmp_path):
+    text, coverage = workflow.markdown_draft(store.facts, "product")
+    cv = tmp_path / "cv.md"
+    atomic_write(cv, text)
+    package = workflow.prepare(
+        store,
+        "master",
+        "product",
+        cv=cv,
+        author_model="claude-opus-5",
+        author_session="synthetic-author",
+        coverage_file=json_file(tmp_path, "coverage.json", coverage),
+    )
+    version = package["versions"][0]
+    review = {
+        "kind": "content",
+        "version_id": version["id"],
+        "sha256": version["sha256"],
+        "model": "gpt-6-astra",
+        "session": "synthetic-reviewer",
+        "passed": True,
+        "coverage_complete": True,
+        "findings": ["Synthetic assertions inspected"],
+    }
+    with pytest.raises(ValueError, match="Independent flagship"):
+        workflow.record_review(store, package["id"], json_file(tmp_path, "review.json", review))
+    review["model"] = "claude-opus-5-5"
+    workflow.record_review(store, package["id"], json_file(tmp_path, "review.json", review))
+    review.update(kind="visual", checked_pages=[1], extracted_text_checked=True)
+    visual = json_file(tmp_path, "review.json", review)
+    assert workflow.record_review(store, package["id"], visual)["status"] == "passed"
+
+
 def test_review_tampering_cannot_promote_readiness(store, tmp_path):
     package, _, _ = prepare_cv(store, tmp_path)
     version = package["versions"][0]

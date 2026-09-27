@@ -20,7 +20,17 @@ import re
 from pathlib import Path
 from uuid import uuid4
 
-from .core import FLAGSHIPS, TRACKS, Store, atomic_write, digest, encode, now, read_json, safe_id
+from .core import (
+    FLAGSHIP_MODELS,
+    TRACKS,
+    Store,
+    atomic_write,
+    digest,
+    encode,
+    now,
+    read_json,
+    safe_id,
+)
 
 EDIT_KINDS = frozenset({"wording", "emphasis", "reorder", "add_evidence", "remove"})
 DECISIONS = frozenset({"accept", "reject", "edit"})
@@ -93,7 +103,7 @@ def validate_proposal(store: Store, data: dict, activity: dict) -> dict:
     """Validate a `cv_edit_proposal` result; called from activity registration."""
     from .activity import package_version
 
-    if activity["actor"]["model"] not in FLAGSHIPS.values() or not activity["actor"]["session"]:
+    if activity["actor"]["model"] not in FLAGSHIP_MODELS or not activity["actor"]["session"]:
         raise ValueError("CV edit proposals require an actual flagship actor and session")
     package, version = package_version(
         store, data.get("package_id", ""), data.get("version_id", "")

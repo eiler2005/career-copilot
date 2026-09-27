@@ -2,6 +2,21 @@
 
 Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
 
+## 2026-09-27 — Duplicate audits and vacancy freshness
+
+### Changed
+- Every vacancy search or refresh now requires a documented duplicate audit before downstream work or reporting new opportunities. The bilingual workflow covers exact identities, cross-source copies and reposts, unresolved matches, preserved history and links, and counts that exclude confirmed duplicates from new opportunities; repository and search-skill instructions point to the rule.
+- Added an evidence-based procedure for vacancy freshness and preserving useful preparation after closure. Source failures do not establish closure, board absence needs a complete check, and reusable questions retain provenance and practice history. This guidance does not add automatic closure, record merging or preparation migration.
+
+### Tests
+- Regression coverage verifies that an empty successful board response, HTTP 403 and HTTP 503 preserve existing vacancies and availability, while source errors remain distinct from empty success.
+
+## 2026-09-26 — Opus 5.5 as the Claude flagship
+
+### Changed
+- The Claude flagship is `claude-opus-5-5`. `FLAGSHIP_MODELS` accepts current and earlier flagships, so activities, package versions and reviews recorded with `claude-opus-5` stay valid; `FLAGSHIPS` names the current requirement per environment.
+- Independent content review needs a flagship of the author's environment in a separate session, so the current Claude flagship can review a version authored by the earlier one. Cross-environment reviews are still rejected.
+
 ## 2026-09-20 — Shared PDF documents and reading packs
 
 ### Added

@@ -7,7 +7,18 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
-from .core import FLAGSHIPS, TRACKS, Store, digest, encode, now, read_json, safe_id
+from .core import (
+    FLAGSHIP_ENVIRONMENTS,
+    FLAGSHIP_MODELS,
+    FLAGSHIPS,
+    TRACKS,
+    Store,
+    digest,
+    encode,
+    now,
+    read_json,
+    safe_id,
+)
 
 DIRECTOR = re.compile(
     r"\b(director|head|chief|cpo|cto|cdo|caio|vp|vice president)\b|директор|руководитель (департамента|направления|отдела|практики)",
@@ -50,7 +61,7 @@ def contributors_for(store: Store, path: Path | None, outputs: dict) -> list[dic
         actor = actor_metadata(row)
         if row.get("role") not in {"author", "editor"}:
             raise ValueError("Contributor role must be author or editor")
-        if actor["model"] not in FLAGSHIPS.values() or not actor["session"]:
+        if actor["model"] not in FLAGSHIP_MODELS or not actor["session"]:
             raise ValueError("Every contributor requires actual flagship model and session")
         if not row.get("outputs"):
             raise ValueError("Contributor immutable output references required")
@@ -421,14 +432,10 @@ def prepare(
     if not vacancy:
         raise ValueError("Vacancy not found")
     if (author_model is not None or author_session is not None) and (
-        author_model not in FLAGSHIPS.values() or not author_session
+        author_model not in FLAGSHIP_MODELS or not author_session
     ):
         raise ValueError("Explicit author metadata requires actual flagship model and session")
-    if (
-        cv
-        and not contributors_file
-        and (author_model not in FLAGSHIPS.values() or not author_session)
-    ):
+    if cv and not contributors_file and (author_model not in FLAGSHIP_MODELS or not author_session):
         raise ValueError("Authored document requires actual flagship model and session identity")
     facts = store.facts
     origin = None
@@ -711,8 +718,9 @@ def record_review(store: Store, package_id: str, report: Path) -> dict:
     if review.get("kind") == "content":
         contributor_sessions = {c["session"] for c in version.get("contributors", [])}
         if (
-            review.get("model") != version.get("author_model")
-            or review.get("model") not in FLAGSHIPS.values()
+            review.get("model") not in FLAGSHIP_MODELS
+            or FLAGSHIP_ENVIRONMENTS[review["model"]]
+            != FLAGSHIP_ENVIRONMENTS.get(version.get("author_model"))
             or review["session"] == version.get("author_session")
             or review["session"] in contributor_sessions
         ):
@@ -756,7 +764,7 @@ def record_review(store: Store, package_id: str, report: Path) -> dict:
         reviews.append(relative)
     verified = [read_json(store.path(p)) for p in reviews]
     latest = {r["kind"]: r for r in verified}
-    passed = version.get("author_model") in FLAGSHIPS.values() and all(
+    passed = version.get("author_model") in FLAGSHIP_MODELS and all(
         latest.get(kind, {}).get("passed") is True for kind in ("content", "visual")
     )
     version["review_status"] = "passed" if passed else "pending"

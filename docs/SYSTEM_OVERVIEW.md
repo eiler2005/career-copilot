@@ -59,7 +59,7 @@ tests/              synthetic fixtures only; one file per module area
 deploy/, Dockerfile, compose.yaml, compose.public.yaml
 ```
 
-PDF rendering, assembly and storage contracts are described in [PDF documents](PDF.md). The shared renderer performs deterministic local processing; existing agent sessions own authorship and visual review. Complex design and substantive judgments use the active flagship (`gpt-6-astra` in Codex/OpenAI, `claude-opus-5` in Claude); straightforward extraction can use `gpt-5.6-luna` in OpenAI. The CLI does not route or invoke models itself.
+PDF rendering, assembly and storage contracts are described in [PDF documents](PDF.md). The shared renderer performs deterministic local processing; existing agent sessions own authorship and visual review. Complex design and substantive judgments use the active flagship (`gpt-6-astra` in Codex/OpenAI, `claude-opus-5-5` in Claude); straightforward extraction can use `gpt-5.6-luna` in OpenAI. The CLI does not route or invoke models itself.
 
 ## Request and task lifecycle
 

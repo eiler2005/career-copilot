@@ -18,7 +18,14 @@ from .naming import day, readable_name, shorten_component
 TRACKS = ("product", "technical-leadership")
 # Completeness of retained vacancy text, highest first.
 CONTENT_RANK = {"full": 3, "page_text": 2, "excerpt": 1, "salary_index_card": 0, "card": 0}
-FLAGSHIPS = {"openai": "gpt-6-astra", "claude": "claude-opus-5"}
+FLAGSHIPS = {"openai": "gpt-6-astra", "claude": "claude-opus-5-5"}
+# Current and earlier flagships; records authored by an earlier flagship stay valid.
+FLAGSHIP_ENVIRONMENTS = {
+    "gpt-6-astra": "openai",
+    "claude-opus-5": "claude",
+    "claude-opus-5-5": "claude",
+}
+FLAGSHIP_MODELS = frozenset(FLAGSHIP_ENVIRONMENTS)
 
 
 class VersionConflict(ValueError):

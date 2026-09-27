@@ -55,7 +55,7 @@ The interface supports Russian and English, desktop and mobile, and needs no fro
 
 The **public checkout** contains reusable Python, documentation, synthetic fixtures and repository-local skills. The **private workspace** contains candidate facts, companies, vacancies, source bytes, SQLite history, activity records and document versions. Select it explicitly with `--home` before the command; real data belongs in persistent external storage.
 
-An existing **Codex or Claude session** does research, writing and judgment. Repository-local skill discovery is enabled normally, and each specialist can work independently. Employer-facing authorship and complex judgments use Astra (`gpt-6-astra`) in Codex or Opus (`claude-opus-5`) in Claude; independent content review uses a separate flagship session. Simple collection can use Luna. Missing required models produce a blocked handoff.
+An existing **Codex or Claude session** does research, writing and judgment. Repository-local skill discovery is enabled normally, and each specialist can work independently. Employer-facing authorship and complex judgments use Astra (`gpt-6-astra`) in Codex or Opus (`claude-opus-5-5`) in Claude; independent content review uses a separate flagship session. Simple collection can use Luna. Missing required models produce a blocked handoff.
 
 The **CLI** hashes and preserves inputs, collects supported sources, applies explicit evidence rules, renders documents, applies interface requests and computes journal statistics. Its shared [PDF tools](docs/PDF.md) turn Markdown plans into printable documents, assemble PDF binders, inspect files and extract pages. It has no embedded model API, automatic application sender or background scheduler.
 

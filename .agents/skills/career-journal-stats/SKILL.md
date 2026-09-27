@@ -17,7 +17,7 @@ Inputs are journal scope and, for outcome updates, actual user-confirmed evidenc
 
 ## Journal and execution
 
-Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.
+Start with `ajh --home PRIVATE_HOME activity start --request PATH`, using schema-v1 request, hashed inputs and actual actor metadata. Set required_model for flagship work: gpt-6-astra in Codex/OpenAI, claude-opus-5-5 in Claude. Missing model/session means blocked; never relabel another model. Mechanical Python operations do not have model authorship.
 
 Use global `--activity-id ID` before intervening CLI commands. Finish with `ajh --home PRIVATE_HOME activity finish ID --result PATH`, matching expected types, exact artifact hashes, completed/blocked/failed status and concrete next_action. See the shared contract for typed fields. Record only measured telemetry; otherwise null.
 
