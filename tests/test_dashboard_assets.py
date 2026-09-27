@@ -124,6 +124,9 @@ function run(options) {
 process.stdout.write(JSON.stringify({
   default: run({href: "https://example.test/dashboard?filter=ai#role"}),
   saved: run({href: "https://example.test/dashboard", saved: "v1"}),
+  savedV2: run({href: "https://example.test/dashboard", saved: "v2"}),
+  savedV3: run({href: "https://example.test/dashboard", saved: "v3"}),
+  savedV4: run({href: "https://example.test/dashboard", saved: "v4"}),
   override: run({href: "https://example.test/dashboard?design=v2", saved: "v1"}),
   v3: run({href: "https://example.test/dashboard?design=v3", saved: "v1"}),
   v4: run({href: "https://example.test/dashboard?design=v4", saved: "v1"}),
@@ -146,21 +149,23 @@ process.stdout.write(JSON.stringify({
     assert result.returncode == 0, result.stderr
     scenarios = json.loads(result.stdout)
     assert scenarios["default"] == {
-        "stored": "v4",
-        "writes": ["v4"],
+        "stored": "v1",
+        "writes": ["v1"],
         "replaced": None,
-        "dataset": "v4",
-        "disabled": False,
-        "disabledV3": False,
-        "disabledV4": False,
-        "designOnly": [False, True],
-        "selected": "v4",
+        "dataset": "v1",
+        "disabled": True,
+        "disabledV3": True,
+        "disabledV4": True,
+        "designOnly": [True, True],
+        "selected": "v1",
     }
     assert scenarios["saved"]["dataset"] == "v1"
     assert scenarios["saved"]["disabled"] is True
     assert scenarios["saved"]["disabledV3"] is True
     assert scenarios["saved"]["disabledV4"] is True
     assert scenarios["saved"]["designOnly"] == [True, True]
+    for version in ("v2", "v3", "v4"):
+        assert scenarios[f"saved{version.upper()}"]["dataset"] == version
     assert scenarios["override"]["dataset"] == "v2"
     assert scenarios["override"]["writes"] == ["v2"]
     assert scenarios["override"]["disabled"] is False
@@ -177,13 +182,14 @@ process.stdout.write(JSON.stringify({
     assert scenarios["v4"]["disabledV4"] is False
     assert scenarios["v4"]["designOnly"] == [False, True]
     assert scenarios["invalid"]["dataset"] == "v1"
-    assert scenarios["invalidFallback"]["dataset"] == "v4"
-    assert scenarios["invalidFallback"]["disabledV3"] is False
-    assert scenarios["invalidFallback"]["disabledV4"] is False
-    assert scenarios["storageFailure"]["dataset"] == "v4"
-    assert scenarios["storageFailure"]["disabled"] is False
-    assert scenarios["storageFailure"]["disabledV3"] is False
-    assert scenarios["storageFailure"]["disabledV4"] is False
+    assert scenarios["invalidFallback"]["dataset"] == "v1"
+    assert scenarios["invalidFallback"]["disabled"] is True
+    assert scenarios["invalidFallback"]["disabledV3"] is True
+    assert scenarios["invalidFallback"]["disabledV4"] is True
+    assert scenarios["storageFailure"]["dataset"] == "v1"
+    assert scenarios["storageFailure"]["disabled"] is True
+    assert scenarios["storageFailure"]["disabledV3"] is True
+    assert scenarios["storageFailure"]["disabledV4"] is True
     assert scenarios["changed"]["dataset"] == "v1"
     assert scenarios["changed"]["disabled"] is True
     assert scenarios["changed"]["disabledV3"] is True
@@ -299,10 +305,13 @@ def test_preparation_overview_is_rendered_with_tabs_evidence_labels_and_practice
 def test_workspace_keeps_navigation_in_the_masthead_without_external_fonts():
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     assert '<header class="masthead">' in page and 'id="navigation" class="masthead-nav"' in page
-    assert '<link id="design-v3" rel="stylesheet" href="/assets/styles-v3.css">' in page
-    assert '<link id="design-v4" rel="stylesheet" href="/assets/styles-v4.css">' in page
+    for version in ("v2", "v3", "v4"):
+        assert (
+            f'<link id="design-{version}" rel="stylesheet" href="/assets/styles-{version}.css" disabled>'
+            in page
+        )
     assert re.search(
-        r'<select id="design-version">\s*<option value="v4" selected>v4</option>', page
+        r'<select id="design-version">\s*<option value="v1" selected>v1</option>', page
     )
     assert "sidebar" not in page
     for stylesheet in ("styles.css", "styles-v2.css"):

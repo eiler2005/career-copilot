@@ -2,6 +2,12 @@
 
 Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
 
+## 2026-09-27 — Dashboard v1 default
+
+### Changed
+- Dashboard design v1 is the fallback when a saved preference is absent, invalid or unavailable. Designs v2–v4 remain available; valid saved preferences and `?design=v1` through `?design=v4` keep their existing precedence. A valid query choice overrides the saved preference and applies even when browser storage is unavailable.
+- English and Russian README and dashboard guides describe the selection order. Earlier visual-release entries retain their historical defaults.
+
 ## 2026-09-27 — Duplicate audits and vacancy freshness
 
 ### Changed

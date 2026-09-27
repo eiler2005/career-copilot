@@ -12,10 +12,10 @@
   let saved;
   try { saved = localStorage.getItem(storageKey); } catch (_) { /* Storage is optional. */ }
   const requested = new URL(location.href).searchParams.get("design");
-  let version = valid(requested) ? requested : valid(saved) ? saved : "v4";
+  let version = valid(requested) ? requested : valid(saved) ? saved : "v1";
 
   function apply(value) {
-    version = valid(value) ? value : "v4";
+    version = valid(value) ? value : "v1";
     stylesheetV2.disabled = version === "v1";
     stylesheetV3.disabled = version === "v1" || version === "v2";
     stylesheetV4.disabled = version !== "v4";
