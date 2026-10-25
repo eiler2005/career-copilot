@@ -4,6 +4,8 @@
 
 Start with the interview date, expected format, vacancy requirements and demonstrated experience. The output is a prioritized plan the candidate can actually execute, with exercises, questions, real STAR stories and criteria for reviewing practice.
 
+The [interview research digest of 2026-10-24](INTERVIEW_RESEARCH_2026-10-24.md) separates official guidance from forum reports and suggests role-specific questions for this workflow.
+
 ## Requirements and gaps
 
 For each requirement retain its source, mandatory/optional status, evidence fact IDs and reviewer decision. Tags locate possible evidence; they do not establish proficiency. Relevant evidence must match the requirement's context and scale.

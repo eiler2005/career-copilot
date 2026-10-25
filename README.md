@@ -86,6 +86,7 @@ See the [system overview](docs/SYSTEM_OVERVIEW.md) for every module, container a
 | [Profile relevance](docs/RELEVANCE.md) | Which vacancies fit the profile and why: the 0–100 thermometer, the agent's review by meaning, keyword queries with fields, tiers and tuning |
 | [Source architecture](docs/SOURCE_ARCHITECTURE.md) | Collection pipeline, source families, direct/proxy/reserve routes, adapter contract and how to add a provider |
 | [Interview preparation](docs/PREPARATION.md) | Vacancy briefs, general gaps, STAR and the text practice cycle |
+| [Interview research 2026-10-24](docs/INTERVIEW_RESEARCH_2026-10-24.md) | Official and forum evidence, role-specific question selection and preparation priorities |
 | [PDF documents](docs/PDF.md) | Render plans, assemble binders, inspect and extract pages, verify layout |
 | [System overview](docs/SYSTEM_OVERVIEW.md) | All modules with their code and records, request lifecycle, runtime topology, containers, release and rollback |
 | [Architecture](docs/ARCHITECTURE.md) | Public/private boundary and ownership of state |
