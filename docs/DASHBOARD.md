@@ -6,6 +6,8 @@ The dashboard reads the existing SQLite journal. It shows vacancies with conditi
 
 The current visual fallback is dashboard design v1. It applies when a saved preference is absent, invalid or unavailable; valid saved choices among v1–v4 remain selected. The footer **Design** selector offers all four versions and remembers the choice in `localStorage` under `career-copilot-design`. To choose via a link, open the dashboard with `?design=v1`, `?design=v2`, `?design=v3` or `?design=v4`; a valid query choice takes priority over the saved preference and is persisted when storage is available. An invalid query value falls back to a valid saved choice, then to v1. Hash routes and record links are unchanged. If browser storage is unavailable, a valid query or selector choice still applies for the current page.
 
+Set the private workspace setting `dashboard.geography_priority` to `["US"]` to put vacancies with explicitly identified US geography first in the default ordering on vacancy lists, overview and pipeline. Active vacancies remain ahead of inactive ones, with the US priority applied within each group. Other vacancies remain available. An explicit sort such as newest, name or relevance overrides this preference and stays in the address. The US geography filter uses an explicit country or allowed-country list; `worldwide` and `North America` alone do not establish US geography. Location does not establish US work authorization. See the [configuration reference](CONFIGURATION.md#settingsjson).
+
 ## Run locally
 
 Install the project as described in [getting started](GETTING_STARTED.md), then select an initialized external workspace:

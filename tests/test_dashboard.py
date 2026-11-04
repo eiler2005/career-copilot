@@ -69,6 +69,28 @@ def add_artifact(home: Path, relative: str, data: bytes) -> None:
         )
 
 
+@pytest.mark.parametrize(
+    ("preferences", "expected"),
+    [
+        (None, []),
+        ({}, []),
+        ("US", []),
+        ({"geography_priority": "US"}, []),
+        ({"geography_priority": ["CA"]}, []),
+        ({"geography_priority": ["US", "US", "unsupported"]}, ["US"]),
+    ],
+)
+def test_workspace_exposes_only_supported_geography_preferences(tmp_path, preferences, expected):
+    home = make_workspace(tmp_path)
+    (home / "settings.json").write_text(
+        json.dumps({"dashboard": preferences, "private_note": "not-for-export"}), encoding="utf-8"
+    )
+    result = Journal.open(home).workspace()
+    assert result["meta"]["geography_priority"] == expected
+    assert "not-for-export" not in json.dumps(result)
+    assert len(result["vacancies"]) == 1
+
+
 @contextmanager
 def running_server(home: Path, tmp_path: Path):
     assets = tmp_path / "assets"

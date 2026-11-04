@@ -333,4 +333,93 @@ def test_vacancy_lists_open_on_the_profile_and_share_the_query_grammar():
     # Scores are shown as a thermometer with the method, and an agent review can be requested.
     assert "function thermometer(result" in script and 'task_type: "review_relevance"' in script
     # Overview shows only vacancies that fit the profile.
-    assert "isRelevant(record)).sort((a, b) => tierOf(a) - tierOf(b)" in script
+    assert (
+        "isRelevant(record)).sort((a, b) => priorityOrder(a, b) || tierOf(a) - tierOf(b)" in script
+    )
+
+
+def test_geography_priority_classification_routes_sorting_and_pagination():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is not installed")
+    harness = r"""
+const fs = require("fs"), vm = require("vm"), assert = require("assert");
+let source = fs.readFileSync(process.argv[1], "utf8");
+source = source.split('  $("refresh").addEventListener("click", load);')[0] + `
+  recordCard = (record) => ({record});
+  renderFiles = () => {};
+  globalThis.api = {state, isUS, recordOrder, applyHash, hashFor, renderResults, renderToolbar, resetFilters, geographySwitch};
+})();`;
+class Element {
+  constructor(tag) { this.tagName = tag; this.children = []; this.listeners = {}; this.dataset = {}; }
+  append(...nodes) { this.children.push(...nodes); }
+  replaceChildren(...nodes) { this.children = nodes; }
+  setAttribute() {}
+  addEventListener(name, callback) { this.listeners[name] = callback; }
+  focus() {}
+  scrollIntoView() {}
+}
+const nodes = new Map(), get = (id) => { if (!nodes.has(id)) nodes.set(id, new Element(id)); return nodes.get(id); };
+const context = {console, URL, URLSearchParams, Intl, localStorage: {getItem: () => null},
+  location: {hash: "#vacancies"}, history: {replaceState(a, b, hash) { context.location.hash = hash; }},
+  document: {createElement: (tag) => new Element(tag), getElementById: get, querySelector: () => null}};
+vm.runInNewContext(source, context);
+const a = context.api, state = a.state;
+const role = (id, country, date, score = 50, availability = "open") => ({id, kind: "vacancies", payload: {title: id, country, created_at: date, availability}, display: {relevance: {score, relevant: true, tier: "strong"}}});
+for (const country of ["US", "USA", "United States", "United States of America", "США", " U.S. "])
+  assert(a.isUS(role("country", country, "")), country);
+for (const country of ["Canada", "Russia", "North America", "Worldwide", "Australia", null])
+  assert(!a.isUS(role("country", country, "")), country);
+assert(a.isUS({kind: "vacancies", payload: {location: {country: "US"}}}));
+assert(a.isUS({kind: "vacancies", payload: {conditions: {allowed_geography: {countries: ["CA", "US"]}}}}));
+assert(!a.isUS({kind: "vacancies", payload: {conditions: {allowed_geography: {countries: ["Worldwide"]}}, remote: true}}));
+assert(!a.isUS({kind: "vacancies", payload: {country: "Canada", company: {country: "US"}, description: "US headquarters; United States customers"}}));
+assert(!a.isUS({kind: "companies", payload: {country: "US"}}));
+const rows = [role("z-other", "CA", "2026-01-05", 95), role("b-us", "US", "2026-01-01", 10), role("a-us", "US", "2026-01-01", 20), role("closed-us", "US", "2026-01-06", 99, "closed")];
+state.data = {meta: {geography_priority: ["US"]}, vacancies: rows};
+a.applyHash();
+assert.equal(state.sort, "default");
+assert.equal(a.hashFor("vacancies"), "#vacancies");
+const order = () => rows.slice().sort(a.recordOrder).map(r => r.id).join(",");
+assert.equal(order(), "a-us,b-us,z-other,closed-us");
+context.location.hash = "#vacancies?sort=newest&page=8&geography=US";
+a.applyHash();
+assert.equal(state.sort, "newest");
+assert.equal(state.filters.geography, "US");
+assert(a.hashFor("vacancies").includes("sort=newest"));
+assert.equal(order(), "closed-us,z-other,a-us,b-us");
+state.pageSize = 2;
+a.renderResults();
+assert.equal(state.page, 2);
+assert.equal(get("results").children[0].children[0].record.id, "b-us");
+a.resetFilters();
+assert.equal(state.page, 1);
+assert.equal(state.filters.geography, undefined);
+assert.equal(state.sort, "newest");
+state.sort = "name";
+assert.equal(order(), "a-us,b-us,closed-us,z-other");
+state.sort = "relevance";
+assert.equal(order(), "closed-us,z-other,a-us,b-us");
+state.sort = "default";
+state.data.meta.geography_priority = [];
+assert.equal(order(), "closed-us,z-other,a-us,b-us");
+state.sort = "newest";
+a.renderToolbar();
+const selector = get("toolbar").children[0].children[0].children[1];
+assert.equal(selector.value, "newest");
+assert(selector.children.some(option => option.value === "newest"));
+state.sort = "default";
+state.data.meta.geography_priority = ["US"];
+state.page = 3;
+a.geographySwitch().children[1].listeners.click();
+assert.equal(state.page, 1);
+assert.equal(state.filters.geography, "US");
+assert.equal(get("results").children[0].children.map(n => n.record.id).join(","), "a-us,b-us");
+"""
+    result = subprocess.run(
+        [node, "-e", harness, str(ASSETS / "app.js")],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr

@@ -2,6 +2,12 @@
 
 Notable changes to Career Copilot. Dates are release dates; `dashboard-design-v1`, `dashboard-design-v2`, `dashboard-design-v3` and `dashboard-design-v4` mark visual releases, while package versions are tracked separately.
 
+## 2026-11-04 — US-first dashboard geography preference
+
+### Changed
+- Added the private `dashboard.geography_priority: ["US"]` setting for default vacancy ordering in lists, overview and pipeline. Active vacancies stay ahead of inactive ones; US priority applies within each group, while explicit sorts take precedence and other locations remain available.
+- Documented that only explicit US geography qualifies: `worldwide` and `North America` alone do not imply US location, and location never implies work authorization. English and Russian README, dashboard and configuration guides are aligned.
+
 ## 2026-09-27 — Dashboard v1 default
 
 ### Changed

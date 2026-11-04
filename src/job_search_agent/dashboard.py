@@ -664,6 +664,7 @@ class Journal:
                 "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
                 "journal_updated_at": self.journal_updated_at(),
                 "counts": counts,
+                "geography_priority": self.geography_priority(settings),
             },
             **grouped,
             "artifacts": artifacts,
@@ -740,6 +741,13 @@ class Journal:
                     else None,
                 }
             record["display"]["versions"] = redact_local_paths(states)
+
+    @staticmethod
+    def geography_priority(settings: dict) -> list[str]:
+        """Expose only supported display preferences, never arbitrary private settings."""
+        preferences = settings.get("dashboard")
+        values = preferences.get("geography_priority") if isinstance(preferences, dict) else None
+        return ["US"] if isinstance(values, list) and "US" in values else []
 
     def settings(self) -> dict:
         try:

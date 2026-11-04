@@ -29,6 +29,7 @@ The initial effective settings are:
     "russia_director_only": false,
     "market_effort": {}
   },
+  "dashboard": {},
   "max_requests_per_run": 20,
   "weeks": 6,
   "hours_per_week": 6,
@@ -49,7 +50,20 @@ The initial effective settings are:
 | `policy.company_levels` | Empty map; each company uses `accepted`, `below`, `source` |
 | `policy.russia_director_only` | False; when true, non-selected Russian employers use the director-title filter |
 | `policy.market_effort` | Empty planning metadata; does not impose a result quota |
+| `dashboard.geography_priority` | Optional dashboard display preference. Set to `["US"]` to place vacancies with explicitly identified US geography first in the default vacancy ordering; it does not filter other locations or change fit, eligibility or work-authorization evidence. |
 | `model_routing` | Documents environment flagships; it does not start models or grant API access |
+
+Dashboard geography priority is private workspace metadata. For example, merge this field into `settings.json` while preserving existing settings:
+
+```json
+{
+  "dashboard": {
+    "geography_priority": ["US"]
+  }
+}
+```
+
+Only the supported `US` value is used; absent or invalid values leave the default ordering unchanged. The preference affects default ordering in vacancy lists, overview and pipeline: active vacancies come first, followed by inactive vacancies, with US vacancies first within each group. An explicitly selected sort (such as newest, name or relevance) takes precedence and is retained in the dashboard address. It does not hide other vacancies. Geography is based on explicit country or allowed-country data; worldwide and North America labels do not establish US location. No location label establishes US work authorization.
 
 Company-specific level mapping example, using fictional labels:
 

@@ -84,6 +84,36 @@
   const primaryRecords = (section) => ["companies", "vacancies", "activities"].includes(section) ? records(section).filter((record) => record.kind === section) : section === "documents" ? records(section).filter((record) => record.kind !== "legacy_files") : section === "resume" ? records(section).filter((record) => record.kind === "packages") : section === "preparations" ? records(section).filter((record) => ["learning", "interview_plans", "track_plans", "preparation_briefs", "preparation_overviews"].includes(record.kind)) : records(section);
   // Vacancies and the pipeline open on vacancies that fit the profile; "all" is one click away.
   const defaultFilters = (section) => section === "vacancies" ? {kind: section, relevance: "relevant"} : section === "pipeline" ? {relevance: "relevant"} : ["companies", "activities"].includes(section) ? {kind: section} : {};
+  const usPriority = () => state.data?.meta?.geography_priority?.includes("US") === true;
+  const isUS = (record) => {
+    if (record.kind !== "vacancies") return false;
+    const p = record.payload, location = p.location && typeof p.location === "object" ? p.location : {};
+    const countries = p.conditions?.allowed_geography?.countries;
+    const values = [p.country, location.country, record.display?.location?.country, ...(Array.isArray(countries) ? countries : [])];
+    return values.some((value) => typeof value === "string" && /^(us|usa|u\.s\.?|u\.s\.a\.?|united states(?: of america)?|сша|соединенные штаты(?: америки)?|соединённые штаты(?: америки)?)$/i.test(value.trim()));
+  };
+  const priorityOrder = (a, b) => usPriority() ? Number(inactiveVacancy(a)) - Number(inactiveVacancy(b)) || Number(isUS(b)) - Number(isUS(a)) : 0;
+  const defaultSort = () => usPriority() && ["vacancies", "pipeline"].includes(state.section) ? "priority" : "newest";
+  const effectiveSort = () => state.sort === "default" ? defaultSort() : state.sort;
+  const newestOrder = (a, b) => dateValue(b).localeCompare(dateValue(a)) || recordTitle(a).localeCompare(recordTitle(b), state.lang) || a.id.localeCompare(b.id);
+  const recordOrder = (a, b) => effectiveSort() === "name" ? recordTitle(a).localeCompare(recordTitle(b), state.lang) || a.id.localeCompare(b.id) : effectiveSort() === "relevance" ? (relevanceOf(b)?.score ?? -1) - (relevanceOf(a)?.score ?? -1) || newestOrder(a, b) : (effectiveSort() === "priority" ? priorityOrder(a, b) : 0) || newestOrder(a, b);
+  Object.assign(copy.ru, {geographyPriority: "Сначала США", geographyAll: "Все страны", geographyUS: "США", geographyOther: "Остальные и неизвестные", priorityNote: "Приоритет США — порядок просмотра, не оценка соответствия или права на работу. Остальные вакансии и материалы подготовки сохранены.", activeUS: "США, не закрыты", retainedOther: "Остальные сохранённые"});
+  Object.assign(copy.en, {geographyPriority: "US first", geographyAll: "All countries", geographyUS: "US", geographyOther: "Other and unknown", priorityNote: "US priority sets the viewing order, not qualification or work eligibility. Other vacancies and preparation materials remain available.", activeUS: "US, not closed", retainedOther: "Other retained"});
+  copy.ru.workspaceOrder = "Порядок пространства"; copy.en.workspaceOrder = "Workspace order";
+  function geographySummary(list) {
+    const box = el("div", "view-section");
+    box.append(el("p", "eyebrow", `${t("geographyPriority")} · ${t("activeUS")}: ${list.filter((r) => isUS(r) && !inactiveVacancy(r)).length} · ${t("retainedOther")}: ${list.filter((r) => r.kind === "vacancies" && !isUS(r)).length}`), el("p", "muted", t("priorityNote")));
+    return box;
+  }
+  function geographySwitch() {
+    const bar = el("div", "segmented"); bar.setAttribute("role", "group"); bar.setAttribute("aria-label", t("country"));
+    [["", "geographyAll"], ["US", "geographyUS"], ["other", "geographyOther"]].forEach(([value, key]) => {
+      const active = (state.filters.geography || "") === value;
+      const node = button(t(key), `segment${active ? " active" : ""}`, () => { state.filters.geography = value; state.page = 1; renderToolbar(); renderResults(); });
+      node.setAttribute("aria-pressed", String(active)); bar.append(node);
+    });
+    return bar;
+  }
   const unwrap = (record) => record.payload && typeof record.payload === "object" && !Array.isArray(record.payload) ? record.payload : record;
   const normalize = (record, section) => ({...record, id: String(record.id ?? unwrap(record).id ?? ""), kind: record.kind || kinds[section] || section, payload: unwrap(record)});
   const allRecords = () => state.all || sections.filter((section) => section !== "pipeline").flatMap((section) => records(section));
@@ -135,18 +165,18 @@
   // URL state: #section?q=…&country=…&record=kind/id — shareable, survives reload and back/forward.
   function hashFor(section, withRecord = true) {
     const params = new URLSearchParams(), defaults = defaultFilters(section);
-    if (section !== "overview") { if (state.query) params.set("q", state.query); [...new Set([...Object.keys(state.filters), ...Object.keys(defaults)])].forEach((key) => { const value = state.filters[key] || ""; if (value !== (defaults[key] || "")) params.set(key, value || "all"); }); if (state.sort !== "newest") params.set("sort", state.sort); if (state.page > 1) params.set("page", String(state.page)); }
+    if (section !== "overview") { if (state.query) params.set("q", state.query); [...new Set([...Object.keys(state.filters), ...Object.keys(defaults)])].forEach((key) => { const value = state.filters[key] || ""; if (value !== (defaults[key] || "")) params.set(key, value || "all"); }); if (state.sort !== "default") params.set("sort", state.sort); if (state.page > 1) params.set("page", String(state.page)); }
     if (withRecord && state.opened) { params.set("record", `${state.opened.kind}/${state.opened.id}`); if (state.opened.kind === "vacancies" && state.detailTab !== "vacancy") params.set("tab", state.detailTab); }
     const query = params.toString(); return `#${section}${query ? `?${query}` : ""}`;
   }
   function syncHash() { const hash = hashFor(state.section); if (location.hash !== hash) history.replaceState(null, "", hash); }
   function applyHash() {
     const raw = location.hash.slice(1), split = raw.indexOf("?"), name = split < 0 ? raw : raw.slice(0, split), params = new URLSearchParams(split < 0 ? "" : raw.slice(split + 1));
-    state.section = sections.includes(name) ? name : "overview"; state.query = params.get("q") || ""; state.sort = ["name", "relevance"].includes(params.get("sort")) ? params.get("sort") : "newest"; state.page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
-    state.filters = defaultFilters(state.section); state.detailTab = ["vacancy", "fit", "company", "resume", "prep"].includes(params.get("tab")) ? params.get("tab") : "vacancy"; ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type", "freshness", "market", "relevance"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
+    state.section = sections.includes(name) ? name : "overview"; state.query = params.get("q") || ""; state.sort = ["newest", "name", "relevance", "priority"].includes(params.get("sort")) ? params.get("sort") : "default"; state.page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
+    state.filters = defaultFilters(state.section); state.detailTab = ["vacancy", "fit", "company", "resume", "prep"].includes(params.get("tab")) ? params.get("tab") : "vacancy"; ["kind", "country", "city", "remote", "status", "track", "availability", "review", "type", "freshness", "market", "relevance", "geography"].forEach((key) => { if (params.has(key)) state.filters[key] = params.get(key) === "all" ? "" : params.get(key); });
     return params.get("record");
   }
-  function navigate(section, preset) { if (!sections.includes(section)) section = "overview"; if (state.section !== section || preset) { state.query = ""; state.filters = {...defaultFilters(section), ...(preset || {})}; state.page = 1; state.sort = "newest"; } state.section = section; const hash = hashFor(section, false); if (location.hash !== hash) history.pushState(null, "", hash); render(); $("main").focus({preventScroll: true}); window.scrollTo(0, 0); }
+  function navigate(section, preset) { if (!sections.includes(section)) section = "overview"; if (state.section !== section || preset) { state.query = ""; state.filters = {...defaultFilters(section), ...(preset || {})}; state.page = 1; state.sort = "default"; } state.section = section; const hash = hashFor(section, false); if (location.hash !== hash) history.pushState(null, "", hash); render(); $("main").focus({preventScroll: true}); window.scrollTo(0, 0); }
   function navigationIcon(index) {
     const span = el("span", "nav-icon"), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     span.setAttribute("aria-hidden", "true");
@@ -213,7 +243,8 @@
     const seen = (record) => scalar(record.payload.first_seen || record.payload.created_at || dateValue(record));
     // Fresh vacancies that fit the profile: strong matches first, then possible ones, newest first within a tier.
     const tierOf = (record) => TIER_ORDER[relevanceOf(record)?.tier] ?? 1;
-    const recent = primaryRecords("vacancies").filter((record) => !INACTIVE.has(record.payload.availability) && record.payload.review_status !== "rejected" && isRelevant(record)).sort((a, b) => tierOf(a) - tierOf(b) || seen(b).localeCompare(seen(a)) || b.id.localeCompare(a.id)).slice(0, 8);
+    const recent = primaryRecords("vacancies").filter((record) => !inactiveVacancy(record) && isRelevant(record)).sort((a, b) => priorityOrder(a, b) || tierOf(a) - tierOf(b) || seen(b).localeCompare(seen(a)) || b.id.localeCompare(a.id)).slice(0, 8);
+    if (usPriority()) latest.append(geographySummary(primaryRecords("vacancies").filter(isRelevant)));
     if (!recent.length) latest.append(emptyState("noRecords", "noRecordsDesc", true));
     recent.forEach((record) => {
       const row = el("article", "opportunity"), head = el("div", "opportunity-head");
@@ -250,7 +281,7 @@
   function renderToolbar() {
     if (["preparations", "resume"].includes(state.section)) { $("toolbar").replaceChildren(trackSwitch()); return; }
     const bar = el("div", `toolbar${state.filtersOpen ? " filters-open" : ""}`), searchRow = el("div", "search-row"), searchBox = el("div", "search-box"), search = el("input"); search.type = "search"; search.id = "record-search"; search.placeholder = ["vacancies", "pipeline"].includes(state.section) ? t("searchQueryPlaceholder") : t("search"); search.setAttribute("aria-label", t("search")); search.setAttribute("aria-keyshortcuts", "/"); search.title = t("searchHint"); search.autocomplete = "off"; search.value = state.query; search.addEventListener("input", () => { state.query = search.value; state.page = 1; renderResults(); }); search.addEventListener("keydown", (event) => { if (event.key === "Escape" && search.value) { event.preventDefault(); search.value = ""; state.query = ""; state.page = 1; renderResults(); } }); searchBox.append(el("span", "search-symbol", "⌕"), search);
-    const sort = el("select", "sort-control"); sort.setAttribute("aria-label", state.lang === "ru" ? "Сортировка" : "Sort"); [["newest", "newest"], ["name", "alphabetical"], ...(["vacancies", "pipeline"].includes(state.section) ? [["relevance", "byRelevance"]] : [])].forEach(([value, key]) => { const option = el("option", "", t(key)); option.value = value; sort.append(option); }); sort.value = state.sort; sort.addEventListener("change", () => { state.sort = sort.value; state.page = 1; renderResults(); });
+    const sort = el("select", "sort-control"); sort.setAttribute("aria-label", state.lang === "ru" ? "Сортировка" : "Sort"); [["default", defaultSort() === "priority" ? "geographyPriority" : "workspaceOrder"], ["newest", "newest"], ["name", "alphabetical"], ...(["vacancies", "pipeline"].includes(state.section) ? [["relevance", "byRelevance"]] : [])].forEach(([value, key]) => { const option = el("option", "", t(key)); option.value = value; sort.append(option); }); sort.value = state.sort === "priority" ? "default" : state.sort; sort.addEventListener("change", () => { state.sort = sort.value; state.page = 1; renderToolbar(); renderResults(); });
     const count = activeFilterCount(), toggle = button(count ? `${t("filters")} · ${count}` : t("filters"), "filters-toggle", () => { state.filtersOpen = !state.filtersOpen; bar.classList.toggle("filters-open", state.filtersOpen); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); }); toggle.setAttribute("aria-expanded", String(state.filtersOpen)); toggle.setAttribute("aria-controls", "filter-row");
     searchRow.append(searchBox, sort, toggle); bar.append(searchRow);
     if (state.section === "vacancies") {
@@ -262,7 +293,7 @@
       });
       bar.append(markets);
     }
-    if (["vacancies", "pipeline"].includes(state.section)) bar.append(relevanceSwitch(), queryHelp());
+    if (["vacancies", "pipeline"].includes(state.section)) { bar.append(relevanceSwitch(), geographySwitch(), queryHelp()); if (usPriority() && effectiveSort() === "priority") bar.append(geographySummary(primaryRecords("vacancies").filter(isRelevant))); }
     const row = el("div", "filter-row"), filterKeys = state.section === "vacancies" ? ["kind", "availability", "freshness", "review", "track", "country", "city", "remote"] : state.section === "pipeline" || state.section === "resume" ? ["track"] : state.section === "companies" ? ["kind", "country", "city", "status", "track"] : state.section === "history" ? ["type"] : state.section === "sources" ? [] : state.section === "preparations" ? ["kind", "track"] : ["kind", "status", "track"]; row.id = "filter-row";
     filterKeys.forEach((key) => {
       const wrapper = el("label", "filter-control"), select = el("select"); select.id = `filter-${key}`; wrapper.append(el("span", "", key === "kind" ? label("type") : key === "availability" ? t("availabilityFilter") : key === "review" ? label("review_status") : key === "type" ? t("eventType") : key === "freshness" ? t("freshnessFilter") : t(key)));
@@ -277,15 +308,14 @@
     const reset = button(t("reset"), "reset-button", resetFilters); reset.disabled = !filtersActive(); row.append(reset); if (filterKeys.length) bar.append(row); else { sort.hidden = true; toggle.hidden = true; } $("toolbar").replaceChildren(bar);
   }
   function resetFilters() { state.query = ""; state.filters = defaultFilters(state.section); state.page = 1; renderToolbar(); renderResults(); $("record-search")?.focus(); }
-  function filterValues(record, key) { if (key === "kind") return [record.kind]; if (key === "relevance") { const result = relevanceOf(record); return result ? (result.relevant ? [result.tier, "relevant"] : [result.tier]) : ["relevant"]; } if (key === "market") return [record.kind === "vacancies" ? marketOf(record) : "unknown"]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "freshness") return [record.kind === "vacancies" ? freshness(record) : "never"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.display?.availability || record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
+  function filterValues(record, key) { if (key === "geography") return [record.kind === "vacancies" && isUS(record) ? "US" : "other"]; if (key === "kind") return [record.kind]; if (key === "relevance") { const result = relevanceOf(record); return result ? (result.relevant ? [result.tier, "relevant"] : [result.tier]) : ["relevant"]; } if (key === "market") return [record.kind === "vacancies" ? marketOf(record) : "unknown"]; if (["country", "city", "remote"].includes(key)) return [geography(record)[key]]; if (key === "track") return tracks(record).length ? tracks(record) : ["unknown"]; if (key === "freshness") return [record.kind === "vacancies" ? freshness(record) : "never"]; if (key === "type") return [record.kind === "events" ? known(record.payload.type) || "unknown" : record.kind]; if (key === "review") return [known(record.payload.review_status) || "unknown"]; if (key === "availability") { const value = known(record.display?.availability || record.payload.availability) || "unknown"; return needsCheck(record) ? [value, "needs_check"] : [value]; } return [status(record)]; }
   function renderResults() {
     const query = state.query.trim().toLocaleLowerCase(state.lang), keywordQuery = ["vacancies", "pipeline"].includes(state.section) ? parseKeywordQuery(state.query) : null;
     // Several plain words must all appear (in any order); an operator or a field turns the search into a query.
     const words = query.split(/\s+/).filter(Boolean), haystack = (record) => `${recordTitle(record)} ${companyName(record)} ${record.kind === "vacancies" ? Object.values(recordFields(record)).join(" ") : ""} ${JSON.stringify(record.payload)}`.toLocaleLowerCase(state.lang);
     const matchesSearch = (record) => !query || (keywordQuery ? matchKeywordQuery(keywordQuery, recordFields(record)).matched : ((text) => words.every((word) => text.includes(word)))(haystack(record)));
     const filtered = records(state.section).filter((record) => matchesSearch(record) && Object.entries(state.filters).every(([key, value]) => !value || filterValues(record, key).includes(value)));
-    const newest = (a, b) => dateValue(b).localeCompare(dateValue(a)) || recordTitle(a).localeCompare(recordTitle(b), state.lang);
-    filtered.sort(state.sort === "name" ? (a, b) => recordTitle(a).localeCompare(recordTitle(b), state.lang) : state.sort === "relevance" ? (a, b) => (relevanceOf(b)?.score ?? -1) - (relevanceOf(a)?.score ?? -1) || newest(a, b) : newest);
+    filtered.sort(recordOrder);
     const totalPages = Math.max(1, Math.ceil(filtered.length / state.pageSize)); state.page = Math.min(state.page, totalPages);
     const active = filtersActive(), reset = document.querySelector(".reset-button"); if (reset) reset.disabled = !active;
     $("results-heading").hidden = ["preparations", "resume"].includes(state.section);
@@ -793,7 +823,7 @@
     const board = el("div", "pipeline-board"), byStage = new Map(STAGES.map((name) => [name, []]));
     active.forEach((record) => { const info = vacancyStage(record); byStage.get(info.stage).push({record, info}); });
     STAGES.forEach((name) => {
-      const column = el("section", "pipeline-column"), items = byStage.get(name).sort((a, b) => (a.info.since || "").localeCompare(b.info.since || ""));
+      const column = el("section", "pipeline-column"), items = byStage.get(name).sort((a, b) => state.sort !== "default" || effectiveSort() === "priority" ? recordOrder(a.record, b.record) : (a.info.since || "").localeCompare(b.info.since || ""));
       const header = el("header", "pipeline-head"); header.append(el("span", "", t(`stage_${name}`)), el("strong", "mono", String(items.length))); column.append(header, el("p", "pipeline-hint", t(`stage_${name}_hint`)));
       items.forEach(({record, info}) => {
         const card = el("article", "pipeline-card"); card.append(employerLine(record), button(recordTitle(record), "record-title", () => openRecord(record)));
